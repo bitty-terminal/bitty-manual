@@ -1,0 +1,27 @@
+# Repository metadata baseline: normalize text files to LF in the repository.
+* text=auto eol=lf
+
+# Explicit text types
+*.md text
+*.markdown text
+*.txt text
+*.json text
+*.jsonc text
+*.toml text
+*.yml text
+*.yaml text
+*.ts text
+*.mjs text
+*.js text
+*.lua text
+*.rs text
+*.sh text
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary

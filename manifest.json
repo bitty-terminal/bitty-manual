@@ -1,0 +1,63 @@
+{
+  "name": "Bitty Manual",
+  "version": "0.1.0",
+  "default_locale": "en",
+  "locales": ["en"],
+  "sections": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "items": [
+        {
+          "slug": "quickstart",
+          "title": "Quick Start Guide",
+          "path": "getting-started/quickstart.md"
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "title": "Configuration Reference",
+      "items": [
+        {
+          "slug": "overview",
+          "title": "Configuration Overview",
+          "path": "configuration/overview.md"
+        }
+      ]
+    },
+    {
+      "id": "plugins",
+      "title": "Plugin Development",
+      "items": [
+        {
+          "slug": "getting-started",
+          "title": "Getting Started with Plugins",
+          "path": "plugins/getting-started.md"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "title": "Lua API Reference",
+      "items": [
+        {
+          "slug": "overview",
+          "title": "API Overview & Capabilities",
+          "path": "api/overview.md"
+        }
+      ]
+    },
+    {
+      "id": "faq",
+      "title": "FAQ & Troubleshooting",
+      "items": [
+        {
+          "slug": "troubleshooting",
+          "title": "Troubleshooting & Safe Mode",
+          "path": "faq/troubleshooting.md"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# bitty-manual: workspace identity descriptor (kind/lang/role mirror workspace.toml).
+[repo]
+name = "bitty-manual"
+kind = "docs"
+lang = "md"
+role = "canonical user manual, configuration reference, Lua API, and guides"
+owner = "TBD"
+docs = "self"

@@ -1,0 +1,22 @@
+# Dependencies and caches
+node_modules/
+.targets/
+target/
+dist/
+build/
+.cache/
+
+# Local CarryCtx and agent scratch
+.worktrees/
+recording/
+.trash/
+*.log
+
+# Editor and OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/

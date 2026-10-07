@@ -1,0 +1,115 @@
+{
+  "version": "0.1.0",
+  "fields": {
+    "font.family": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Primary font family name used for terminal text rendering."
+    },
+    "font.size": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Font point size."
+    },
+    "font.line_height": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Line height multiplier relative to font size (<= 2.0)."
+    },
+    "font.letter_spacing": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Letter spacing delta in pixels (<= 8.0)."
+    },
+    "window.opacity": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Background window transparency level (0.0 .. 1.0)."
+    },
+    "window.padding": {
+      "type": "integer | [integer, integer]",
+      "reload_class": "Live",
+      "description": "Inner window padding in pixels."
+    },
+    "window.radius_px": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Window corner radius in pixels."
+    },
+    "decoration.border": {
+      "type": "boolean",
+      "reload_class": "Live",
+      "description": "Whether window decoration borders are enabled."
+    },
+    "decoration.border_width": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Width of the window border in pixels."
+    },
+    "decoration.border_color": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Border color in hex (#RRGGBB or #RRGGBBAA)."
+    },
+    "appearance.theme": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Built-in theme name (e.g. catppuccin-mocha, tokyo-night, gruvbox-dark)."
+    },
+    "appearance.colors": {
+      "type": "table",
+      "reload_class": "Live",
+      "description": "Custom color palette definition."
+    },
+    "keymaps": {
+      "type": "array",
+      "reload_class": "Live",
+      "description": "User keybinding overrides and chord registrations."
+    },
+    "leader_key": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Leader key prefix for multi-key chords."
+    },
+    "leader_timeout_ms": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Timeout in milliseconds before an incomplete leader chord cancels."
+    },
+    "hints_enabled": {
+      "type": "boolean",
+      "reload_class": "Live",
+      "description": "Whether interactive chord hint overlays are enabled."
+    },
+    "workspace.show_bar": {
+      "type": "boolean",
+      "reload_class": "Live",
+      "description": "Whether the workspace status bar is displayed."
+    },
+    "workspace.bar.edge": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Edge placement of the workspace status bar ('top' or 'bottom')."
+    },
+    "scrollbar.mode": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Scrollbar display mode ('auto', 'always', 'hidden')."
+    },
+    "scrollbar.width": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Scrollbar thickness in pixels."
+    },
+    "mouse.focus_follows_mouse": {
+      "type": "boolean",
+      "reload_class": "RestartRequired",
+      "description": "Whether pane focus follows cursor movement."
+    },
+    "mouse.focus_follows_mouse_delay_ms": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Dwell time in milliseconds before focus follows mouse switches pane."
+    }
+  }
+}
