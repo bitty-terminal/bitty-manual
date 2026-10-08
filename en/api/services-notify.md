@@ -10,11 +10,14 @@ The service bus allows plugins to discover and consume versioned capabilities pr
 
 ```lua
 -- Discover a service with semver constraints
-local git = bitty.services:get("git.repository", { version = ">=2.0" })
+local git = bitty.services.get("git.repository")
 
 if git then
   local branch = git.branch(bitty.env.get("PWD"))
-  print("Current git branch: " .. tostring(branch))
+  bitty.notify.show({
+    title = "Git Status",
+    body = "Current branch: " .. tostring(branch),
+  })
 end
 ```
 
@@ -23,7 +26,7 @@ end
 When the `network` capability is declared in `bitty-plugin.toml`, Bitty exposes the upstream HTTP client provided by the `bitty-net` coprocess:
 
 ```lua
-local net = bitty.services:get("network")
+local net = bitty.services.get("network")
 
 net.request({
   method = "GET",
@@ -31,7 +34,10 @@ net.request({
   timeout_ms = 3000,
 }, function(res)
   if res.ok then
-    print("GitHub Zen: " .. res.body)
+    bitty.notify.show({
+      title = "GitHub Zen",
+      body = res.body,
+    })
   end
 end)
 ```
@@ -66,13 +72,13 @@ Each plugin receives a sandboxed, generation-isolated persistent key-value store
 
 ```lua
 -- Save a state value
-bitty.store.set("last_sync_timestamp", os.time())
+bitty.store.set("last_sync_key", "snapshot-2026-10-08")
 
 -- Retrieve a saved value
-local last_sync = bitty.store.get("last_sync_timestamp")
+local last_sync = bitty.store.get("last_sync_key")
 
--- Delete a key
-bitty.store.delete("temporary_cache")
+-- Clear a key by setting nil
+bitty.store.set("temporary_cache", nil)
 ```
 
 - **Quotas**: Storage is capped per plugin (default 256 KiB) to prevent disk exhaustion. Exceeding quota raises error `E_STORE_QUOTA`.
@@ -84,16 +90,17 @@ bitty.store.delete("temporary_cache")
 High-precision asynchronous timer scheduler managed directly by Bitty Core's unified event loop. Lua code never blocks the main thread with sleep loops:
 
 ```lua
--- One-shot delayed timer
-local timer_id = bitty.timers.after(1000, function()
-  print("Fired after 1 second")
-end)
-
--- Recurring periodic timer
-local interval_id = bitty.timers.every(5000, function()
-  -- Runs every 5 seconds
+-- Create a timer delayed by milliseconds
+local timer_handle = bitty.timers.create(1000, function()
+  bitty.notify.show({
+    title = "Timer",
+    body = "Fired after 1 second",
+  })
 end)
 
 -- Cancel an active timer
-bitty.timers.cancel(interval_id)
+local cancelled = bitty.timers.cancel(timer_handle)
 ```
+
+- **`bitty.timers.create(delay_ms, callback)`**: Schedules a callback execution after `delay_ms`. Returns an integer handle.
+- **`bitty.timers.cancel(handle)`**: Cancels a pending timer handle. Returns `true` if successfully removed.

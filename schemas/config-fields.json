@@ -9,47 +9,172 @@
     "font.size": {
       "type": "float",
       "reload_class": "Live",
-      "description": "Font point size."
+      "description": "Font point size (0 < size <= 128)."
     },
     "font.line_height": {
       "type": "float",
       "reload_class": "Live",
-      "description": "Line height multiplier relative to font size (<= 2.0)."
+      "description": "Line height multiplier relative to font size (1.0..=2.0)."
     },
     "font.letter_spacing": {
       "type": "float",
       "reload_class": "Live",
-      "description": "Letter spacing delta in pixels (<= 8.0)."
+      "description": "Letter spacing delta in pixels (0.0..=8.0)."
+    },
+    "font.fallback": {
+      "type": "array",
+      "reload_class": "RestartRequired",
+      "description": "User-ordered fallback font family names tried before platform defaults."
+    },
+    "font.features": {
+      "type": "array",
+      "reload_class": "RestartRequired",
+      "description": "Raw OpenType feature overrides applied at shaping time (e.g. 'calt', 'zero', 'ss01')."
+    },
+    "font.disable_ligatures": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Programming-ligature policy ('never', 'cursor', 'always')."
     },
     "window.opacity": {
       "type": "float",
       "reload_class": "Live",
-      "description": "Background window transparency level (0.0 .. 1.0)."
+      "description": "Background window transparency level (0.0..=1.0)."
     },
     "window.padding": {
-      "type": "integer | [integer, integer]",
+      "type": "integer",
       "reload_class": "Live",
-      "description": "Inner window padding in pixels."
+      "description": "Inner window padding in logical pixels (0..=64)."
     },
     "window.radius_px": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Window corner radius in pixels."
+      "description": "Window corner radius in physical pixels (0..=24)."
     },
     "decoration.border": {
-      "type": "boolean",
-      "reload_class": "Live",
-      "description": "Whether window decoration borders are enabled."
-    },
-    "decoration.border_width": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Width of the window border in pixels."
+      "description": "View frame border width in logical pixels (0..=32, default 1)."
+    },
+    "decoration.radius": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "View frame corner radius in logical pixels (0..=64, default 6)."
+    },
+    "decoration.gaps_in": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Inner gap between sibling panels in logical pixels (0..=128, default 6)."
+    },
+    "decoration.gaps_out": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Outer gap around the workspace container in logical pixels (0..=128, default 6)."
+    },
+    "decoration.content_inset": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Inner padding between border and painted content in logical pixels (0..=128, default 6)."
     },
     "decoration.border_color": {
       "type": "string",
       "reload_class": "Live",
-      "description": "Border color in hex (#RRGGBB or #RRGGBBAA)."
+      "description": "Base outline border color in hex (#RRGGBB or #RRGGBBAA)."
+    },
+    "decoration.border_color_focused": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Explicit outline color for focused view in hex (#RRGGBB or #RRGGBBAA)."
+    },
+    "decoration.border_color_idle": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Explicit outline color for unfocused/idle views in hex (#RRGGBB or #RRGGBBAA)."
+    },
+    "decoration.border_width": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Base outline width in logical pixels (0..=32, default 1)."
+    },
+    "decoration.border_width_focused": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Explicit outline width for focused view in logical pixels (0..=32)."
+    },
+    "decoration.border_width_idle": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Explicit outline width for idle views in logical pixels (0..=32)."
+    },
+    "decoration.background_image": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Global default background image path under approved roots."
+    },
+    "decoration.background_fit": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Global default background fit mode ('fill', 'fit', 'center', 'tile', 'stretch')."
+    },
+    "decoration.background_image_roots": {
+      "type": "array",
+      "reload_class": "Live",
+      "description": "Approved directory path roots for background images."
+    },
+    "terminal.scrollback": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Maximum scrollback buffer lines (0..=100000, default 10000)."
+    },
+    "terminal.shell": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Preferred default shell executable path (argv[0])."
+    },
+    "terminal.scroll_lines_per_notch": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Lines scrolled per wheel notch (1..=32, default 3)."
+    },
+    "terminal.scroll_pixels_per_notch": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Smooth-scroll pixels per wheel notch (1..=256, default 16)."
+    },
+    "terminal.cursor_style": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Default cursor rendering shape ('default', 'blinking_block', 'steady_block', 'blinking_underline', 'steady_underline', 'blinking_bar', 'steady_bar')."
+    },
+    "terminal.bell": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Bell alert behavior ('off', 'visual', 'audible', 'both')."
+    },
+    "selection.auto_copy": {
+      "type": "boolean",
+      "reload_class": "RestartRequired",
+      "description": "Whether selecting text automatically copies to the system clipboard (default false)."
+    },
+    "close_confirm": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Close confirmation mode ('always', 'when_busy', 'never', default 'when_busy')."
+    },
+    "layout.gaps_in": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Inner gap between sibling panes in character cells (default 0)."
+    },
+    "layout.gaps_out": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Outer gap between container edges and panes in character cells (default 0)."
+    },
+    "layout.resize_step": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Tiled split-ratio delta per resize keypress (0.01..=0.5, default 0.05)."
     },
     "appearance.theme": {
       "type": "string",
@@ -59,27 +184,52 @@
     "appearance.colors": {
       "type": "table",
       "reload_class": "Live",
-      "description": "Custom color palette definition."
+      "description": "Custom color palette definition (background, foreground, cursor, selection, and 16 ANSI colors)."
     },
-    "keymaps": {
-      "type": "array",
+    "appearance.animations.enabled": {
+      "type": "boolean",
       "reload_class": "Live",
-      "description": "User keybinding overrides and chord registrations."
+      "description": "Master switch for presentation animations."
+    },
+    "appearance.animations.reduced_motion": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Reduced-motion policy ('never', 'always', 'system')."
+    },
+    "mod_key": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Modifier key for shipped chrome keymaps ('alt' or 'super')."
     },
     "leader_key": {
       "type": "string",
       "reload_class": "Live",
-      "description": "Leader key prefix for multi-key chords."
+      "description": "Leader key chord prefix (e.g. 'ctrl+space', 'alt+space')."
     },
     "leader_timeout_ms": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Timeout in milliseconds before an incomplete leader chord cancels."
+      "description": "Timeout in milliseconds before an incomplete leader chord cancels (100..=60000, default 1000)."
+    },
+    "input.leader": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Canonical Leader chord string (e.g. 'ctrl+b', wins over leader_key)."
+    },
+    "input.timeout_len": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Canonical Leader pending-window timeout in milliseconds (100..=60000, default 1000)."
     },
     "hints_enabled": {
       "type": "boolean",
       "reload_class": "Live",
       "description": "Whether interactive chord hint overlays are enabled."
+    },
+    "keymaps": {
+      "type": "array",
+      "reload_class": "Live",
+      "description": "User keybinding overrides and chord registrations ({ chord, action, context })."
     },
     "workspace.show_bar": {
       "type": "boolean",
@@ -91,6 +241,11 @@
       "reload_class": "Live",
       "description": "Edge placement of the workspace status bar ('top' or 'bottom')."
     },
+    "workspace.layout": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Default layout provider name for new workspaces (e.g. 'bsp', 'dwindle')."
+    },
     "scrollbar.mode": {
       "type": "string",
       "reload_class": "RestartRequired",
@@ -99,7 +254,7 @@
     "scrollbar.width": {
       "type": "integer",
       "reload_class": "RestartRequired",
-      "description": "Scrollbar thickness in pixels."
+      "description": "Scrollbar thickness in logical pixels."
     },
     "mouse.focus_follows_mouse": {
       "type": "boolean",
@@ -110,6 +265,16 @@
       "type": "integer",
       "reload_class": "RestartRequired",
       "description": "Dwell time in milliseconds before focus follows mouse switches pane."
+    },
+    "session.restore_on_startup": {
+      "type": "boolean",
+      "reload_class": "RestartRequired",
+      "description": "Whether to restore previous workspaces and session on startup."
+    },
+    "plugins": {
+      "type": "array",
+      "reload_class": "RestartRequired",
+      "description": "Declared plugins list ({ id, enabled })."
     }
   }
 }

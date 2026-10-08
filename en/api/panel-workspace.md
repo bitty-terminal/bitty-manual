@@ -163,7 +163,8 @@ bitty.commands.register({
   end,
 })
 
-bitty.keymaps.bind("<Leader>ts", "scratchpad:toggle", {
-  description = "Toggle floating scratchpad terminal",
+bitty.keymaps.suggest({
+  chord = "leader t s",
+  command = "scratchpad:toggle",
 })
 ```

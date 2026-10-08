@@ -187,7 +187,7 @@ local status_tree = {
 local handle = bitty.ui.mount("statusline", status_tree)
 
 -- Update statusline dynamically upon event
-bitty.events.on("terminal.state_changed", function(ev)
+bitty.events.subscribe("terminal.state_changed", function(ev)
   status_tree.children[2].text = " | " .. ev.state
   bitty.ui.update(handle, status_tree)
 end)

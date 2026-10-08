@@ -9,15 +9,15 @@ The API is structured into two distinct operational levels:
 ```text
 Global bitty Namespace
 ├── L1 Control & State
-│   ├── bitty.commands        # Register and execute commands
+│   ├── bitty.commands        # Register contextual commands
 │   ├── bitty.events          # Subscribe to runtime events
-│   ├── bitty.keymaps         # Bind custom keyboard chords
+│   ├── bitty.keymaps         # Suggest default keyboard chords
 │   ├── bitty.panel           # Control pane lifecycle and presentation
 │   ├── bitty.workspace       # Query and arrange workspaces
 │   ├── bitty.notify          # Display system notifications
 │   ├── bitty.store           # Generation-isolated key-value storage
 │   ├── bitty.settings        # Read/write user configuration
-│   ├── bitty.timers          # High-resolution recurring & one-shot timers
+│   ├── bitty.timers          # High-resolution asynchronous timers
 │   ├── bitty.tasks           # Asynchronous task runner
 │   └── bitty.services        # Cross-plugin & upstream service provider bus
 └── L2 Presentation & UI
