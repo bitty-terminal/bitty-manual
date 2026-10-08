@@ -12,6 +12,11 @@
           "slug": "quickstart",
           "title": "Quick Start Guide",
           "path": "getting-started/quickstart.md"
+        },
+        {
+          "slug": "cli",
+          "title": "CLI Commands & Controls",
+          "path": "getting-started/cli.md"
         }
       ]
     },
@@ -23,17 +28,32 @@
           "slug": "overview",
           "title": "Configuration Overview",
           "path": "configuration/overview.md"
+        },
+        {
+          "slug": "workspaces-panels",
+          "title": "Workspaces & Panels",
+          "path": "configuration/workspaces-panels.md"
         }
       ]
     },
     {
       "id": "plugins",
-      "title": "Plugin Development",
+      "title": "Plugin Architecture & Development",
       "items": [
         {
           "slug": "getting-started",
           "title": "Getting Started with Plugins",
           "path": "plugins/getting-started.md"
+        },
+        {
+          "slug": "capabilities-and-sandbox",
+          "title": "Capabilities & Sandboxing",
+          "path": "plugins/capabilities-and-sandbox.md"
+        },
+        {
+          "slug": "upstream-components",
+          "title": "Upstream Native Components (DIR-030)",
+          "path": "plugins/upstream-components.md"
         }
       ]
     },
@@ -43,14 +63,34 @@
       "items": [
         {
           "slug": "overview",
-          "title": "API Overview & Capabilities",
+          "title": "API Overview & Architecture",
           "path": "api/overview.md"
+        },
+        {
+          "slug": "ui",
+          "title": "bitty.ui (Slots, Nodes & Overlays)",
+          "path": "api/ui.md"
+        },
+        {
+          "slug": "commands-keymaps",
+          "title": "bitty.commands & bitty.keymaps",
+          "path": "api/commands-keymaps.md"
+        },
+        {
+          "slug": "panel-workspace",
+          "title": "bitty.panel & bitty.workspace",
+          "path": "api/panel-workspace.md"
+        },
+        {
+          "slug": "services-notify",
+          "title": "bitty.services, Notify & State",
+          "path": "api/services-notify.md"
         }
       ]
     },
     {
       "id": "faq",
-      "title": "FAQ & Troubleshooting",
+      "title": "FAQ & Diagnostics",
       "items": [
         {
           "slug": "troubleshooting",

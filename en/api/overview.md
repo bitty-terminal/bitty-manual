@@ -1,43 +1,85 @@
 # Lua API Reference
 
-Bitty exposes a sandboxed runtime environment via the global `bitty` namespace in Lua.
+Bitty exposes a sandboxed runtime environment via the global, read-only `bitty` namespace in Lua.
 
-## Core Modules
+## API Architecture & Extension Levels
 
-### `bitty.commands`
+The API is structured into two distinct operational levels:
 
-Registers and executes user commands accessible via the Command Palette or keymaps.
-
-```lua
-bitty.commands.register({
-  id = "greet",
-  title = "Greet User",
-  run = function(args)
-    bitty.notify.show({
-      title = "Hello",
-      body = "Greetings from Bitty plugin!",
-    })
-  end,
-})
+```text
+Global bitty Namespace
+├── L1 Control & State
+│   ├── bitty.commands        # Register and execute commands
+│   ├── bitty.events          # Subscribe to runtime events
+│   ├── bitty.keymaps         # Bind custom keyboard chords
+│   ├── bitty.panel           # Control pane lifecycle and presentation
+│   ├── bitty.workspace       # Query and arrange workspaces
+│   ├── bitty.notify          # Display system notifications
+│   ├── bitty.store           # Generation-isolated key-value storage
+│   ├── bitty.settings        # Read/write user configuration
+│   ├── bitty.timers          # High-resolution recurring & one-shot timers
+│   ├── bitty.tasks           # Asynchronous task runner
+│   └── bitty.services        # Cross-plugin & upstream service provider bus
+└── L2 Presentation & UI
+    └── bitty.ui              # Declarative UI scene tree, slots & overlays
 ```
 
-### `bitty.events`
+- **L1 Control Level**: Manages state, handles actions, coordinates commands, and reacts to events. Alters behavior without touching the rendering pipeline.
+- **L2 Presentation Level**: Mounts declarative UI scene subtrees into host-managed slots. Alters appearance, never terminal stream truth.
 
-Subscribes to system lifecycle and terminal events.
+## Version Discovery
+
+Inspect the running Plugin API contract version at runtime:
 
 ```lua
-bitty.events.on("focus.changed", function(event)
-  -- React to focus change
+local api_version = bitty.api_version
+print("Running Bitty Plugin API: " .. tostring(api_version))
+```
+
+## Error Handling Model (`BridgeError`)
+
+Every denial or fault across the host bridge arrives as a catchable Lua error table with three structured fields:
+
+```text
+{
+  class   = "runtime" | "validation" | "resolution" | "budget",
+  code    = "E_CAPABILITY_DENIED" | "E_TIMEOUT" | "E_UI_UNAVAILABLE" | ...,
+  message = "Human-readable description from host"
+}
+```
+
+### Idiomatic Error Handling
+
+Always match on `err.code` rather than parsing error message strings:
+
+```lua
+local ok, err = pcall(function()
+  return bitty.ui.mount("statusline", {
+    kind = "Text",
+    text = "Status text",
+  })
 end)
+
+if not ok then
+  if type(err) == "table" then
+    if err.code == "E_CAPABILITY_DENIED" then
+      print("Error: Missing ui.rich capability in bitty-plugin.toml")
+    elseif err.code == "E_UI_UNAVAILABLE" then
+      print("Error: The requested slot is unavailable in this host build")
+    else
+      print(string.format("[%s] %s: %s", err.class, err.code, err.message))
+    end
+  else
+    print("Fatal error: " .. tostring(err))
+  end
+end
 ```
 
-### `bitty.notify`
+## Reference Modules
 
-Displays desktop notifications when the `platform.notify` capability is granted in `bitty-plugin.toml`.
+Explore the dedicated reference pages for specific modules:
 
-```lua
-bitty.notify.show({
-  title = "Build Finished",
-  body = "Cargo build succeeded in 3.2s",
-})
-```
+- [bitty.ui Reference](ui.md) — Declarative scene trees, slots, overlays, and targeting frameworks.
+- [bitty.commands & bitty.keymaps Reference](commands-keymaps.md) — Command registration and keyboard chord management.
+- [bitty.panel & bitty.workspace Reference](panel-workspace.md) — Panel modes, layout manipulation, and workspace navigation.
+- [bitty.services, Notify & State Reference](services-notify.md) — Upstream services, desktop notifications, storage, and timers.
