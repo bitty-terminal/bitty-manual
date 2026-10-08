@@ -83,3 +83,4 @@ Explore the dedicated reference pages for specific modules:
 - [bitty.commands & bitty.keymaps Reference](commands-keymaps.md) — Command registration and keyboard chord management.
 - [bitty.panel & bitty.workspace Reference](panel-workspace.md) — Panel modes, layout manipulation, and workspace navigation.
 - [bitty.services, Notify & State Reference](services-notify.md) — Upstream services, desktop notifications, storage, and timers.
+- [Core System APIs Reference](system.md) — Terminal snapshots, settings reflection, sandboxed environment, filesystem, and tasks.

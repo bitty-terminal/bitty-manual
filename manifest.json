@@ -85,6 +85,11 @@
           "slug": "services-notify",
           "title": "bitty.services, Notify & State",
           "path": "api/services-notify.md"
+        },
+        {
+          "slug": "system",
+          "title": "Core System APIs (Terminal, FS, Env, Tasks)",
+          "path": "api/system.md"
         }
       ]
     },
