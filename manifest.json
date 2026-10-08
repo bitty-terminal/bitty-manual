@@ -2,7 +2,7 @@
   "name": "Bitty Manual",
   "version": "0.1.0",
   "default_locale": "en",
-  "locales": ["en"],
+  "locales": ["en", "zh-CN"],
   "sections": [
     {
       "id": "getting-started",
