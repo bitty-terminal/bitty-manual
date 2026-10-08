@@ -35,8 +35,14 @@ function getMarkdownFiles(dir) {
   return results;
 }
 
-const configDocsDir = join(rootDir, "en", "configuration");
-const mdFiles = getMarkdownFiles(configDocsDir);
+const manifestPath = join(rootDir, "manifest.json");
+const manifest = existsSync(manifestPath)
+  ? JSON.parse(readFileSync(manifestPath, "utf-8"))
+  : { locales: ["en"] };
+const locales = manifest.locales || ["en"];
+const mdFiles = locales.flatMap((loc) =>
+  getMarkdownFiles(join(rootDir, loc, "configuration")),
+);
 
 let errors = 0;
 let checkedCount = 0;
