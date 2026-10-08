@@ -1,0 +1,38 @@
+# Workspaces & Panels
+
+Bitty organizes your window environment through a composable container hierarchy separating workspace layout from individual panel presentation.
+
+## Hierarchy & Concepts
+
+```text
+Window
+└── Workspaces (Virtual Desktops / Tabs)
+    ├── Workspace Bar (controlled by workspace.show_bar)
+    └── Panels (Containers)
+        ├── Presentation Mode: Tiled, Floating, or Overlay
+        └── View: Shell process / PTY session or native UI widget
+```
+
+### Workspaces
+
+A **Workspace** is an independent virtual desktop. Each workspace manages its own layout tree:
+
+- Switching workspaces changes the visible pane arrangement without suspending or interrupting background shell jobs.
+- The workspace status bar position is configurable via `workspace.bar.edge` (set to either `"top"` or `"bottom"`).
+- The bar visibility is toggled via `workspace.show_bar`.
+
+### Panels
+
+A **Panel** is a workspace-managed container. Panels decouple window management from raw terminal sessions:
+
+- **Panel ID != View ID != Terminal ID**: A panel holds a view, but its presentation mode can change dynamically.
+- **Tiled Mode**: Panels participate in binary tree directional tiling (horizontal and vertical splits).
+- **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
+- **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
+
+## Managing Workspaces and Panels
+
+Panels and workspaces can be controlled through default shortcut keys or programmatically via the Lua API:
+
+- Use shortcuts to create, split, and navigate panels.
+- For complete Lua automation functions (such as creating panels, toggling floating modes, or switching workspaces), see the [bitty.panel & bitty.workspace API Reference](../api/panel-workspace.md).
