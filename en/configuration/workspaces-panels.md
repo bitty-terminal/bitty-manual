@@ -18,15 +18,18 @@ Window
 A **Workspace** is an independent virtual desktop. Each workspace manages its own layout tree:
 
 - Switching workspaces changes the visible pane arrangement without suspending or interrupting background shell jobs.
+- The default tiling algorithm is configured via `workspace.layout` (e.g. `"dwindle"`, `"bsp"`).
 - The workspace status bar position is configurable via `workspace.bar.edge` (set to either `"top"` or `"bottom"`).
 - The bar visibility is toggled via `workspace.show_bar`.
 
-### Panels
+### Panels & Layout Spacing
 
 A **Panel** is a workspace-managed container. Panels decouple window management from raw terminal sessions:
 
 - **Panel ID != View ID != Terminal ID**: A panel holds a view, but its presentation mode can change dynamically.
 - **Tiled Mode**: Panels participate in binary tree directional tiling (horizontal and vertical splits).
+- **Cell Gaps**: Tiled pane spacing in character cells is controlled by `layout.gaps_in` (inner gap between sibling panes) and `layout.gaps_out` (outer container margin).
+- **Resize Granularity**: Interactive split resizing applies `layout.resize_step` (split-ratio delta, default `0.05`).
 - **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
 - **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
 
