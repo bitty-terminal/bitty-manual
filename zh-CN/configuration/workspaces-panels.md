@@ -7,7 +7,7 @@ Bitty 通过可组合的容器层级结构组织窗口环境，将工作区布�
 ```text
 Window
 └── Workspaces (虚拟桌面 / 标签页)
-    ├── Workspace Bar (由 workspace.show_bar 控制)
+    ├── Chrome Insets / 插槽 (视觉状态栏由下游 bar 插件绘制)
     └── Panels (容器)
         ├── Presentation Mode: Tiled, Floating 或 Overlay
         └── View: Shell 进程 / PTY 会话或原生 UI 部件
@@ -19,8 +19,7 @@ Window
 
 - 切换工作区会切换当前可见的窗格排列，而不会挂起或中断后台正在运行的 Shell 任务。
 - 默认平铺算法通过 `workspace.layout` 配置（例如 `"dwindle"`, `"bsp"`）。
-- 工作区状态栏的位置通过 `workspace.bar.edge` 配置（可设为 `"top"` 或 `"bottom"`）。
-- 状态栏的可见性通过 `workspace.show_bar` 切换。
+- **工作区栏机制分离**：依照 Bitty 的微内核哲学，Bitty Core 本身不绘制原生工作区状态栏，亦不维护栏的 UI 状态。视觉呈现由下游扩展 `bar` 插件负责，配置项 `workspace.show_bar` 与 `workspace.bar.edge`（默认 `"bottom"`，亦可设为 `"top"`）由该插件读取。
 
 ### 面板与布局间距 (Panels & Layout Spacing)
 

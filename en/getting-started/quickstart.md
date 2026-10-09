@@ -1,27 +1,50 @@
 # Quick Start Guide
 
-Welcome to **Bitty**, a high-performance, programmable GPU-accelerated terminal emulator designed for modern Linux and macOS environments. Bitty combines a lightweight Rust core with an isolated, event-driven Lua extension engine.
+Welcome to **Bitty**, a high-performance, programmable GPU-accelerated terminal emulator designed for Linux, macOS, and Windows. Bitty combines a lightweight Rust core with an isolated, event-driven Lua extension engine.
 
 ## Installation
 
-Bitty is distributed as a standalone native binary, prebuilt package, or built directly from source:
+Bitty is distributed across all major operating systems via automated install scripts, native package managers, prebuilt binaries, or built directly from source:
 
-### Prebuilt Binary & System Packages
+### Automated Install Scripts
 
 ```bash
-# Arch Linux (AUR)
-paru -S bitty-bin
+# Linux and macOS (Unix)
+curl -fsSL https://cdn.bitty.run/install.sh | sh
 
-# Cargo install (crates.io)
-cargo install bitty --locked
+# Windows (PowerShell)
+irm https://cdn.bitty.run/install.ps1 | iex
+```
 
-# Direct download from CDN
-curl -fsSL https://cdn.bitty.run/install.sh | bash
+### Native Package Managers
+
+```bash
+# Windows (Scoop)
+scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
+scoop install bitty
+
+# macOS (Homebrew)
+brew tap bitty-terminal/tap
+brew install bitty
+
+# Arch Linux (AUR / paru)
+paru -S bitty-terminal
+
+# Universal Linux (Flatpak)
+flatpak install run.bitty.Bitty
+```
+
+### Cargo (crates.io)
+
+```bash
+# Install via Cargo
+# Note: The crate name is `bitty-terminal` because `bitty` was pre-registered on crates.io
+cargo install bitty-terminal --locked
 ```
 
 ### Building from Source
 
-Ensure you have Rust 1.85+ and standard graphics libraries installed (Vulkan / Wayland / X11 on Linux; Metal on macOS):
+Ensure you have Rust 1.85+ and native graphics platform libraries installed (Vulkan / Wayland / X11 on Linux, Metal on macOS, DirectX 12 / Vulkan on Windows):
 
 ```bash
 git clone https://github.com/bitty-terminal/bitty.git
@@ -38,12 +61,14 @@ Launch Bitty by invoking the executable:
 bitty
 ```
 
-On first startup, Bitty searches for your configuration file according to the XDG Base Directory specification:
+On first startup, Bitty probes for your configuration file according to platform standards:
 
-- **Linux / BSD**: `~/.config/bitty/init.lua` (or `$XDG_CONFIG_HOME/bitty/init.lua`)
-- **macOS**: `~/Library/Application Support/bitty/init.lua`
+- **Linux / BSD**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`)
+- **macOS**: `~/Library/Application Support/bitty/init.lua` (or `$XDG_CONFIG_HOME/bitty/init.lua`, fallback `~/.config/bitty/init.lua`)
+- **Windows**: `%APPDATA%\bitty\init.lua` (fallback `%LOCALAPPDATA%\bitty\init.lua`)
 
-If no configuration file exists, Bitty starts immediately using compiled-in zero-delay defaults.
+> [!NOTE]
+> Bitty searches for `init.lua` first; if absent, it also accepts a sibling `config.lua` fallback alias (WezTerm-compatible naming). If no configuration file exists, Bitty starts immediately using compiled-in zero-delay defaults.
 
 ## Default Keybindings
 
@@ -58,15 +83,37 @@ If no configuration file exists, Bitty starts immediately using compiled-in zero
 | `Ctrl+Shift+C`      | Copy             | Copy selection to system clipboard          |
 | `Ctrl+Shift+V`      | Paste            | Paste text from system clipboard            |
 
-## Workspace Architecture at a Glance
+## Uninstallation & Data Cleanup
 
-Bitty organizes your terminal into a clean three-tier container hierarchy:
+To cleanly remove Bitty and all associated user data:
 
-1. **Workspace**: A top-level desktop tab containing an isolated tiling layout.
-2. **Panel**: A window container holding terminal views, native widgets, or plugin applications.
-3. **View / PTY**: The actual running shell session connected to a pseudo-terminal.
+### 1. Remove the Binary
 
-Panels can be tiled side-by-side or toggled into a floating mode overlaying the workspace.
+```bash
+# Scoop (Windows)
+scoop uninstall bitty
+
+# Homebrew (macOS)
+brew uninstall bitty
+
+# Cargo (crates.io)
+cargo uninstall bitty-terminal
+
+# Manual binary installation
+sudo rm /usr/local/bin/bitty
+```
+
+### 2. Remove Configuration Files
+
+- **Linux / BSD**: `rm -rf ~/.config/bitty` (or `$XDG_CONFIG_HOME/bitty`)
+- **macOS**: `rm -rf ~/Library/Application\ Support/bitty ~/.config/bitty`
+- **Windows (PowerShell)**: `Remove-Item -Recurse -Force $env:APPDATA\bitty`
+
+### 3. Clean Logs, State & Cache
+
+- **Linux / BSD**: `rm -rf ~/.local/state/bitty ~/.cache/bitty`
+- **macOS**: `rm -rf ~/Library/Logs/bitty ~/Library/Caches/bitty`
+- **Windows (PowerShell)**: `Remove-Item -Recurse -Force $env:LOCALAPPDATA\bitty`
 
 ## Next Steps
 

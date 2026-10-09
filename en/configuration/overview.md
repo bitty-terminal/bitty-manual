@@ -70,14 +70,14 @@ Core-owned view decorations operate in logical pixels:
 
 ### Layout & Workspaces
 
-| Field                | Type      | Reload Class        | Description                                                                 |
-| :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------- |
-| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).    |
-| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.             |
-| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.5`, default `0.05`). |
-| `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).     |
-| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed.                              |
-| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`).         |
+| Field                | Type      | Reload Class        | Description                                                                                                       |
+| :------------------- | :-------- | :------------------ | :---------------------------------------------------------------------------------------------------------------- |
+| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                          |
+| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                   |
+| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.5`, default `0.05`).                                       |
+| `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).                                           |
+| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (consumed by downstream `bar` plugin).                              |
+| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by `bar` plugin). |
 
 ### Appearance, Themes & Animations
 
@@ -155,9 +155,11 @@ return {
     resize_step = 0.05,
   },
   workspace = {
+    layout = "dwindle",
+    -- The following keys configure the downstream `bar` plugin (Bitty Core draws no native bar):
     show_bar = true,
     bar = {
-      edge = "top",
+      edge = "bottom",
     },
   },
   appearance = {

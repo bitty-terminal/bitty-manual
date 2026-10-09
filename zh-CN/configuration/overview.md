@@ -70,14 +70,14 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 
 ### 布局与工作区 (Layout & Workspaces)
 
-| 配置字段             | 类型      | 重载级别            | 描述                                                             |
-| :------------------- | :-------- | :------------------ | :--------------------------------------------------------------- |
-| `layout.gaps_in`     | `integer` | **RestartRequired** | 兄弟窗格之间的网格单元间隙（字符单元格为单位，`0` 为无缝平铺）。 |
-| `layout.gaps_out`    | `integer` | **RestartRequired** | 容器边缘与窗格之间的外部间隙（字符单元格为单位）。               |
-| `layout.resize_step` | `float`   | **Live**            | 分屏缩放快捷键触发的分屏比例增量（`0.01..=0.5`，默认 `0.05`）。  |
-| `workspace.layout`   | `string`  | **RestartRequired** | 新建工作区的默认平铺布局提供者（如 `"dwindle"`、`"bsp"`）。      |
-| `workspace.show_bar` | `boolean` | **Live**            | 是否显示工作区状态栏。                                           |
-| `workspace.bar.edge` | `string`  | **Live**            | 工作区状态栏边缘位置（`"top"` 或 `"bottom"`）。                  |
+| 配置字段             | 类型      | 重载级别            | 描述                                                                                    |
+| :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------- |
+| `layout.gaps_in`     | `integer` | **RestartRequired** | 兄弟窗格之间的网格单元间隙（字符单元格为单位，`0` 为无缝平铺）。                        |
+| `layout.gaps_out`    | `integer` | **RestartRequired** | 容器边缘与窗格之间的外部间隙（字符单元格为单位）。                                      |
+| `layout.resize_step` | `float`   | **Live**            | 分屏缩放快捷键触发的分屏比例增量（`0.01..=0.5`，默认 `0.05`）。                         |
+| `workspace.layout`   | `string`  | **RestartRequired** | 新建工作区的默认平铺布局提供者（如 `"dwindle"`、`"bsp"`）。                             |
+| `workspace.show_bar` | `boolean` | **Live**            | 是否显示工作区状态栏（由下游 `bar` 插件消费；Bitty Core 不绘制原生状态栏）。            |
+| `workspace.bar.edge` | `string`  | **Live**            | 工作区状态栏边缘位置（`"top"` 或 `"bottom"`，默认 `"bottom"`，由下游 `bar` 插件消费）。 |
 
 ### 外观、主题与动效 (Appearance, Themes & Animations)
 
@@ -155,9 +155,11 @@ return {
     resize_step = 0.05,
   },
   workspace = {
+    layout = "dwindle",
+    -- 以下字段供下游 `bar` 插件读取配置（Bitty Core 本身不绘制原生状态栏）：
     show_bar = true,
     bar = {
-      edge = "top",
+      edge = "bottom",
     },
   },
   appearance = {
