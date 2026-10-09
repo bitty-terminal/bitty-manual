@@ -21,7 +21,11 @@ markdownlint:
 
 # Lint GitHub Actions workflows
 actionlint:
-    actionlint .github/workflows/*.yml
+    @if command -v actionlint >/dev/null 2>&1; then \
+        actionlint .github/workflows/*.yml; \
+    else \
+        echo "actionlint not found, skipping workflow linting"; \
+    fi
 
 # Verify documented configuration fields against authoritative bitty-config schema
 verify-schema:

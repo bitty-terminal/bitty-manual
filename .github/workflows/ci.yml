@@ -25,5 +25,9 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@v2
 
+      - name: Setup Actionlint
+        run: |
+          curl -fsSL https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz | sudo tar -xz -C /usr/local/bin actionlint
+
       - name: Run Quality Gates
         run: just check
