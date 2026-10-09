@@ -2,7 +2,10 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, dirname, relative } from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
@@ -12,6 +15,7 @@ const distManualDir = join(distDir, "manual");
 const isDryRun = process.argv.includes("--dry-run");
 const bucketName = process.env.R2_BUCKET || "bitty";
 const r2Prefix = process.env.R2_PREFIX || "manual";
+const CONCURRENCY = parseInt(process.env.UPLOAD_CONCURRENCY || "4", 10);
 
 if (!existsSync(distManualDir)) {
   console.error(
@@ -26,7 +30,7 @@ const manifest = JSON.parse(
 const version = manifest.version || "0.1.0";
 
 console.log(
-  `🚀 [bitty-manual R2 Upload] Target bucket: '${bucketName}', Prefix: '${r2Prefix}/', Mode: ${isDryRun ? "DRY-RUN" : "LIVE"}`,
+  `🚀 [bitty-manual R2 Upload] Target bucket: '${bucketName}', Prefix: '${r2Prefix}/', Mode: ${isDryRun ? "DRY-RUN" : "LIVE (REMOTE)"}, Concurrency: ${CONCURRENCY}`,
 );
 
 function getContentType(filePath) {
@@ -121,10 +125,10 @@ try {
   wranglerBin = "bunx --bun wrangler@4.135.0";
 }
 
-for (const task of uploadQueue) {
+async function uploadTask(task) {
   const destination = `${bucketName}/${task.r2Key}`;
   const cacheControl = getCacheControl(task.r2Key);
-  const cmd = `${wranglerBin} r2 object put "${destination}" --file "${task.localPath}" --content-type "${task.contentType}" --cache-control "${cacheControl}" -y`;
+  const cmd = `${wranglerBin} r2 object put "${destination}" --file "${task.localPath}" --content-type "${task.contentType}" --cache-control "${cacheControl}" --remote -y`;
 
   if (isDryRun) {
     console.log(`[DRY-RUN] Would upload: ${task.r2Key} (${task.contentType})`);
@@ -132,14 +136,30 @@ for (const task of uploadQueue) {
   } else {
     try {
       console.log(`Uploading: ${task.r2Key}...`);
-      execSync(cmd, { stdio: "inherit" });
+      await execAsync(cmd);
       uploadedCount++;
     } catch (err) {
-      console.error(`❌ Failed to upload ${task.r2Key}:`, err);
+      console.error(`❌ Failed to upload ${task.r2Key}:`, err.message || err);
       failedCount++;
     }
   }
 }
+
+async function runPool(items, limit) {
+  let idx = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (idx < items.length) {
+        const item = items[idx++];
+        await uploadTask(item);
+      }
+    },
+  );
+  await Promise.all(workers);
+}
+
+await runPool(uploadQueue, isDryRun ? 1 : CONCURRENCY);
 
 console.log(
   `\n🏁 Upload summary: ${uploadedCount} succeeded, ${failedCount} failed.`,
