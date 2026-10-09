@@ -61,13 +61,14 @@ Launch Bitty by invoking the executable:
 bitty
 ```
 
-On first startup, Bitty searches for your configuration file according to platform standards:
+On first startup, Bitty probes for your configuration file according to platform standards:
 
-- **Linux / BSD**: `$XDG_CONFIG_HOME/bitty/init.lua` (default `~/.config/bitty/init.lua`)
-- **macOS**: `~/Library/Application Support/bitty/init.lua` (or `~/.config/bitty/init.lua`)
-- **Windows**: `%APPDATA%\bitty\init.lua`
+- **Linux / BSD**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`)
+- **macOS**: `~/Library/Application Support/bitty/init.lua` (or `$XDG_CONFIG_HOME/bitty/init.lua`, fallback `~/.config/bitty/init.lua`)
+- **Windows**: `%APPDATA%\bitty\init.lua` (fallback `%LOCALAPPDATA%\bitty\init.lua`)
 
-If no configuration file exists, Bitty starts immediately using compiled-in zero-delay defaults.
+> [!NOTE]
+> Bitty searches for `init.lua` first; if absent, it also accepts a sibling `config.lua` fallback alias (WezTerm-compatible naming). If no configuration file exists, Bitty starts immediately using compiled-in zero-delay defaults.
 
 ## Default Keybindings
 

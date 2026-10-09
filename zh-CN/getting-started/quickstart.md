@@ -61,13 +61,14 @@ sudo cp target/release/bitty /usr/local/bin/
 bitty
 ```
 
-首次启动时，Bitty 会依据操作系统规范搜索配置文件：
+首次启动时，Bitty 会依据平台规范与探测优先级搜索配置文件：
 
-- **Linux / BSD**：`$XDG_CONFIG_HOME/bitty/init.lua`（默认为 `~/.config/bitty/init.lua`）
-- **macOS**：`~/Library/Application Support/bitty/init.lua`（或 `~/.config/bitty/init.lua`）
-- **Windows**：`%APPDATA%\bitty\init.lua`
+- **Linux / BSD**：`$XDG_CONFIG_HOME/bitty/init.lua`（回退为 `~/.config/bitty/init.lua`）
+- **macOS**：`~/Library/Application Support/bitty/init.lua`（或 `$XDG_CONFIG_HOME/bitty/init.lua`，回退为 `~/.config/bitty/init.lua`）
+- **Windows**：`%APPDATA%\bitty\init.lua`（回退为 `%LOCALAPPDATA%\bitty\init.lua`）
 
-若未找到配置文件，Bitty 将使用编译内置的零延迟默认配置直接启动。
+> [!NOTE]
+> Bitty 优先查找 `init.lua`；若不存在，也支持同级目录下的 `config.lua` 别名（兼容 WezTerm 命名习惯）。若均未找到，Bitty 将使用编译内置的零延迟默认配置直接启动。
 
 ## 默认快捷键
 
