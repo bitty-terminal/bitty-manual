@@ -1,84 +1,156 @@
-# CLI 命令与控制
+# CLI 命令行参数与控制
 
-Bitty 提供了一套统一的命令行工具链，用于启动终端、检查运行状态、管理插件以及驱动外部自动化。
+Bitty 提供了统一、纯解析的命令行工具链，用于启动终端、检查运行时状态、管理多环境配置（Profile）、配置插件以及驱动外部自动化。
 
 ## 终端调用 (`bitty`)
 
-主二进制文件负责启动 GUI 窗口并派生 Shell 会话：
+主二进制程序用于启动 GUI 窗口并派生 Shell 会话：
 
 ```bash
-bitty [OPTIONS] [COMMAND [ARGS...]]
+bitty [OPTIONS] [PROGRAM [ARGS...]]
+bitty [OPTIONS] -- PROGRAM [ARGS...]
 ```
 
-### 启动选项
+### 核心启动参数
 
-| 选项                     | 描述                                                               |
-| :----------------------- | :----------------------------------------------------------------- |
-| `--config <PATH>`        | 从自定义文件路径加载配置，而非默认的 `$XDG_CONFIG_HOME`。          |
-| `--safe`                 | **安全模式**：禁用所有第三方插件与文件监视器；以内置默认参数启动。 |
-| `-e, --execute <CMD...>` | 执行指定的命令，替代默认的用户 Shell。                             |
-| `--hold`                 | 当子进程退出后保持终端窗口开启。                                   |
-| `--title <TITLE>`        | 覆盖初始窗口标题字符串。                                           |
-| `-v, --version`          | 显示版本号、Git 提交 SHA 及目标架构。                              |
-| `-h, --help`             | 显示命令行参数摘要。                                               |
+| 参数                   | 说明                                                                               |
+| :--------------------- | :--------------------------------------------------------------------------------- |
+| `--config <PATH>`      | 显式指定配置文件路径（覆盖 `$XDG_CONFIG_HOME/bitty/init.lua` 与 `BITTY_CONFIG`）。 |
+| `--profile <NAME>`     | 加载 `$XDG_CONFIG_HOME/bitty/profiles/<name>.lua` 命名配置（作为基础层生效）。     |
+| `--theme <NAME>`       | 单次启动 CLI 色彩主题覆盖（优先级高于配置文件和 Profile）。                        |
+| `--font-family <NAME>` | 单次启动 CLI 字体系列覆盖。                                                        |
+| `--font-size <PTS>`    | 单次启动 CLI 字体点阵大小覆盖（例如 `12.5`）。                                     |
+| `--opacity <FLOAT>`    | 单次启动 CLI 窗口透明度覆盖（0.0..=1.0，例如 `0.85`）。                            |
+| `--safe`               | **安全恢复模式**：禁用所有第三方插件、监听器与用户配置；强制使用内置默认值。       |
+| `--fail-loud`          | 若主 Shell 或启动步骤失败则立即以非零状态码中止（调试姿态）。                      |
+| `-v, --verbose`        | `--log-level debug` 的简写；在 stderr 输出逐帧渲染 tick 统计。                     |
+| `--log-level <LEVEL>`  | 设置 stderr 日志等级（`error`, `warn`, `info`, `debug`, `trace`）。                |
+| `--mascot`             | 向标准输出打印吉祥物 Bittie ASCII 艺术字并退出。                                   |
+| `--no-splash`          | 抑制首次启动的吉祥物欢迎画面。                                                     |
+| `-h, --help`           | 显示命令行参数帮助摘要并退出。                                                     |
+| `--version`            | 显示版本号、目标架构及构建元数据。                                                 |
 
-## 控制客户端 (`bitty ctl`)
+### 布局与分屏参数
 
-`bitty ctl` 子命令用于与正在运行的 Bitty 实例通信，或执行离线静态校验：
+在启动时直接进入特定的分屏与布局状态：
+
+| 参数                    | 说明                                                                                       |
+| :---------------------- | :----------------------------------------------------------------------------------------- |
+| `--split <h\|v>`        | 沿水平或垂直轴分屏启动窗格。                                                               |
+| `--split-ratio <FLOAT>` | 设置分屏比例（0.1 至 0.9，例如 `0.5`）。                                                   |
+| `--stack`               | 请求堆叠布局模式（Stack Layout）。                                                         |
+| `--overlay`             | 请求覆层展示模式（Overlay Presentation）。                                                 |
+| `--layout <SPEC>`       | 原始布局规范字符串（例如 `"single"`, `"split:h:0.5"`, `"stack"`, `"overlay:5,5,20,10"`）。 |
+| `--focus <TARGET>`      | 初始焦点目标（`"next"`, `"prev"`, `"up"`, `"down"`, `"left"`, `"right"` 或数字索引）。     |
+
+### 无头与测试参数
+
+| 参数          | 说明                                                                   |
+| :------------ | :--------------------------------------------------------------------- |
+| `--headless`  | 仅执行单次无头渲染冒烟测试，不创建显示服务器窗口直接退出。             |
+| `--test-mode` | 启动确定性无头端到端伺服循环，连接至 `BITTY_SOCKET` IPC 接口直至退出。 |
+
+---
+
+## 常用子命令
+
+Bitty 包含完备的一级子命令，用于配置管理、环境诊断及组件维护：
+
+### 配置管理 (`bitty config`)
+
+别名：`bitty cfg`
 
 ```bash
-# 在不启动 GUI 的情况下离线校验配置文件
-bitty ctl config check
+# 打印当前生效的配置文件绝对路径
+bitty config path
 
-# 校验指定的配置文件
-bitty ctl config check --path ~/.config/bitty/test.lua
+# 离线验证配置文件语法与 Schema 结构，无需启动 GUI
+bitty config check
 
-# 触发原子级的单帧主题热重载
-bitty ctl theme reload
+# 使用 $VISUAL 或 $EDITOR 打开当前配置文件
+bitty config edit
 ```
 
-## 文档查看器 (`bitty doc`)
+### 初始化向导 (`bitty init`)
 
-Bitty 内置了专为终端设计的参考手册查看器，支持在工作流中离线查阅：
+交互式终端配置生成向导：
 
 ```bash
-# 打开交互式 TUI 文档浏览器
-bitty doc
+# 运行交互式配置向导
+bitty init
 
-# 直接阅读指定主题
-bitty doc configuration
-bitty doc api/ui
+# 跳过交互提示，直接写入合理的默认配置
+bitty init --yes
+
+# 强制覆盖已有配置文件（会自动生成 .bak 备份）
+bitty init --force
 ```
 
-## 插件管理 (`bitty plugin`)
+### 安装与环境诊断 (`bitty doctor`)
 
-Bitty 原生管理插件，无需依赖外部包管理器：
+诊断 GPU 驱动、字体、环境依赖与健康状态：
 
 ```bash
-# 列出已安装的插件、激活状态与被授予的能力
+# 显示格式化诊断表格
+bitty doctor
+
+# 以 JSON 格式输出诊断报告
+bitty doctor --format json
+```
+
+### 资源枚举 (`bitty list`)
+
+别名：`bitty ls`
+
+```bash
+# 列出可用的内置与用户色彩主题
+bitty list themes
+
+# 列出已安装插件及其激活状态
+bitty list plugins
+
+# 列出当前正在运行的 Bitty 终端实例
+bitty list instances
+```
+
+### 插件管理 (`bitty plugin`)
+
+```bash
+# 列出已安装插件、清单状态及授予的能力
 bitty plugin list
 
-# 运行诊断检查，分析内存、燃料、事件队列与工具依赖
+# 运行针对内存占用、指令燃料与事件队列的诊断
 bitty plugin doctor
 
-# 从本地目录或归档包安装插件
+# 从本地目录添加插件
 bitty plugin add ./my-plugin
 
-# 移除已安装的插件
+# 移除已安装插件
 bitty plugin remove custom.my-plugin
 ```
 
-## 原生组件管理 (`bitty component`)
+### 原生组件管理 (`bitty component`)
 
-依据 DIR-030（原生组件边界）规范，重量级原生副进程（如 `bitty-net`）通过 `bitty component` 进行管理：
+管理基于 DIR-030 规范的进程外上游协进程（如 `bitty-net`）：
 
 ```bash
-# 列出已安装的原生组件及其二进制散列摘要
+# 列出已安装的原生协进程组件及其二进制摘要
 bitty component list
 
-# 注册并验证原生组件二进制文件
+# 注册经验证的原生组件二进制程序
 bitty component add /usr/local/bin/bitty-net
 
 # 移除已注册的原生组件
 bitty component remove net
+```
+
+### Shell 补全脚本生成 (`bitty completion`)
+
+别名：`bitty comp`
+
+```bash
+# 生成 Shell 补全脚本 (bash, zsh, fish)
+bitty completion bash > ~/.bash_completion.d/bitty
+bitty completion zsh > ~/.zfunc/_bitty
+bitty completion fish > ~/.config/fish/completions/bitty.fish
 ```
