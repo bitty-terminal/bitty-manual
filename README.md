@@ -9,8 +9,27 @@ Unlike the architectural and governance corpora (`bitty-docs`, `bitty-terminal-d
 It serves as the single source of truth for:
 
 - **Online Documentation**: Consumed by [bitty-website](https://github.com/bitty-terminal/bitty-website) to render `https://bitty.run/docs`.
-- **Terminal-Native Doc Viewer**: Consumed by the `bitty doc` CLI and interactive TUI panel.
-- **CDN Offline Language Packs**: Packaged and published to `https://cdn.bitty.run/docs/` for on-demand dynamic downloads.
+- **Terminal-Native Doc Viewer**: Consumed by the `bitty doc` CLI and downstream panel plugin for local offline viewing (`https://cdn.bitty.run/manual/`).
+- **CDN Distribution & Offline Bundles**: Continuous Delivery automatically publishes versioned packages, search indices, and raw markdown to Cloudflare R2.
+
+## Distribution & CDN Endpoints
+
+Documentation artifacts are continuously published to Cloudflare R2 and served at `https://cdn.bitty.run/manual/`:
+
+- **Manifest**: `https://cdn.bitty.run/manual/manifest.json` (also `/latest/manifest.json`)
+- **Search Index**: `https://cdn.bitty.run/manual/search-index.json` (offline fuzzy search)
+- **Table of Contents**: `https://cdn.bitty.run/manual/toc.json` (hierarchical navigation)
+- **Offline Tarball**: `https://cdn.bitty.run/manual/bitty-manual-latest.tar.gz`
+- **Offline Zip**: `https://cdn.bitty.run/manual/bitty-manual-latest.zip`
+- **Raw Documents**: `https://cdn.bitty.run/manual/<locale>/<section>/<file>.md`
+
+## Downstream `bitty doc` Offline Panel Integration
+
+The downstream documentation viewer plugin runs inside a Bitty Panel (similar to `cargo doc` or `tldr`):
+
+1. **Initial Sync / Update**: Fetches `https://cdn.bitty.run/manual/manifest.json` or downloads `bitty-manual-latest.tar.gz` into `$XDG_DATA_HOME/bitty/manual/` (Linux) or `%LOCALAPPDATA%\bitty\manual` (Windows).
+2. **Offline Fuzzy Finder**: Loads `search-index.json` to enable instant keyword search across all sections and headings without network latency.
+3. **In-Terminal Markdown Rendering**: Directly displays selected documentation inside an active terminal panel.
 
 ## Anti-Drift Architecture
 
@@ -33,11 +52,13 @@ bitty-manual/
 │   ├── api/                   # Sandboxed Lua API reference
 │   └── faq/                   # Troubleshooting, safe mode, and diagnostics
 ├── scripts/                   # Verification and validation scripts
-│   └── verify-config-schema.mjs
+│   ├── verify-config-schema.mjs
+│   ├── package-manual.mjs     # Packaging & archive bundling
+│   └── upload-r2.mjs          # Cloudflare R2 continuous delivery
 └── justfile                   # Quality gate automation
 ```
 
-## Quality Gates
+## Quality Gates & Commands
 
 Run the local quality checks:
 
@@ -45,4 +66,12 @@ Run the local quality checks:
 just check
 ```
 
-This verifies formatting (Prettier), Markdown linting, and runs the schema anti-drift verifier.
+This verifies formatting (Prettier), Markdown linting, GitHub Actions workflow linting (`actionlint`), schema anti-drift, and builds the distribution package.
+
+Other recipes:
+
+```bash
+just fmt              # Auto-format all files
+just package          # Build dist/ release archives and search index
+just upload-r2-dry    # Dry-run R2 upload simulation
+```
