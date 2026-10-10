@@ -35,7 +35,7 @@ ui = ["ui.rich"]
 
 [lazy]
 commands = ["my-plugin:open"]
-events = ["terminal.focus_gained"]
+events = ["terminal.opened"]
 ```
 
 ### 清单各表解析
@@ -63,15 +63,15 @@ $$\text{Installed} \longrightarrow \text{Loaded} \longrightarrow \text{Active}$$
 在开发过程中使用 CLI 本地安装插件：
 
 ```bash
-# 将本地目录添加为已安装插件
-bitty plugin add ./my-plugin
+# 将本地目录安装为插件包
+bitty plugin install ./my-plugin
 
-# 检查诊断与状态
-bitty plugin doctor
+# 列出已记录插件及其能力授予
+bitty plugin list
 ```
 
 ## 下一步
 
 - [能力鉴权与沙箱机制](capabilities-and-sandbox.md) — 了解安全边界、资源配额与能力家族。
-- [上游原生组件](upstream-components.md) — 理解原生基础设施如何在插件间复用。
+- [原生组件边界](upstream-components.md) — 理解原生基础设施如何在插件间复用。
 - [Lua API 参考手册](../api/overview.md) — 探索沙箱化 `bitty.*` API 全貌。

@@ -33,19 +33,23 @@ bitty ctl config check
 
 ---
 
-## 插件诊断自检 (`bitty plugin doctor`)
+## 插件诊断自检 (`bitty plugin list` + `bitty doctor`)
 
-当插件行为异常、运行迟缓或丢失事件时，运行 `bitty plugin doctor`：
+当插件行为异常、运行迟缓或丢失事件时，检查其记录与宿主环境：
 
 ```bash
-bitty plugin doctor
+# 已记录插件、来源、状态与能力授予
+bitty plugin list
+
+# 单个插件的清单与已记录授予
+bitty plugin info <id>
+
+# 宿主环境健康度（GPU、字体、依赖）
+bitty doctor
 ```
 
-### 诊断输出核心内容
-
-1. **内存与燃料**：汇报每个插件 VM 相对 32 MiB 上限的活动堆内存占用以及指令燃料消耗计数。
-2. **事件队列**：突出显示因事件消费过慢而导致的丢弃事件（缓冲区溢出指标）。
-3. **工具依赖**：对照用户宿主环境检查声明的 `[tools.*]` 依赖（如 `git`, `rg`, `fd`），并报告缺失的二进制程序或版本不匹配。
+> [!NOTE]
+> 不存在 `bitty plugin doctor` 动词。Live 的单 VM 内存、燃料与队列丢弃自省尚未暴露到 CLI。
 
 ---
 

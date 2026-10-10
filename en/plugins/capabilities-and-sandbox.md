@@ -48,7 +48,7 @@ version = ">=2.30"
    - `workspace.read`: Allows inspecting workspaces via `bitty.workspace.list`.
    - `workspace.control`: Allows switching, creating, closing, and moving workspaces and panels.
 4. **`network` Family**:
-   - Mediated exclusively through the upstream `bitty-net` native coprocess (DIR-030). Plugins never touch raw sockets.
+   - Mediated exclusively through an upstream native coprocess behind the Native Component Boundary (see [Native Component Boundary](upstream-components.md)). Plugins never touch raw sockets.
    - Hosts and domains must be allowlisted under `[network].allow`.
 5. **`process.spawn` & Tool Family**:
    - Ambient process creation is strictly forbidden.
@@ -77,10 +77,11 @@ Events dispatched across the host bus are buffered in three-tier bounded rings:
 - **Global Host Queue**: 8,192 events (2 MiB).
 - When a plugin fails to drain events in time, the host uses `DropOldest` semantics to prevent memory unbounded growth.
 
-## Diagnostic Introspection (`bitty plugin doctor`)
+## Diagnostic Introspection (`bitty plugin list`)
 
-Run `bitty plugin doctor` at any time to inspect live memory usage, execution fuels, queue drops, and tool dependencies across all installed plugins:
+Inspect recorded sources, states, and capability grants at any time:
 
 ```bash
-bitty plugin doctor
+bitty plugin list
+bitty plugin info <id>
 ```

@@ -2,6 +2,11 @@
 
 Bitty 提供了统一、纯解析的命令行工具链，用于启动终端、检查运行时状态、管理多环境配置（Profile）、配置插件以及驱动外部自动化。
 
+运行 `bitty --help` 查看精简概览，`bitty --help -v` 查看全部标志，`bitty <command> --help` 查看单命令详情。
+
+> [!NOTE]
+> 不存在 `bitty help` 子命令：`bitty help` 会把 `help` 当作待启动的程序。请使用 `bitty --help` 或 `bitty -h`。（见 [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900)。）
+
 ## 终端调用 (`bitty`)
 
 主二进制程序用于启动 GUI 窗口并派生 Shell 会话：
@@ -20,28 +25,33 @@ bitty [OPTIONS] -- PROGRAM [ARGS...]
 | `--theme <NAME>`       | 单次启动 CLI 色彩主题覆盖（优先级高于配置文件和 Profile）。                        |
 | `--font-family <NAME>` | 单次启动 CLI 字体系列覆盖。                                                        |
 | `--font-size <PTS>`    | 单次启动 CLI 字体点阵大小覆盖（例如 `12.5`）。                                     |
-| `--opacity <FLOAT>`    | 单次启动 CLI 窗口透明度覆盖（0.0..=1.0，例如 `0.85`）。                            |
+| `--opacity <FLOAT>`    | 单次启动 CLI 窗口透明度覆盖（例如 `0.85`）。                                       |
 | `--safe`               | **安全恢复模式**：禁用所有第三方插件、监听器与用户配置；强制使用内置默认值。       |
 | `--fail-loud`          | 若主 Shell 或启动步骤失败则立即以非零状态码中止（调试姿态）。                      |
+| `--test-mode`          | 启动确定性无头端到端伺服循环，连接至 `BITTY_SOCKET` IPC 接口直至退出。             |
 | `-v, --verbose`        | `--log-level debug` 的简写；在 stderr 输出逐帧渲染 tick 统计。                     |
 | `--log-level <LEVEL>`  | 设置 stderr 日志等级（`error`, `warn`, `info`, `debug`, `trace`）。                |
 | `--mascot`             | 向标准输出打印吉祥物 Bittie ASCII 艺术字并退出。                                   |
 | `--no-splash`          | 抑制首次启动的吉祥物欢迎画面。                                                     |
+| `--no-color`           | 禁用 ANSI 着色（同时遵循 `NO_COLOR`）。                                            |
+| `--socket <PATH>`      | 控制目标 socket（配合 `ctl` / `list instances`）。                                 |
+| `--instance <ID>`      | 控制目标实例（配合 `ctl` / `list instances`）。                                    |
+| `--`                   | 标志结束符；剩余词元均为 `PROGRAM` 参数。                                          |
 | `-h, --help`           | 显示命令行参数帮助摘要并退出。                                                     |
-| `--version`            | 显示版本号、目标架构及构建元数据。                                                 |
+| `-V, --version`        | 显示版本号、目标架构及构建元数据。                                                 |
 
 ### 布局与分屏参数
 
 在启动时直接进入特定的分屏与布局状态：
 
-| 参数                    | 说明                                                                                       |
-| :---------------------- | :----------------------------------------------------------------------------------------- |
-| `--split <h\|v>`        | 沿水平或垂直轴分屏启动窗格。                                                               |
-| `--split-ratio <FLOAT>` | 设置分屏比例（0.1 至 0.9，例如 `0.5`）。                                                   |
-| `--stack`               | 请求堆叠布局模式（Stack Layout）。                                                         |
-| `--overlay`             | 请求覆层展示模式（Overlay Presentation）。                                                 |
-| `--layout <SPEC>`       | 原始布局规范字符串（例如 `"single"`, `"split:h:0.5"`, `"stack"`, `"overlay:5,5,20,10"`）。 |
-| `--focus <TARGET>`      | 初始焦点目标（`"next"`, `"prev"`, `"up"`, `"down"`, `"left"`, `"right"` 或数字索引）。     |
+| 参数                     | 说明                                                                                       |
+| :----------------------- | :----------------------------------------------------------------------------------------- |
+| `--split [AXIS[:RATIO]]` | 分屏启动窗格（`horizontal`/`h`、`vertical`/`v`，默认 `h`，比例默认 `0.5`）。               |
+| `--split-ratio <FLOAT>`  | 设置分屏比例（0.10 至 0.90，例如 `0.3`）。                                                 |
+| `--stack`                | 请求堆叠布局模式（Stack Layout）。                                                         |
+| `--overlay`              | 请求覆层展示模式（Overlay Presentation）。                                                 |
+| `--layout <SPEC>`        | 原始布局规范字符串（例如 `"single"`, `"split:h:0.5"`, `"stack"`, `"overlay:5,5,20,10"`）。 |
+| `--focus <TARGET>`       | 初始焦点目标（`"next"`, `"prev"`, `"up"`, `"down"`, `"left"`, `"right"` 或 id）。          |
 
 ### 无头与测试参数
 
@@ -52,9 +62,37 @@ bitty [OPTIONS] -- PROGRAM [ARGS...]
 
 ---
 
-## 常用子命令
+## 子命令
 
-Bitty 包含完备的一级子命令，用于配置管理、环境诊断及组件维护：
+Bitty 共 15 个子命令。本地动词无需运行实例；运行时动词（`ctl`、`cmd`）通过 IPC（仅 Unix）操控一个 live 实例。
+
+### 显式子进程启动 (`bitty run`)
+
+```bash
+# 以前台子进程运行程序（本地，继承 stdio）
+bitty run -- COMMAND [ARGS...]
+```
+
+### 运行时控制 (`bitty ctl`)
+
+控制一个运行中的实例（需要一个 live 实例；仅 Unix IPC）：
+
+```bash
+bitty ctl instance list
+bitty ctl window list
+bitty ctl "view list" | view split [--left|--right|--up|--down] | view focus v:N
+bitty ctl terminal list | terminal spawn [--cwd PATH] | terminal close t:N
+bitty ctl terminal send t:N TEXT | terminal text t:N
+bitty ctl workspace list | workspace new | workspace close ws:N
+bitty ctl workspace focus ws:N | workspace move ws:N
+bitty ctl workspace rename ws:N NAME | workspace move-panel POSITION
+bitty ctl config reload
+```
+
+输出形状：`--format table|json|jsonl`。目标优先级：`--socket`、`--instance`、`BITTY_SOCKET`/`BITTY_INSTANCE_ID`、唯一 live 实例兜底。
+
+> [!NOTE]
+> `ctl` 中没有 panel 资源：当前 panel id 尚无查询途径。`view list` 报告视图（`v:N` 加 `focused` 标记）。见 [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900)。
 
 ### 配置管理 (`bitty config`)
 
@@ -73,7 +111,7 @@ bitty config edit
 
 ### 初始化向导 (`bitty init`)
 
-交互式终端配置生成向导：
+按需使用的交互式配置向导：
 
 ```bash
 # 运行交互式配置向导
@@ -113,44 +151,114 @@ bitty list plugins
 bitty list instances
 ```
 
-### 插件管理 (`bitty plugin`)
+### 状态解释 (`bitty inspect`)
+
+解释生效状态与归属，不加载任何插件 VM：
 
 ```bash
-# 列出已安装插件、清单状态及授予的能力
+bitty inspect command core.terminal.text
+bitty inspect key ctrl+shift+m
+bitty inspect plugin bitty-terminal.shell-integration
+bitty inspect config font.size
+bitty inspect protocol kitty-graphics
+```
+
+### 开发者工具 (`bitty dev`)
+
+无头追踪、帧捕获、输入合成、转储与渲染覆层（本地；部分动词需要 `dev-tools` cargo feature）：
+
+```bash
+bitty dev trace <startup|latency> [--iterations N]
+bitty dev capture [--layout single|split|stack|overlay]
+bitty dev synthesize
+bitty dev dump <grid|scene|atlas> [--rows N] [--cols N]
+bitty dev overlay <list|show <damage|cells|glyphs|images|layout|banner>>
+```
+
+### 插件管理 (`bitty plugin`)
+
+本地插件记录管理（绝不加载插件 VM）：
+
+```bash
+# 列出已记录与已安装插件、来源与能力授予
 bitty plugin list
 
-# 运行针对内存占用、指令燃料与事件队列的诊断
-bitty plugin doctor
+# 安装内置插件 id，或本地目录包
+bitty plugin install <id> [--yes]
+bitty plugin install <path> [--yes]
 
-# 从本地目录添加插件
-bitty plugin add ./my-plugin
+# 移除记录（内置：删除条目；已安装：删除树）
+bitty plugin remove <id> --force
 
-# 移除已安装插件
-bitty plugin remove custom.my-plugin
+# 不删除记录的前提下重新启用 / 禁用
+bitty plugin enable <id>
+bitty plugin disable <id>
+
+# 不删除记录的前提下撤销授予（全部或单个能力）
+bitty plugin revoke <id> [--cap <capability>]
+
+# 显示单个插件的清单与已记录授予
+bitty plugin info <id>
 ```
+
+> [!NOTE]
+> 远端（`git`）来源与本地压缩包暂不支持：`install` 只接受内置 id 或已解包的本地目录。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
 ### 原生组件管理 (`bitty component`)
 
-管理基于 DIR-030 规范的进程外上游协进程（如 `bitty-net`）：
+管理进程外原生协进程二进制（用户 `$XDG_DATA_HOME/bitty/components/` 优先于系统路径；SHA-256 摘要校验）：
 
 ```bash
-# 列出已安装的原生协进程组件及其二进制摘要
+# 列出已注册的原生协进程组件及其二进制摘要
 bitty component list
 
 # 注册经验证的原生组件二进制程序
-bitty component add /usr/local/bin/bitty-net
+bitty component add /path/to/component-binary
+
+# 从 CDN 拉取并校验、暂存一个哈希锁定的发布包
+bitty component install <name>
 
 # 移除已注册的原生组件
-bitty component remove net
+bitty component remove <name>
+```
+
+### 直接调用 (`bitty cmd`)
+
+```bash
+# 按限定 id 直接调用任意注册可执行体（自动化逃生舱）
+bitty cmd core.terminal.text --format json -- '{"terminal_id": "t:4"}'
+```
+
+### 插件命名空间 (`bitty x`)
+
+```bash
+# 无需别名再生，直接寻址已安装插件命令
+bitty x <publisher>.<name> <command> [args]
+bitty x <id> --help
 ```
 
 ### Shell 补全脚本生成 (`bitty completion`)
 
-别名：`bitty comp`
+别名：`bitty comp`。支持的 Shell：`bash`、`zsh`、`fish`、`powershell`、`nushell`（`nu`）。
 
 ```bash
-# 生成 Shell 补全脚本 (bash, zsh, fish)
+# 生成 Shell 补全脚本
 bitty completion bash > ~/.bash_completion.d/bitty
 bitty completion zsh > ~/.zfunc/_bitty
 bitty completion fish > ~/.config/fish/completions/bitty.fish
+```
+
+### Shell 集成 (`bitty shell-init`)
+
+输出 prompt hook（OSC 7 cwd + OSC 133 标记）与补全装配。Shell 列表同 `completion`。
+
+```bash
+bitty shell-init bash
+```
+
+### 版本 (`bitty version`)
+
+```bash
+bitty version
+bitty version --format json
 ```

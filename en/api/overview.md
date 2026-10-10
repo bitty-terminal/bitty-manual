@@ -19,7 +19,7 @@ Global bitty Namespace
 │   ├── bitty.settings        # Read/write user configuration
 │   ├── bitty.timers          # High-resolution asynchronous timers
 │   ├── bitty.tasks           # Asynchronous task runner
-│   └── bitty.services        # Cross-plugin & upstream service provider bus
+│   └── bitty.services        # Cross-plugin service provider bus (peer-provided only)
 └── L2 Presentation & UI
     └── bitty.ui              # Declarative UI scene tree, slots & overlays
 ```
@@ -82,5 +82,5 @@ Explore the dedicated reference pages for specific modules:
 - [bitty.ui Reference](ui.md) — Declarative scene trees, slots, overlays, and targeting frameworks.
 - [bitty.commands & bitty.keymaps Reference](commands-keymaps.md) — Command registration and keyboard chord management.
 - [bitty.panel & bitty.workspace Reference](panel-workspace.md) — Panel modes, layout manipulation, and workspace navigation.
-- [bitty.services, Notify & State Reference](services-notify.md) — Upstream services, desktop notifications, storage, and timers.
+- [bitty.services, Notify & State Reference](services-notify.md) — Service discovery, desktop notifications, storage, and timers.
 - [Core System APIs Reference](system.md) — Terminal snapshots, settings reflection, sandboxed environment, filesystem, and tasks.

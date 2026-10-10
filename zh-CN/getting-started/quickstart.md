@@ -24,22 +24,22 @@ scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 scoop install bitty
 
 # macOS (Homebrew)
-brew tap bitty-terminal/tap
+brew tap bitty-terminal/homebrew-tap
 brew install bitty
 
-# Arch Linux (AUR / paru)
-paru -S bitty-terminal
-
-# 通用 Linux (Flatpak)
-flatpak install run.bitty.Bitty
+# Arch Linux (AUR)：预编译二进制包
+paru -S bitty-bin   # 或：yay -S bitty-bin
+# 源码包 `bitty` 同样存在；除非需要本地源码编译，否则优先 `bitty-bin`。
 ```
 
-### Cargo (crates.io)
+### Cargo（从 Git 仓库构建）
+
+二进制程序没有 crates.io 安装途径，请从源码构建：
 
 ```bash
-# 通过 Cargo 安装
-# 注意：Crate 名称为 bitty-terminal（因为 crates.io 上的 bitty 名称在此之前已被其他项目注册）
-cargo install bitty-terminal --locked
+# 从 Git 仓库安装 `bitty` 二进制程序
+# （需显式固定工具链：`cargo install --git` 不读取 rust-toolchain.toml）
+cargo +1.98.1 install --git https://github.com/bitty-terminal/bitty.git bitty-terminal --locked
 ```
 
 ### 从源码编译
@@ -96,7 +96,7 @@ scoop uninstall bitty
 # Homebrew (macOS)
 brew uninstall bitty
 
-# Cargo (crates.io)
+# Cargo（从 Git 仓库安装时）
 cargo uninstall bitty-terminal
 
 # 手动二进制安装

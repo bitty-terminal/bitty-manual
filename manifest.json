@@ -52,7 +52,7 @@
         },
         {
           "slug": "upstream-components",
-          "title": "Upstream Native Components (DIR-030)",
+          "title": "Native Component Boundary",
           "path": "plugins/upstream-components.md"
         }
       ]

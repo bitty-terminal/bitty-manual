@@ -24,22 +24,23 @@ scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 scoop install bitty
 
 # macOS (Homebrew)
-brew tap bitty-terminal/tap
+brew tap bitty-terminal/homebrew-tap
 brew install bitty
 
-# Arch Linux (AUR / paru)
-paru -S bitty-terminal
-
-# Universal Linux (Flatpak)
-flatpak install run.bitty.Bitty
+# Arch Linux (AUR): prebuilt binary package
+paru -S bitty-bin   # or: yay -S bitty-bin
+# Source build package `bitty` also exists; prefer `bitty-bin` unless
+# you specifically need a local source compile.
 ```
 
-### Cargo (crates.io)
+### Cargo (build from the Git repository)
+
+There is no crates.io install path for the binary. Build from source instead:
 
 ```bash
-# Install via Cargo
-# Note: The crate name is `bitty-terminal` because `bitty` was pre-registered on crates.io
-cargo install bitty-terminal --locked
+# Install the `bitty` binary from the Git repository
+# (pin the toolchain explicitly: `cargo install --git` does not read rust-toolchain.toml)
+cargo +1.98.1 install --git https://github.com/bitty-terminal/bitty.git bitty-terminal --locked
 ```
 
 ### Building from Source
@@ -96,7 +97,7 @@ scoop uninstall bitty
 # Homebrew (macOS)
 brew uninstall bitty
 
-# Cargo (crates.io)
+# Cargo (when installed from the Git repository)
 cargo uninstall bitty-terminal
 
 # Manual binary installation

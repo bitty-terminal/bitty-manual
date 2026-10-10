@@ -2,6 +2,11 @@
 
 Bitty provides a unified, pure-parsing command-line toolchain for launching the terminal, inspecting runtime state, managing profiles, configuring plugins, and driving external automations.
 
+Run `bitty --help` for the compact overview, `bitty --help -v` for all flags, or `bitty <command> --help` for per-command detail.
+
+> [!NOTE]
+> There is no `bitty help` subcommand: `bitty help` treats `help` as a program to spawn. Use `bitty --help` or `bitty -h`. (Tracked in [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900).)
+
 ## Terminal Invocation (`bitty`)
 
 The primary binary launches the GUI window and spawns shell sessions:
@@ -23,25 +28,30 @@ bitty [OPTIONS] -- PROGRAM [ARGS...]
 | `--opacity <FLOAT>`    | CLI window-opacity override for one launch (e.g. `0.85`).                                      |
 | `--safe`               | **Safe Mode**: Disables all third-party plugins, watchers, and user config; enforces defaults. |
 | `--fail-loud`          | Aborts with non-zero exit code if primary shell or startup step fails (debug posture).         |
+| `--test-mode`          | Run deterministic headless E2E servo loop connected to `BITTY_SOCKET` IPC until exit.          |
 | `-v, --verbose`        | Shorthand for `--log-level debug`; emits per-frame render tick statistics.                     |
 | `--log-level <LEVEL>`  | Set stderr logging level (`error`, `warn`, `info`, `debug`, `trace`).                          |
 | `--mascot`             | Print the Bittie mascot ASCII art to stdout and exit.                                          |
 | `--no-splash`          | Suppress the first-run mascot greeting.                                                        |
+| `--no-color`           | Disable ANSI coloring (also honors `NO_COLOR`).                                                |
+| `--socket <PATH>`      | Control target socket (with `ctl` / `list instances`).                                         |
+| `--instance <ID>`      | Control target instance (with `ctl` / `list instances`).                                       |
+| `--`                   | End of flags; remaining tokens are `PROGRAM` argv.                                             |
 | `-h, --help`           | Display command-line argument summary and exit.                                                |
-| `--version`            | Display version, target architecture, and build metadata.                                      |
+| `-V, --version`        | Display version, target architecture, and build metadata.                                      |
 
 ### Layout & Window Options
 
 Launch directly into specific pane configurations:
 
-| Flag                    | Description                                                                                    |
-| :---------------------- | :--------------------------------------------------------------------------------------------- |
-| `--split <h\|v>`        | Split startup pane along horizontal or vertical axis.                                          |
-| `--split-ratio <FLOAT>` | Set split ratio between 0.1 and 0.9 (e.g. `0.5`).                                              |
-| `--stack`               | Request stack layout mode.                                                                     |
-| `--overlay`             | Request overlay presentation mode.                                                             |
-| `--layout <SPEC>`       | Raw layout specification (e.g. `"single"`, `"split:h:0.5"`, `"stack"`, `"overlay:5,5,20,10"`). |
-| `--focus <TARGET>`      | Initial focus target (`"next"`, `"prev"`, `"up"`, `"down"`, `"left"`, `"right"`, or index).    |
+| Flag                     | Description                                                                                    |
+| :----------------------- | :--------------------------------------------------------------------------------------------- |
+| `--split [AXIS[:RATIO]]` | Split startup pane (`horizontal`/`h`, `vertical`/`v`, default `h`, ratio default `0.5`).       |
+| `--split-ratio <FLOAT>`  | Set split ratio between 0.10 and 0.90 (e.g. `0.3`).                                            |
+| `--stack`                | Request stack layout mode.                                                                     |
+| `--overlay`              | Request overlay presentation mode.                                                             |
+| `--layout <SPEC>`        | Raw layout specification (e.g. `"single"`, `"split:h:0.5"`, `"stack"`, `"overlay:5,5,20,10"`). |
+| `--focus <TARGET>`       | Initial focus target (`"next"`, `"prev"`, `"up"`, `"down"`, `"left"`, `"right"`, or id).       |
 
 ### Headless & Test Options
 
@@ -54,7 +64,35 @@ Launch directly into specific pane configurations:
 
 ## Subcommands
 
-Bitty includes first-class subcommands for configuration, diagnostics, and component management:
+Bitty ships 15 subcommands. Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
+
+### Explicit Child Launch (`bitty run`)
+
+```bash
+# Run a program as a foreground child (local, inherits stdio)
+bitty run -- COMMAND [ARGS...]
+```
+
+### Runtime Control (`bitty ctl`)
+
+Control a running instance (needs one live instance; Unix IPC only):
+
+```bash
+bitty ctl instance list
+bitty ctl window list
+bitty ctl "view list" | view split [--left|--right|--up|--down] | view focus v:N
+bitty ctl terminal list | terminal spawn [--cwd PATH] | terminal close t:N
+bitty ctl terminal send t:N TEXT | terminal text t:N
+bitty ctl workspace list | workspace new | workspace close ws:N
+bitty ctl workspace focus ws:N | workspace move ws:N
+bitty ctl workspace rename ws:N NAME | workspace move-panel POSITION
+bitty ctl config reload
+```
+
+Output shapes: `--format table|json|jsonl`. Targeting precedence: `--socket`, `--instance`, `BITTY_SOCKET`/`BITTY_INSTANCE_ID`, exactly-one-live fallback.
+
+> [!NOTE]
+> There is no panel resource in `ctl`: the current panel id is not queryable yet. `view list` reports views (`v:N` plus a `focused` marker). See [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900).
 
 ### Configuration Management (`bitty config`)
 
@@ -113,44 +151,114 @@ bitty list plugins
 bitty list instances
 ```
 
-### Plugin Management (`bitty plugin`)
+### State Inspection (`bitty inspect`)
+
+Explain effective state and ownership without loading any plugin VM:
 
 ```bash
-# List installed plugins, manifest status, and capabilities
+bitty inspect command core.terminal.text
+bitty inspect key ctrl+shift+m
+bitty inspect plugin bitty-terminal.shell-integration
+bitty inspect config font.size
+bitty inspect protocol kitty-graphics
+```
+
+### Developer Tools (`bitty dev`)
+
+Headless tracing, captures, synthesis, dumps, and renderer overlays (local; some verbs need the `dev-tools` cargo feature):
+
+```bash
+bitty dev trace <startup|latency> [--iterations N]
+bitty dev capture [--layout single|split|stack|overlay]
+bitty dev synthesize
+bitty dev dump <grid|scene|atlas> [--rows N] [--cols N]
+bitty dev overlay <list|show <damage|cells|glyphs|images|layout|banner>>
+```
+
+### Plugin Management (`bitty plugin`)
+
+Local plugin record management (no plugin VM is ever loaded):
+
+```bash
+# List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Run diagnostic inspection on memory, instruction fuel, and queues
-bitty plugin doctor
+# Install a bundled plugin id, or a local directory package
+bitty plugin install <id> [--yes]
+bitty plugin install <path> [--yes]
 
-# Add a plugin from a local directory
-bitty plugin add ./my-plugin
+# Remove a record (bundled: drop entry; installed: delete tree)
+bitty plugin remove <id> --force
 
-# Remove an installed plugin
-bitty plugin remove custom.my-plugin
+# Re-enable / disable without dropping the record
+bitty plugin enable <id>
+bitty plugin disable <id>
+
+# Revoke grants (all, or one capability) without dropping the record
+bitty plugin revoke <id> [--cap <capability>]
+
+# Show one plugin's manifest plus recorded grants
+bitty plugin info <id>
 ```
+
+> [!NOTE]
+> Remote (`git`) sources and local archives are not accepted yet: `install` takes a bundled id or an unpacked local directory. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
 
 ### Native Component Management (`bitty component`)
 
-Manage out-of-process DIR-030 upstream coprocesses (e.g. `bitty-net`):
+Manage out-of-process native coprocess binaries (user `$XDG_DATA_HOME/bitty/components/` wins over system paths; SHA-256 digest verified):
 
 ```bash
-# List installed native coprocess components and binary digests
+# List registered native coprocess components and binary digests
 bitty component list
 
 # Register a verified native component binary
 bitty component add /usr/local/bin/bitty-net
 
+# Fetch + verify + stage one hash-pinned release bundle from the CDN
+bitty component install <name>
+
 # Remove a registered component
 bitty component remove net
 ```
 
-### Shell Completions (`bitty completion`)
-
-Alias: `bitty comp`
+### Direct Invocation (`bitty cmd`)
 
 ```bash
-# Generate shell completion script (bash, zsh, fish)
+# Invoke any registry executable by qualified id (automation escape hatch)
+bitty cmd core.terminal.text --format json -- '{"terminal_id": "t:4"}'
+```
+
+### Plugin Namespace (`bitty x`)
+
+```bash
+# Address an installed plugin command without alias regeneration
+bitty x <publisher>.<name> <command> [args]
+bitty x <id> --help
+```
+
+### Shell Completions (`bitty completion`)
+
+Alias: `bitty comp`. Supported shells: `bash`, `zsh`, `fish`, `powershell`, `nushell` (`nu`).
+
+```bash
+# Generate shell completion script
 bitty completion bash > ~/.bash_completion.d/bitty
 bitty completion zsh > ~/.zfunc/_bitty
 bitty completion fish > ~/.config/fish/completions/bitty.fish
+```
+
+### Shell Integration (`bitty shell-init`)
+
+Emit prompt hooks (OSC 7 cwd + OSC 133 marks) plus completion wiring. Same shell list as `completion`.
+
+```bash
+bitty shell-init bash
+```
+
+### Version (`bitty version`)
+
+```bash
+bitty version
+bitty version --format json
 ```
