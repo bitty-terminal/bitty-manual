@@ -33,19 +33,23 @@ bitty ctl config check
 
 ---
 
-## Plugin Diagnostics (`bitty plugin doctor`)
+## Plugin Diagnostics (`bitty plugin list` + `bitty doctor`)
 
-When a plugin behaves unexpectedly, runs slowly, or drops events, run `bitty plugin doctor`:
+When a plugin behaves unexpectedly, inspect its record and the host environment:
 
 ```bash
-bitty plugin doctor
+# Recorded plugins, sources, states, and capability grants
+bitty plugin list
+
+# One plugin's manifest plus recorded grants
+bitty plugin info <id>
+
+# Host environment health (GPU, fonts, dependencies)
+bitty doctor
 ```
 
-### Diagnostic Output Highlights
-
-1. **Memory & Fuel**: Reports active heap size per plugin VM against the 32 MiB ceiling and instruction fuel counts.
-2. **Event Queues**: Highlights dropped events caused by slow event loops (buffer overflow indicators).
-3. **Tool Dependencies**: Checks declared `[tools.*]` requirements (e.g. `git`, `rg`, `fd`) against the user's host environment and reports missing binaries or version mismatches.
+> [!NOTE]
+> There is no `bitty plugin doctor` verb. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
 
 ---
 

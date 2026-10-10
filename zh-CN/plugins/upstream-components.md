@@ -1,97 +1,60 @@
-# 上游原生组件 (DIR-030)
+# 原生组件边界
 
-Bitty Core 在设计上秉持**零网络代码**与**零冗余后台运行时代码**的原则。然而，扩展插件通常需要网络访问、HTTP API 调用或密集计算能力。Bitty 通过其**原生组件边界 (Native Component Boundary, DIR-030)** 架构优雅地化解了这一矛盾。
+Bitty Core 在设计上秉持**零网络代码**与**零冗余后台运行时代码**的原则。然而，扩展插件通常需要网络访问、HTTP API 调用或密集计算能力。Bitty 通过其**原生组件边界**架构优雅地化解了这一矛盾：单一职责的原生二进制作为上游能力提供方，藏在实施策略的宿主之后。
 
 ## 架构公理 (Architectural Axioms)
 
-为了避免传统可扩展平台常见的生态混乱（即每个插件各自引入独立的 Python/Node 运行时、缺乏协调的工作进程以及重复的连接池），Bitty 确立了两大核心公理：
+为避免传统可扩展环境中的生态熵增（每个插件各自拖入 Python/Node 运行时、互不协调的工作进程与重复的连接池），Bitty 确立两条核心公理：
 
-$$\boxed{\text{插件共享基础设施，而非重复构建基础设施}}$$
-$$\boxed{\text{插件申请能力配额，而非占有系统特权}}$$
+$$\boxed{\text{插件共享基础设施，而非复制基础设施}}$$
+$$\boxed{\text{插件申请能力，而非拥有系统特权}}$$
 
-## 协进程模型 (Coprocess Model)
+## 协进程模型
 
-原生组件是独立的、单一用途的原生二进制程序，作为**上游能力提供者 (Upstream Capability Providers)** 运行：
+原生组件是独立的、单一职责的原生二进制，作为**上游能力提供方**：
 
 ```text
-Plugin Lua Sandbox (Phodopus)
-       │ (1) Capability Request: network.http("https://api.github.com/...")
-       ▼
-Bitty Core Host (Rust)
-       │ (2) Policy Authority: Checks manifest grant, timeout, byte budget
-       ▼
-stdio Wire Protocol v1 (Framed JSON / Binary IPC)
-       ▼
-bitty-net Native Coprocess (Rust)
-       │ (3) Shares HTTP/2 connection pool & TLS session cache across all plugins
-       ▼
-Internet (api.github.com)
+插件 Lua 沙箱
+        │ (1) 能力请求：带版本约束的服务调用
+        ▼
+Bitty Core 宿主 (Rust)
+        │ (2) 策略权威：校验清单授予、超时、字节预算
+        ▼
+stdio 线协议 v1 (帧式 JSON / 二进制 IPC)
+        ▼
+原生协进程 (Rust)
+        │ (3) 跨插件共享连接池与缓存
+        ▼
+外部资源
 ```
 
 ### 关键设计原则
 
-1. **按需按 Stdio 启动的协进程**：Bitty Core 仅在首次使用时按需拉起原生组件，通过标准输入与输出 (`stdin` / `stdout`) 进行 IPC 通信，并在空闲时平滑挂起或终止。
-2. **零 `dlopen` 与零常驻守护进程**：原生组件绝不动态加载进 Core 的主进程空间（确保宿主稳定性和内存边界），也不作为常驻的系统后台守护进程运行。
-3. **禁止扫描 PATH**：Bitty Core 绝不扫描系统的 `$PATH` 来发现组件。所有二进制程序均安装在显式配置的路径下，并强制通过 SHA-256 加密摘要校验完整性。
-4. **机制与策略分离 (Mechanism vs. Policy Separation)**：
-   - **Core 是策略权威机构 (Policy Authority)**：Core 负责校验权限授予、用户授权、请求超时时限以及数据包大小上限。
-   - **组件是执行机制实体 (Execution Mechanism)**：组件负责繁重的实际工作（如 TLS 握手、HTTP/2 多路复用、DNS 解析），并在纵深防御层中二次校验传入的能力令牌。
+1. **按需 stdio 协进程**：Bitty Core 在首次使用时派生原生组件，经标准输入输出（`stdin` / `stdout`）通信，空闲时优雅挂起或终止。
+2. **零 `dlopen`、零常驻守护进程**：组件永不动态加载进 Core 进程空间（保全宿主稳定性与内存边界），也不作为系统后台守护进程 lingering。
+3. **不扫描 PATH**：Bitty Core 永不扫描系统 `$PATH` 寻找组件。二进制位于显式路径（用户 `$XDG_DATA_HOME/bitty/components/` 优先于系统位置），并经 SHA-256 摘要校验。
+4. **机制与策略分离**：
+   - **Core 是策略权威**：Core 校验权限授予、用户同意、请求期限与包体字节上限。
+   - **组件是执行机制**：组件执行重活，并纵深防御式复验递交的能力令牌。
 
-## `bitty-net` 网络组件
+## 无网络栈的自举
 
-首个标准官方原生组件是 `bitty-net`（构建自 `bitty-network` 仓库）。
+Core 不链接任何网络客户端，因此分发本身从操作系统自带工具自举：固定参数的系统 `curl` 从 CDN 拉取哈希锁定的发布包，系统 `tar` 解包，暂存前先做 SHA-256 校验。用户机器无需任何工具链。
 
-### 插件如何消费网络能力
+## 组件管理
 
-插件绝不直接创建原生 Socket 套接字。相反，它们在 `bitty-plugin.toml` 中声明能力需求：
-
-```toml
-[capabilities]
-network = ["http"]
-
-[network]
-allow = ["api.github.com", "crates.io"]
-```
-
-在 Lua 中，插件通过宿主服务总线调用该能力：
-
-```lua
--- 解析宿主代理的网络服务
-local net = bitty.services:get("network")
-
--- 执行异步 HTTP 请求
-net.request({
-  method = "GET",
-  url = "https://api.github.com/repos/bitty-terminal/bitty",
-  headers = { ["User-Agent"] = "BittyPlugin/0.1" },
-  timeout_ms = 5000,
-}, function(response)
-  if response.status == 200 then
-    bitty.notify.show({
-      title = "GitHub Update",
-      body = "Fetched repo data successfully",
-    })
-  end
-end)
-```
-
-### 共享基础设施优势
-
-- **连接复用**：5 个不同的插件同时向 `api.github.com` 发送请求时，将自动复用同一个 HTTP/2 多路复用 TCP/TLS 连接。
-- **统一代理与 DNS 解析**：系统代理 (`HTTPS_PROXY`)、自定义 CA 根证书与 DNS 缓存由 `bitty-net` 统一管理，无需插件单独配置。
-- **超时快速封闭**：如果网络请求挂起，Core 强制执行超时约束（默认 30s，最大 300s），并确定性清理在途请求。
-
-## 组件管理命令
-
-通过 CLI 管理已注册的原生组件：
+经 CLI 管理已注册的原生组件（见 [CLI 命令行参数与控制](../getting-started/cli.md)）：
 
 ```bash
-# 列出已注册的组件并验证二进制摘要完整性
+# 列出已注册组件并校验二进制摘要完整性
 bitty component list
 
-# 注册一个经验证的二进制组件
-bitty component add /usr/local/bin/bitty-net
+# 注册经验证的二进制程序
+bitty component add /path/to/component-binary
+
+# 从 CDN 拉取并校验、暂存一个哈希锁定的发布包
+bitty component install <name>
 
 # 移除组件
-bitty component remove net
+bitty component remove <name>
 ```

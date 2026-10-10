@@ -23,7 +23,7 @@ bitty.commands.register({
 })
 ```
 
-- **参数**：包含 `id` (`string`, 最长 64 字节)、`title` (`string`, 最长 128 字节)、可选 `description` (`string`, 最长 256 字节) 和 `run` (`function`) 的表。
+- **参数**：包含 `id` (`string`, 最长 128 字节)、`title` (`string`, 最长 128 字节)、可选 `description` (`string`, 最长 1024 字节) 和 `run` (`function`) 的表。
 - **延迟加载清单声明**：在 `bitty-plugin.toml` 的 `[lazy]` 下声明 `commands = ["my-plugin:format-buffer"]`。启动时，命令将立即出现在命令面板中，而无需初始化该插件的 Lua VM。当用户首次调用该命令时，VM 才会按需加载。
 
 ## 键位建议 (`bitty.keymaps`)
@@ -97,14 +97,26 @@ bitty.events.subscribe("focus.changed", function(event)
 end)
 ```
 
-- **参数**：`kind` (`string`, 最多 64 字节) 和 `handler` (`function`)。
-- **配额**：每个插件代次最多允许 32 个事件订阅 (`REGISTRATION_MAX_EVENTS`)。
+- **参数**：`kind` (`string`, 1..=128 字节) 和 `handler` (`function`)。
+- **配额**：每个插件代次最多允许 256 个事件订阅 (`REGISTRATION_MAX_EVENTS`)。
 
 ### 标准事件列表
 
-| 事件名称               | 载荷属性 (Payload Attributes)                   | 说明                         |
-| :--------------------- | :---------------------------------------------- | :--------------------------- |
-| `"focus.changed"`      | `focused` (`boolean`), `panel_id` (`integer`)   | 窗格或窗口焦点获取/失去。    |
-| `"workspace.switched"` | `workspace_id` (`string`), `prev_id` (`string`) | 活动工作区发生变更。         |
-| `"theme.changed"`      | `theme` (`string`), `colors` (`table`)          | 全局色彩主题重新加载。       |
-| `"terminal.bell"`      | `terminal_id` (`integer`)                       | 终端铃声 (Bell) 报警被触发。 |
+宿主只接纳封闭集合内的事件类型；订阅未知类型将安全拒绝载荷：
+
+| 事件名称                   | 说明                                                                                        |
+| :------------------------- | :------------------------------------------------------------------------------------------ |
+| `"terminal.opened"`        | 终端会话已打开。                                                                            |
+| `"terminal.closed"`        | 终端会话已关闭。                                                                            |
+| `"terminal.title-changed"` | 终端标题发生变更。                                                                          |
+| `"terminal.cwd-changed"`   | 终端工作目录发生变更。                                                                      |
+| `"terminal.bell"`          | 终端铃声 (Bell) 报警被触发。                                                                |
+| `"focus.changed"`          | 窗格或窗口焦点获取/失去。                                                                   |
+| `"selection.changed"`      | 终端选区发生变更。                                                                          |
+| `"process.exited"`         | 被监管的子进程已退出。                                                                      |
+| `"config.reloaded"`        | 生效配置已重新加载。                                                                        |
+| `"plugin.activated"`       | 插件代次已激活。                                                                            |
+| `"plugin.suspended"`       | 插件代次已挂起。                                                                            |
+| `"plugin.disposed"`        | 插件代次已销毁。                                                                            |
+| `"handler.violation"`      | 插件处理器违反预算或契约。                                                                  |
+| `"intercept.*"`            | 门控拦截钩子（`command-dispatch`、`terminal-spawn`、`paste`、`open-url`）——载荷按授予脱敏。 |

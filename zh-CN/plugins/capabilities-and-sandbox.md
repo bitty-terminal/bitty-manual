@@ -48,7 +48,7 @@ version = ">=2.30"
    - `workspace.read`：允许通过 `bitty.workspace.list` 检查工作区状态。
    - `workspace.control`：允许切换、创建、关闭和移动工作区与面板。
 4. **`network` 家族**：
-   - 必须且仅能通过上游 `bitty-net` 原生协进程（DIR-030 架构）代理转发，插件永远无法直接接触裸套接字。
+   - 必须且仅能经原生组件边界之后的上游原生协进程代理转发（见[原生组件边界](upstream-components.md)），插件永远无法直接接触裸套接字。
    - 主机与域名必须在 `[network].allow` 白名单中明确声明。
 5. **`process.spawn` 与工具家族**：
    - 严禁随意创建进程。
@@ -77,10 +77,11 @@ version = ">=2.30"
 - **全局宿主队列**：8,192 个事件 (2 MiB)。
 - 当插件未能及时消费事件时，宿主采用 `DropOldest`（丢弃最旧事件）策略以防止内存无限增长。
 
-## 诊断自省 (`bitty plugin doctor`)
+## 诊断自省 (`bitty plugin list`)
 
-随时运行 `bitty plugin doctor`，可查看所有已安装插件的实时内存占用、执行燃料消耗、事件丢弃情况及工具依赖状态：
+随时查看已记录的来源、状态与能力授予：
 
 ```bash
-bitty plugin doctor
+bitty plugin list
+bitty plugin info <id>
 ```

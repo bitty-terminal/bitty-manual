@@ -191,9 +191,39 @@ try {
   });
   cpSync(zipLatestPath, zipVersionPath);
 
+  // Per-locale archives for the offline `doc` plugin: one bundle per
+  // language so readers download only their locale from the CDN.
+  const localeArchives = [];
+  for (const locale of locales) {
+    const localeTarLatest = `bitty-manual-${locale}-latest.tar.gz`;
+    const localeTarVersion = `bitty-manual-${version}-${locale}.tar.gz`;
+    const localeZipLatest = `bitty-manual-${locale}-latest.zip`;
+    const localeZipVersion = `bitty-manual-${version}-${locale}.zip`;
+    execSync(
+      `tar -czf "${join(distDir, localeTarLatest)}" -C "${distManualDir}" "${locale}" manifest.json toc.json`,
+      { stdio: "inherit" },
+    );
+    cpSync(join(distDir, localeTarLatest), join(distDir, localeTarVersion));
+    execSync(
+      `zip -q -r "${join(distDir, localeZipLatest)}" "${locale}" manifest.json toc.json`,
+      {
+        cwd: distManualDir,
+        stdio: "inherit",
+      },
+    );
+    cpSync(join(distDir, localeZipLatest), join(distDir, localeZipVersion));
+    localeArchives.push(
+      localeTarLatest,
+      localeTarVersion,
+      localeZipLatest,
+      localeZipVersion,
+    );
+  }
+
   console.log(`📦 Created release archives:`);
   console.log(`   - ${tarLatestName} & ${tarVersionName}`);
   console.log(`   - ${zipLatestName} & ${zipVersionName}`);
+  console.log(`   - per-locale: ${localeArchives.join(", ")}`);
 } catch (err) {
   console.error("❌ Failed to create archive bundles:", err);
   process.exit(1);
@@ -206,6 +236,14 @@ const archivesToHash = [
   zipLatestName,
   zipVersionName,
 ];
+for (const locale of locales) {
+  archivesToHash.push(
+    `bitty-manual-${locale}-latest.tar.gz`,
+    `bitty-manual-${version}-${locale}.tar.gz`,
+    `bitty-manual-${locale}-latest.zip`,
+    `bitty-manual-${version}-${locale}.zip`,
+  );
+}
 
 let checksumsOutput = "";
 for (const filename of archivesToHash) {

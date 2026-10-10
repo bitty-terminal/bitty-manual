@@ -35,7 +35,7 @@ ui = ["ui.rich"]
 
 [lazy]
 commands = ["my-plugin:open"]
-events = ["terminal.focus_gained"]
+events = ["terminal.opened"]
 ```
 
 ### Manifest Tables Explained
@@ -63,15 +63,15 @@ $$\text{Installed} \longrightarrow \text{Loaded} \longrightarrow \text{Active}$$
 Install your local plugin during development using the CLI:
 
 ```bash
-# Add local directory as an installed plugin
-bitty plugin add ./my-plugin
+# Install a local directory as a plugin package
+bitty plugin install ./my-plugin
 
-# Check diagnostics and status
-bitty plugin doctor
+# List recorded plugins and their capability grants
+bitty plugin list
 ```
 
 ## Next Steps
 
 - [Capabilities & Sandboxing](capabilities-and-sandbox.md) — Learn about security boundaries, resource quotas, and capability families.
-- [Upstream Native Components](upstream-components.md) — Understand how native infrastructure is shared across plugins.
+- [Native Component Boundary](upstream-components.md) — Understand how native infrastructure is shared across plugins.
 - [Lua API Reference](../api/overview.md) — Explore the sandboxed `bitty.*` API surface.

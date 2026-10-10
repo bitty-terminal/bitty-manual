@@ -16,11 +16,16 @@ Bitty 将所有配置变更划分为三个级别：
 
 ### 窗口与内边距 (Window & Padding)
 
-| 配置字段           | 类型      | 重载级别 | 描述                                 |
-| :----------------- | :-------- | :------- | :----------------------------------- |
-| `window.opacity`   | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。      |
-| `window.padding`   | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。 |
-| `window.radius_px` | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）。 |
+| 配置字段                     | 类型      | 重载级别 | 描述                                                                                                                                                   |
+| :--------------------------- | :-------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。                                                                                                                        |
+| `window.padding`             | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。                                                                                                                   |
+| `window.radius_px`           | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）。                                                                                                                   |
+| `window.blur_radius`         | `integer` | **Live** | 背景模糊半径（逻辑像素，`0..=128`；各平台支持程度不同）。                                                                                              |
+| `window.background_image`    | `string`  | **Live** | 窗口背景图路径（绝对路径或 `~` 开头，`<= 4096` 字节，需位于批准根目录下）。                                                                            |
+| `window.background_fit`      | `string`  | **Live** | 适配模式：`"fill"`（覆盖，默认）、`"fit"`（容纳）、`"center"`、`"tile"`、`"stretch"`。                                                                 |
+| `window.background_opacity`  | `float`   | **Live** | 背景图压暗系数（`0.0..=1.0`，默认 `1.0`）；与 `window.opacity` 正交。                                                                                  |
+| `window.background_position` | `string`  | **Live** | `"center"`（默认）、`"top-left"`、`"top"`、`"top-right"`、`"left"`、`"right"`、`"bottom-left"`、`"bottom"`、`"bottom-right"`；仅 `fit`/`center` 生效。 |
 
 ### 装饰与边框 (Decoration & Borders)
 
@@ -70,14 +75,14 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 
 ### 布局与工作区 (Layout & Workspaces)
 
-| 配置字段             | 类型      | 重载级别            | 描述                                                                                    |
-| :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------- |
-| `layout.gaps_in`     | `integer` | **RestartRequired** | 兄弟窗格之间的网格单元间隙（字符单元格为单位，`0` 为无缝平铺）。                        |
-| `layout.gaps_out`    | `integer` | **RestartRequired** | 容器边缘与窗格之间的外部间隙（字符单元格为单位）。                                      |
-| `layout.resize_step` | `float`   | **Live**            | 分屏缩放快捷键触发的分屏比例增量（`0.01..=0.5`，默认 `0.05`）。                         |
-| `workspace.layout`   | `string`  | **RestartRequired** | 新建工作区的默认平铺布局提供者（如 `"dwindle"`、`"bsp"`）。                             |
-| `workspace.show_bar` | `boolean` | **Live**            | 是否显示工作区状态栏（由下游 `bar` 插件消费；Bitty Core 不绘制原生状态栏）。            |
-| `workspace.bar.edge` | `string`  | **Live**            | 工作区状态栏边缘位置（`"top"` 或 `"bottom"`，默认 `"bottom"`，由下游 `bar` 插件消费）。 |
+| 配置字段             | 类型      | 重载级别            | 描述                                                                             |
+| :------------------- | :-------- | :------------------ | :------------------------------------------------------------------------------- |
+| `layout.gaps_in`     | `integer` | **RestartRequired** | 兄弟窗格之间的网格单元间隙（字符单元格为单位，`0` 为无缝平铺）。                 |
+| `layout.gaps_out`    | `integer` | **RestartRequired** | 容器边缘与窗格之间的外部间隙（字符单元格为单位）。                               |
+| `layout.resize_step` | `float`   | **Live**            | 分屏缩放快捷键触发的分屏比例增量（`0.01..=0.5`，默认 `0.05`）。                  |
+| `workspace.layout`   | `string`  | **RestartRequired** | 新建工作区的默认平铺布局提供者（如 `"dwindle"`、`"bsp"`）。                      |
+| `workspace.show_bar` | `boolean` | **Live**            | 是否显示工作区状态栏（Core 预留输入，由扩展消费；Bitty Core 不绘制原生状态栏）。 |
+| `workspace.bar.edge` | `string`  | **Live**            | 工作区状态栏边缘位置（`"top"` 或 `"bottom"`，默认 `"bottom"`，由扩展消费）。     |
 
 ### 外观、主题与动效 (Appearance, Themes & Animations)
 
@@ -156,7 +161,7 @@ return {
   },
   workspace = {
     layout = "dwindle",
-    -- 以下字段供下游 `bar` 插件读取配置（Bitty Core 本身不绘制原生状态栏）：
+    -- 以下字段为 Core 预留输入，由扩展消费（Bitty Core 本身不绘制原生状态栏）：
     show_bar = true,
     bar = {
       edge = "bottom",

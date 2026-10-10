@@ -19,7 +19,7 @@ Global bitty Namespace
 │   ├── bitty.settings        # 读写用户配置项
 │   ├── bitty.timers          # 高精度异步定时器
 │   ├── bitty.tasks           # 异步任务执行器
-│   └── bitty.services        # 跨插件与上游原生服务提供总线
+│   └── bitty.services        # 跨插件服务提供总线（仅对等提供）
 └── L2 Presentation & UI (展示与界面)
     └── bitty.ui              # 声明式 UI 场景树、插槽与覆层系统
 ```
@@ -82,5 +82,5 @@ end
 - [bitty.ui 参考文档](ui.md) — 声明式场景树、插槽、覆层与目标渲染框架。
 - [bitty.commands 与 bitty.keymaps 参考文档](commands-keymaps.md) — 命令注册与键盘快捷键序列管理。
 - [bitty.panel 与 bitty.workspace 参考文档](panel-workspace.md) — 面板展示模式、布局操作与工作区导航。
-- [bitty.services、通知与状态管理参考文档](services-notify.md) — 上游原生服务、桌面通知、键值存储与定时器。
+- [bitty.services、通知与状态管理参考文档](services-notify.md) — 服务发现、桌面通知、键值存储与定时器。
 - [核心系统 API 参考文档](system.md) — 终端快照、配置反射、沙箱化环境变量、文件系统与任务。

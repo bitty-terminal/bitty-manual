@@ -79,7 +79,16 @@ const rootArchives = [
   "bitty-manual-latest.zip",
   `bitty-manual-${version}.zip`,
   "SHA256SUMS.txt",
-]
+];
+for (const locale of manifest.locales || ["en"]) {
+  rootArchives.push(
+    `bitty-manual-${locale}-latest.tar.gz`,
+    `bitty-manual-${version}-${locale}.tar.gz`,
+    `bitty-manual-${locale}-latest.zip`,
+    `bitty-manual-${version}-${locale}.zip`,
+  );
+}
+const rootArchiveQueue = rootArchives
   .filter((f) => existsSync(join(distDir, f)))
   .map((f) => ({
     localPath: join(distDir, f),
@@ -104,7 +113,7 @@ for (const item of manualFiles) {
 }
 
 // Enqueue root archives
-for (const item of rootArchives) {
+for (const item of rootArchiveQueue) {
   const ct = getContentType(item.localPath);
   uploadQueue.push({
     localPath: item.localPath,
