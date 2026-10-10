@@ -24,6 +24,7 @@ bitty.commands.register({
 ```
 
 - **参数**：包含 `id` (`string`, 最长 128 字节)、`title` (`string`, 最长 128 字节)、可选 `description` (`string`, 最长 1024 字节) 和 `run` (`function`) 的表。
+- **配额**：每个插件代次最多允许 128 个已注册命令 (`REGISTRATION_MAX_COMMANDS`)。
 - **延迟加载清单声明**：在 `bitty-plugin.toml` 的 `[lazy]` 下声明 `commands = ["my-plugin:format-buffer"]`。启动时，命令将立即出现在命令面板中，而无需初始化该插件的 Lua VM。当用户首次调用该命令时，VM 才会按需加载。
 
 ## 键位建议 (`bitty.keymaps`)
