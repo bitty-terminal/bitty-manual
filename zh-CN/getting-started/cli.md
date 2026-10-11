@@ -204,9 +204,9 @@ bitty plugin info <id>
 > [!NOTE]
 > 远端（`git`）来源与本地压缩包暂不支持：`install` 只接受内置 id 或已解包的本地目录。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
-### 原生组件管理 (`bitty component`)
+### 原生扩展管理 (`bitty component`)
 
-管理进程外原生协进程二进制（用户 `$XDG_DATA_HOME/bitty/components/` 优先于系统路径；SHA-256 摘要校验）：
+管理进程外上游扩展二进制（用户 `$XDG_DATA_HOME/bitty/extensions/` 优先于系统路径；SHA-256 摘要校验）：
 
 ```bash
 # 列出已注册的原生协进程组件及其二进制摘要

@@ -73,5 +73,5 @@ bitty plugin list
 ## Next Steps
 
 - [Capabilities & Sandboxing](capabilities-and-sandbox.md) — Learn about security boundaries, resource quotas, and capability families.
-- [Native Component Boundary](upstream-components.md) — Understand how native infrastructure is shared across plugins.
+- [Native Component Boundary](upstream-components.md) — Understand how upstream prebuilt extensions share native infrastructure across plugins.
 - [Lua API Reference](../api/overview.md) — Explore the sandboxed `bitty.*` API surface.

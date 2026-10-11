@@ -73,5 +73,5 @@ bitty plugin list
 ## 下一步
 
 - [能力鉴权与沙箱机制](capabilities-and-sandbox.md) — 了解安全边界、资源配额与能力家族。
-- [原生组件边界](upstream-components.md) — 理解原生基础设施如何在插件间复用。
+- [原生组件边界](upstream-components.md) — 理解上游预构建扩展如何在插件间共享原生基础设施。
 - [Lua API 参考手册](../api/overview.md) — 探索沙箱化 `bitty.*` API 全貌。

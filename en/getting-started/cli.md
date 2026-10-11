@@ -204,9 +204,9 @@ bitty plugin info <id>
 > [!NOTE]
 > Remote (`git`) sources and local archives are not accepted yet: `install` takes a bundled id or an unpacked local directory. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
 
-### Native Component Management (`bitty component`)
+### Native Extension Management (`bitty component`)
 
-Manage out-of-process native coprocess binaries (user `$XDG_DATA_HOME/bitty/components/` wins over system paths; SHA-256 digest verified):
+Manage out-of-process upstream extension binaries (user `$XDG_DATA_HOME/bitty/extensions/` wins over system paths; SHA-256 digest verified):
 
 ```bash
 # List registered native coprocess components and binary digests
