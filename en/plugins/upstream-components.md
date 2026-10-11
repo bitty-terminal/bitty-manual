@@ -32,14 +32,14 @@ External Resource
 
 1. **On-Demand Stdio Coprocess**: Bitty Core spawns the native component upon first usage, communicates over standard input and output (`stdin` / `stdout`), and gracefully suspends or terminates it when idle.
 2. **Zero `dlopen` & Zero Ambient Daemon**: Components are never dynamically loaded into the Core process space (preserving host stability and memory boundaries), nor do they run as lingering system background daemons.
-3. **No PATH Scanning**: Bitty Core never scans system `$PATH` for components. Binaries live at explicit paths (user `$XDG_DATA_HOME/bitty/components/` wins over system locations) with cryptographic SHA-256 digest validation.
+3. **No PATH Scanning**: Bitty Core never scans system `$PATH` for extensions. Extension binaries live at explicit paths (user `$XDG_DATA_HOME/bitty/extensions/` wins over system locations) with cryptographic SHA-256 digest validation.
 4. **Mechanism vs. Policy Separation**:
    - **Core is the Policy Authority**: Core validates permission grants, user consent, request deadlines, and body byte ceilings.
    - **The Component is the Execution Mechanism**: The component performs the heavy work and re-verifies handed capability tokens as defense-in-depth.
 
 ## Bootstrapping Without a Network Stack
 
-Core links no network client, so distribution itself is bootstrapped from tools the OS already ships: fixed-argument system `curl` fetches hash-pinned release bundles from the CDN, system `tar` unpacks them, and SHA-256 verification runs before anything is staged. No toolchain is required on the user machine.
+Core links no network client, so distribution itself is bootstrapped from tools the OS already ships: fixed-argument system `curl` fetches hash-pinned release bundles from the CDN (R2 `bitty/extensions/` prefix), system `tar` unpacks them, and SHA-256 verification runs before anything is staged. No toolchain is required on the user machine.
 
 ## Component Administration
 
