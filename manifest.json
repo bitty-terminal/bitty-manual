@@ -33,6 +33,11 @@
           "slug": "workspaces-panels",
           "title": "Workspaces & Panels",
           "path": "configuration/workspaces-panels.md"
+        },
+        {
+          "slug": "actions-catalog",
+          "title": "Actions Catalog",
+          "path": "configuration/actions-catalog.md"
         }
       ]
     },
