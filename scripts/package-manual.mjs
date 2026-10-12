@@ -229,12 +229,60 @@ try {
   process.exit(1);
 }
 
-// 4. Generate SHA256 checksums
+// 4. Per-locale bundles for the per-package CDN layout
+// (`manual/bitty-manual/<locale>.tar.gz`). Each bundle holds that locale's
+// tree plus the manifest, so a new locale ships as new files without
+// renaming existing keys.
+const localeArchives = [];
+for (const locale of locales) {
+  const stageDir = join(distDir, `.stage-${locale}`);
+  if (existsSync(stageDir)) {
+    rmSync(stageDir, { recursive: true, force: true });
+  }
+  mkdirSync(stageDir, { recursive: true });
+  cpSync(join(distManualDir, locale), join(stageDir, locale), {
+    recursive: true,
+  });
+  cpSync(join(distManualDir, "manifest.json"), join(stageDir, "manifest.json"));
+
+  const localeTarLatest = `bitty-manual-${locale}-latest.tar.gz`;
+  const localeTarVersion = `bitty-manual-${locale}-${version}.tar.gz`;
+  const localeZipLatest = `bitty-manual-${locale}-latest.zip`;
+  const localeZipVersion = `bitty-manual-${locale}-${version}.zip`;
+  try {
+    execSync(
+      `tar -czf "${join(distDir, localeTarLatest)}" -C "${stageDir}" .`,
+      {
+        stdio: "inherit",
+      },
+    );
+    cpSync(join(distDir, localeTarLatest), join(distDir, localeTarVersion));
+    execSync(`zip -q -r "${join(distDir, localeZipLatest)}" .`, {
+      cwd: stageDir,
+      stdio: "inherit",
+    });
+    cpSync(join(distDir, localeZipLatest), join(distDir, localeZipVersion));
+  } catch (err) {
+    console.error(`❌ Failed to create ${locale} archive bundle:`, err);
+    process.exit(1);
+  }
+  rmSync(stageDir, { recursive: true, force: true });
+  localeArchives.push(
+    localeTarLatest,
+    localeTarVersion,
+    localeZipLatest,
+    localeZipVersion,
+  );
+  console.log(`📦 Created per-locale bundle set for '${locale}'.`);
+}
+
+// 5. Generate SHA256 checksums (combined + per-locale bundles)
 const archivesToHash = [
   tarLatestName,
   tarVersionName,
   zipLatestName,
   zipVersionName,
+  ...localeArchives,
 ];
 for (const locale of locales) {
   archivesToHash.push(

@@ -41,20 +41,44 @@ stdio 线协议 v1 (帧式 JSON / 二进制 IPC)
 
 Core 不链接任何网络客户端，因此分发本身从操作系统自带工具自举：固定参数的系统 `curl` 从 CDN（R2 `bitty/extensions/` 前缀）拉取哈希锁定的发布包，系统 `tar` 解包，暂存前先做 SHA-256 校验。用户机器无需任何工具链。
 
-## 组件管理
+## 扩展管理命令 (`bitty extension`)
 
-经 CLI 管理已注册的原生组件（见 [CLI 命令行参数与控制](../getting-started/cli.md)）：
+经 CLI 管理已注册的上游扩展二进制程序（见 [CLI 命令行参数与控制](../getting-started/cli.md)）。规范动词为 `extension`；`component` 仅作为隐藏的已弃用别名保留（同一处理逻辑，在 stderr 输出弃用提示，至少保留至 0.1.0），绝不出现在帮助文本或 Shell 补全中。解析时用户层优先：`$XDG_DATA_HOME/bitty/extensions/` 优先于系统层，系统层对该命令只读。
 
 ```bash
-# 列出已注册组件并校验二进制摘要完整性
-bitty component list
+# 列出已安装的扩展及其二进制摘要完整性
+bitty extension list
 
-# 注册经验证的二进制程序
-bitty component add /path/to/component-binary
+# 仅从本地路径暂存扩展（不下载）
+bitty extension add /usr/local/bin/bitty-net
 
-# 从 CDN 拉取并校验、暂存一个哈希锁定的发布包
-bitty component install <name>
+# 拉取一个经哈希校验的 R2 预构建版本（TOFU 锁定，见下文）
+bitty extension install net --version 0.0.23
 
-# 移除组件
-bitty component remove <name>
+# 移除用户层扩展（绝不触碰系统层）
+bitty extension remove net
 ```
+
+### 安装信任：用户确认、TOFU 锁定与更新差异预览
+
+`install` 经由最小化种子拉取（固定参数的系统 `curl`、系统 `tar`，暂存前完成 SHA-256 校验）。信任机制如下：
+
+- **显式用户确认**：除双摘要静默验证通过的版本外，安装均需确认；`--yes` 以非交互方式批准，拒绝则以退出码 `1` 中止且不产生任何变更。
+- **TOFU 锁定**：首次拉取记录经校验的 CDN 摘要；后续摘要不一致则作为锁定不匹配失败并关闭（退出码 `4`）。锁定永不自动更新；核验无误后可用 `--force` 重新锁定。
+- **更新差异预览**：当拉取将改变 TOFU 锁定时，`install` 在应用前渲染新旧统一差异预览。仅为预览——用户确认与 `--force` 语义不变，差异在本地计算，不产生网络请求。首次拉取不渲染任何内容。
+
+退出码：`0` 成功，`1` 用户拒绝确认或拉取环境缺失，`2` 用法错误，`4` 扩展错误（完整性、摘要、锁定不匹配）。
+
+## 源码透明 (`show-source` 与可读性规则)
+
+每个已安装的扩展均可逐字节审计：
+
+```bash
+# 打印精确锁定的可执行文件字节（版本默认为当前激活版本）
+bitty extension show-source net
+bitty extension show-source net 0.0.23
+```
+
+打印前依据已安装的描述符重新校验可执行文件哈希；安装缺失或哈希不匹配则失败并关闭（退出码 `4`），标准输出不打印任何内容。来源信息（名称、版本、来源层级、路径、SHA-256）输出至标准错误，因此标准输出保持逐字节一致，可直接用于管道与哈希校验。不执行任何代码。
+
+**禁止混淆规则**：人类可读的源文本（`bitty-component.toml` 描述符与 Lua 源码）不得呈现压缩形态。文档化的启发规则拒绝单行超过 1000 字节或平均每行超过 200 字节的文本，在加载器与版本打包校验中同时强制执行——压缩形态的输入在产生任何输出前即失败并关闭。

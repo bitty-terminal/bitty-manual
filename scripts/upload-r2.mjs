@@ -28,6 +28,9 @@ const manifest = JSON.parse(
   readFileSync(join(distManualDir, "manifest.json"), "utf-8"),
 );
 const version = manifest.version || "0.1.0";
+const locales = manifest.locales || ["en"];
+const packageName =
+  (manifest.distribution && manifest.distribution.package) || "bitty-manual";
 
 console.log(
   `🚀 [bitty-manual R2 Upload] Target bucket: '${bucketName}', Prefix: '${r2Prefix}/', Mode: ${isDryRun ? "DRY-RUN" : "LIVE (REMOTE)"}, Concurrency: ${CONCURRENCY}`,
@@ -69,10 +72,13 @@ function collectFiles(dir, baseDir) {
   return results;
 }
 
-// 1. Files inside dist/manual/ -> manual/<relPath> and manual/latest/<relPath>
+// 1. Files inside dist/manual/ -> canonical manual/<package>/<relPath> plus
+// legacy compat manual/<relPath> and manual/latest/<relPath> (dual-publish;
+// legacy sunset is documented in README.md).
 const manualFiles = collectFiles(distManualDir, distManualDir);
 
-// 2. Root archive bundles in dist/ -> manual/<filename>
+// 2. Root archive bundles in dist/ -> manual/<filename> (legacy compat only;
+// the canonical bundles are the per-locale sets in section 3).
 const rootArchives = [
   "bitty-manual-latest.tar.gz",
   `bitty-manual-${version}.tar.gz`,
@@ -95,11 +101,48 @@ const rootArchiveQueue = rootArchives
     relPath: f,
   }));
 
+// 3. Per-locale bundles in dist/ -> canonical per-package keys with
+// immutable versioned copies (manual/<package>/v<version>/ is long-cached).
+const packageArchives = [];
+for (const locale of locales) {
+  const pairs = [
+    [`bitty-manual-${locale}-latest.tar.gz`, `${locale}.tar.gz`],
+    [`bitty-manual-${locale}-latest.zip`, `${locale}.zip`],
+    [
+      `bitty-manual-${locale}-${version}.tar.gz`,
+      `v${version}/${locale}.tar.gz`,
+    ],
+    [`bitty-manual-${locale}-${version}.zip`, `v${version}/${locale}.zip`],
+  ];
+  for (const [filename, keySuffix] of pairs) {
+    if (existsSync(join(distDir, filename))) {
+      packageArchives.push({
+        localPath: join(distDir, filename),
+        relPath: keySuffix,
+      });
+    }
+  }
+}
+
+// 4. Immutable versioned index copies alongside the per-locale bundles.
+const versionedIndexes = ["manifest.json", "search-index.json", "toc.json"]
+  .filter((f) => existsSync(join(distManualDir, f)))
+  .map((f) => ({
+    localPath: join(distManualDir, f),
+    relPath: `v${version}/${f}`,
+  }));
+
 const uploadQueue = [];
 
-// Enqueue individual manual content (markdown, JSON, etc.)
+// Enqueue canonical per-package manual content (markdown, JSON, etc.)
 for (const item of manualFiles) {
   const ct = getContentType(item.localPath);
+  uploadQueue.push({
+    localPath: item.localPath,
+    r2Key: `${r2Prefix}/${packageName}/${item.relPath}`,
+    contentType: ct,
+  });
+  // Legacy compat copies (dual-publish until the documented sunset).
   uploadQueue.push({
     localPath: item.localPath,
     r2Key: `${r2Prefix}/${item.relPath}`,
@@ -112,12 +155,22 @@ for (const item of manualFiles) {
   });
 }
 
-// Enqueue root archives
+// Enqueue legacy root archives (compat only).
 for (const item of rootArchiveQueue) {
   const ct = getContentType(item.localPath);
   uploadQueue.push({
     localPath: item.localPath,
     r2Key: `${r2Prefix}/${item.relPath}`,
+    contentType: ct,
+  });
+}
+
+// Enqueue canonical per-locale bundles + versioned index copies.
+for (const item of packageArchives.concat(versionedIndexes)) {
+  const ct = getContentType(item.localPath);
+  uploadQueue.push({
+    localPath: item.localPath,
+    r2Key: `${r2Prefix}/${packageName}/${item.relPath}`,
     contentType: ct,
   });
 }
