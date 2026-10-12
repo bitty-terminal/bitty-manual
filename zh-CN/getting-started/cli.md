@@ -204,22 +204,27 @@ bitty plugin info <id>
 > [!NOTE]
 > 远端（`git`）来源与本地压缩包暂不支持：`install` 只接受内置 id 或已解包的本地目录。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
-### 原生扩展管理 (`bitty component`)
+能力安装时提示 `Grant these capabilities? [y/N]`；`--yes` 以非交互方式批准。授权绑定到精确的清单哈希，新增能力始终需要重新确认。
 
-管理进程外上游扩展二进制（用户 `$XDG_DATA_HOME/bitty/extensions/` 优先于系统路径；SHA-256 摘要校验）：
+### 原生扩展管理 (`bitty extension`)
+
+管理进程外上游扩展二进制（用户 `$XDG_DATA_HOME/bitty/extensions/` 优先于系统路径；SHA-256 摘要校验）。`component` 是 `extension` 的隐藏已弃用别名（同一处理逻辑，至少保留至 0.1.0），绝不出现在帮助文本中。
 
 ```bash
-# 列出已注册的原生协进程组件及其二进制摘要
-bitty component list
+# 列出已安装的扩展及其二进制摘要
+bitty extension list
 
-# 注册经验证的原生组件二进制程序
-bitty component add /path/to/component-binary
+# 仅从本地路径暂存扩展（不下载）
+bitty extension add /usr/local/bin/bitty-net
 
-# 从 CDN 拉取并校验、暂存一个哈希锁定的发布包
-bitty component install <name>
+# 拉取一个经哈希校验的 R2 预构建版本（显式确认，TOFU 锁定）
+bitty extension install net --version 0.0.23
 
-# 移除已注册的原生组件
-bitty component remove <name>
+# 移除用户层扩展（绝不触碰系统层）
+bitty extension remove net
+
+# 打印精确锁定的可执行文件字节（来源信息输出至 stderr）
+bitty extension show-source net
 ```
 
 ### 直接调用 (`bitty cmd`)

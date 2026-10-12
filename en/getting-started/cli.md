@@ -204,22 +204,27 @@ bitty plugin info <id>
 > [!NOTE]
 > Remote (`git`) sources and local archives are not accepted yet: `install` takes a bundled id or an unpacked local directory. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
 
-### Native Extension Management (`bitty component`)
+Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
-Manage out-of-process upstream extension binaries (user `$XDG_DATA_HOME/bitty/extensions/` wins over system paths; SHA-256 digest verified):
+### Native Extension Management (`bitty extension`)
+
+Manage out-of-process upstream extension binaries (user `$XDG_DATA_HOME/bitty/extensions/` wins over system paths; SHA-256 digest verified). `component` is a hidden deprecated alias for `extension` (same handlers, kept at least through 0.1.0) and never appears in help.
 
 ```bash
-# List registered native coprocess components and binary digests
-bitty component list
+# List installed extensions and binary digests
+bitty extension list
 
-# Register a verified native component binary
-bitty component add /usr/local/bin/bitty-net
+# Stage an extension from a local path only (no download)
+bitty extension add /usr/local/bin/bitty-net
 
-# Fetch + verify + stage one hash-pinned release bundle from the CDN
-bitty component install <name>
+# Fetch one hash-verified R2 prebuilt release (explicit consent, TOFU-pinned)
+bitty extension install net --version 0.0.23
 
-# Remove a registered component
-bitty component remove net
+# Remove a user-tier extension (never touches the system tier)
+bitty extension remove net
+
+# Print the exact pinned executable bytes (provenance on stderr)
+bitty extension show-source net
 ```
 
 ### Direct Invocation (`bitty cmd`)

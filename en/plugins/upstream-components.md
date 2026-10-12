@@ -41,20 +41,44 @@ External Resource
 
 Core links no network client, so distribution itself is bootstrapped from tools the OS already ships: fixed-argument system `curl` fetches hash-pinned release bundles from the CDN (R2 `bitty/extensions/` prefix), system `tar` unpacks them, and SHA-256 verification runs before anything is staged. No toolchain is required on the user machine.
 
-## Component Administration
+## Extension Administration (`bitty extension`)
 
-Manage registered native components via the CLI (see [CLI Commands & Controls](../getting-started/cli.md)):
+Manage registered upstream extension binaries via the CLI (see [CLI Commands & Controls](../getting-started/cli.md)). The canonical verb is `extension`; `component` remains as a hidden deprecated alias (same handlers, stderr deprecation note, kept at least through 0.1.0) and never appears in help or shell completions. Resolution is user-tier first: `$XDG_DATA_HOME/bitty/extensions/` wins over the system tier, which is read-only for this command.
 
 ```bash
-# List registered components and verify binary digest integrity
-bitty component list
+# List installed extensions and binary digest integrity
+bitty extension list
 
-# Register a verified binary
-bitty component add /path/to/component-binary
+# Stage an extension from a local path only (no download)
+bitty extension add /usr/local/bin/bitty-net
 
-# Fetch + verify + stage one hash-pinned release bundle from the CDN
-bitty component install <name>
+# Fetch one hash-verified R2 prebuilt release (TOFU-pinned, see below)
+bitty extension install net --version 0.0.23
 
-# Remove a component
-bitty component remove <name>
+# Remove a user-tier extension (never touches the system tier)
+bitty extension remove net
 ```
+
+### Install Trust: Consent, TOFU Pins, and Update Diffs
+
+`install` fetches through a minimal seed (fixed-argument system `curl`, system `tar`, SHA-256 verification before anything is staged). Trust works as follows:
+
+- **Explicit consent**: unless the release is dual-digest verified silent, installation prompts for confirmation; `--yes` approves non-interactively, a decline aborts with exit code `1` and nothing changed.
+- **TOFU pinning**: first contact records the verified CDN digest; a later differing digest fails closed as pin-mismatch (exit code `4`). The pin never auto-updates; `--force` re-pins after verification.
+- **Update-diff preview**: when a fetch would change the TOFU pin, `install` renders a unified old-vs-new diff preview before applying. Preview only — consent and `--force` semantics are unchanged, and the diff is computed locally with no network. First contact renders nothing.
+
+Exit codes: `0` success, `1` declined consent or fetch-environment failure, `2` usage error, `4` extension error (integrity, digest, pin-mismatch).
+
+## Source Transparency (`show-source` and Readability)
+
+Every installed extension is auditable byte-for-byte:
+
+```bash
+# Print the exact pinned executable bytes (version defaults to active)
+bitty extension show-source net
+bitty extension show-source net 0.0.23
+```
+
+The executable hash is re-verified against the installed descriptor before anything is printed; a missing install or hash mismatch fails closed (exit code `4`) with nothing on standard output. Provenance (name, version, source tier, path, SHA-256) goes to standard error so standard output stays byte-identical for piping and hashing. Nothing is executed.
+
+**No-obfuscation rule**: human-readable source text (the `bitty-component.toml` descriptor plus Lua sources) must not look minified. The documented heuristic refuses text with any line over 1000 bytes or an average over 200 bytes per line, enforced both in the loader and in release-pack validation — minified input fails closed before any output is written.
