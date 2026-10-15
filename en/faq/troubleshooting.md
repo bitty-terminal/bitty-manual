@@ -18,6 +18,35 @@ bitty --safe
 
 Safe Mode allows you to open a terminal session, locate offending configuration files, or remove broken plugins without GUI crashes.
 
+Safe-mode CLI verbs (`bitty doctor`, `bitty config check`, `bitty plugin list`) run without any plugin VM, so diagnosis works even when a plugin is the problem. The headless parity suite pins this: safe mode is a full startup posture, not a degraded guess.
+
+---
+
+## Plugin Activation Errors (What They Mean)
+
+The host validates every plugin before activation and fails closed — a rejected plugin is disabled with a diagnostic, never partially activated. Match what you see against this table:
+
+| Symptom                                                       | Meaning                                                                                                                                                                                                                                                              | Fix                                                                                                                                            |
+| :------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install exits `4` with a compat diagnostic                    | The plugin's `[compat] bitty` range admits no intersection with your host (e.g. a plugin floored above your release, or your release above its ceiling). Official plugins floor at `>=0.0.21,<0.1`, admitting the whole 0.0.x line; a rejection means genuine skew.  | Upgrade Bitty, or install a plugin release whose range admits your host. The ceiling is deliberately restrictive because 0.x minors may break. |
+| `bitty plugin list` shows the plugin disabled after an update | Version or capability mismatch recorded at load (`disabled_reason`); the plugin registered nothing — no commands, no keymap, no overlay.                                                                                                                             | Same as above; then `bitty plugin enable <id>` to retry after upgrading.                                                                       |
+| A bar module is missing but the bar renders                   | Not an error: the provider is absent, ungranted, stale, revoked, or malformed, so the module hid fail closed. Providers send raw numbers only — a lost source degrades to absence, never zeros.                                                                      | Grant the capability (`bitty plugin list` shows granted vs requested), or accept the hide on hosts without that hardware.                      |
+| Clicking a bar control shows a notification instead of acting | The control grant is missing or the host denied the call (`E_NOT_PERMITTED`). The click degrades to a notification by design — it never retries or escalates.                                                                                                        | Grant the control capability at install/consent time, or keep the read-only render.                                                            |
+| `E_SETTINGS_UNDECLARED` at activation                         | Plugin-author bug: the plugin read a settings key it never declared. Users cannot fix this from a config file.                                                                                                                                                       | Report it against the plugin; run `bitty --safe` to keep working meanwhile.                                                                    |
+| Your per-plugin config value seems ignored                    | Either the key is unknown (recorded as skipped, changes nothing), wrong-typed (that key fell back to its default), the whole file failed closed (duplicate key or structural garbage — everything runs on defaults), or the value needs a grant you did not approve. | Run `bitty config check`, compare each key against the plugin's declared settings, and check `bitty plugin list` for granted capabilities.     |
+
+> [!NOTE]
+> **PENDING — live-activation proofs.** Per-extension live activation on headed hosts is being proven in the 0.0.23 verification campaign. A plugin that installs cleanly headless but misbehaves headed is a verify-grade report: include `bitty doctor --format json` output and the plugin id and version.
+
+---
+
+## Compatibility Floors
+
+Two floors gate what runs where, and both fail closed with a diagnostic rather than a crash:
+
+- **Plugin-to-host floor**: each manifest declares `[compat] bitty` (official plugins: `>=0.0.21,<0.1`) and `plugin-api = "^1.0"`. The host resolves the intersection at install time; no overlap means no activation, exit code `4`.
+- **Package-to-distro floor**: native Linux packages declare their runtime dependencies per format (fontconfig, freetype, libgcc family) and every package is install-smoked in a clean container of its distro before release. An unrelated distro is best-effort, not supported — use the install script or build from source there.
+
 ---
 
 ## Validating Configuration Offline
@@ -25,7 +54,7 @@ Safe Mode allows you to open a terminal session, locate offending configuration 
 Before reloading your terminal, test your Lua configuration file without launching a GUI:
 
 ```bash
-bitty ctl config check
+bitty config check
 ```
 
 - Returns exit code `0` if all syntax and schema fields are valid.
