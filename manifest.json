@@ -46,6 +46,21 @@
           "path": "plugins/getting-started.md"
         },
         {
+          "slug": "bar-modules",
+          "title": "Bar Modules User Guide",
+          "path": "plugins/bar-modules.md"
+        },
+        {
+          "slug": "composer",
+          "title": "Composer Modal Usage",
+          "path": "plugins/composer.md"
+        },
+        {
+          "slug": "plugin-settings",
+          "title": "Per-Plugin Config Files",
+          "path": "plugins/plugin-settings.md"
+        },
+        {
           "slug": "capabilities-and-sandbox",
           "title": "Capabilities & Sandboxing",
           "path": "plugins/capabilities-and-sandbox.md"

@@ -4,43 +4,60 @@ Welcome to **Bitty**, a high-performance, programmable GPU-accelerated terminal 
 
 ## Installation
 
-Bitty is distributed across all major operating systems via automated install scripts, native package managers, prebuilt binaries, or built directly from source:
+Bitty is distributed across all major operating systems via automated install scripts, native packages, prebuilt binaries, or built directly from source:
 
 ### Automated Install Scripts
 
+The scripts resolve the release through a single pointer (`latest.txt` holds the current tag), download the matching per-OS artifact from R2, and verify its `.sha256` sidecar before installing. Verification is fail closed: a checksum mismatch aborts the install. No Rust toolchain is needed.
+
 ```bash
 # Linux and macOS (Unix)
-curl -fsSL https://cdn.bitty.run/install.sh | sh
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash
 
-# Windows (PowerShell)
-irm https://cdn.bitty.run/install.ps1 | iex
+# Pin a version, preview the plan, or change the install location
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.23
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --dry-run
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --prefix ~/.local
 ```
 
-### Native Package Managers
+```powershell
+# Windows (PowerShell, user-local, no admin rights needed)
+irm https://cdn.bitty.run/bitty/install/install.ps1 | iex
+```
+
+What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. Verification in 0.1.0 is hash-only: there are no signatures yet (Windows signing is deferred past 0.2.0).
+
+> [!NOTE]
+> **PENDING — live CDN verify.** The release workflow uploads both scripts to their stable R2 keys on every tag, but no live tag upload and CDN read-back has completed yet. If the URLs above do not resolve, the owner-side publish is still outstanding: install from a package manager or build from source below.
+
+### Native Packages
+
+Every Linux package is install-smoked in a clean container of its own distro (Ubuntu 24.04 deb, Fedora rpm, Arch package, Alpine musl apk) before a release can publish, so a package that installs or runs nowhere never ships.
 
 ```bash
-# Windows (Scoop)
-scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
-scoop install bitty
+# Arch Linux (AUR / paru) — published at tag time
+paru -S bitty-terminal
 
-# macOS (Homebrew)
+# macOS (Homebrew) — published at tag time
 brew tap bitty-terminal/tap
 brew install bitty
 
-# Arch Linux (AUR / paru)
-paru -S bitty-terminal
-
-# Universal Linux (Flatpak)
-flatpak install run.bitty.Bitty
+# Windows (Scoop) — published at tag time
+scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
+scoop install bitty
 ```
+
+> [!NOTE]
+> **PENDING — first tag publish.** AUR, Homebrew, and Scoop manifests are generated at tag time and gated on owner-side secrets. Until the first 0.0.23 tag publish completes, these channels may 404: use the install scripts or a native package instead. Flatpak (`flatpak install run.bitty.Bitty`) and further managers land progressively after 0.1.0 — **PENDING**.
 
 ### Cargo (crates.io)
 
-```bash
-# Install via Cargo
-# Note: The crate name is `bitty-terminal` because `bitty` was pre-registered on crates.io
-cargo install bitty-terminal --locked
-```
+> [!NOTE]
+> **PENDING.** `cargo install bitty-terminal` is not published yet (the crate name is `bitty-terminal` because `bitty` was pre-registered on crates.io). Until the first crates.io publish lands, build from source:
+>
+> ```bash
+> cargo install --git https://github.com/bitty-terminal/bitty.git --locked
+> ```
 
 ### Building from Source
 
