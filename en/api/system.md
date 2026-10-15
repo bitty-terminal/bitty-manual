@@ -83,7 +83,7 @@ if current_dir then
 end
 ```
 
-- **Parameters**: `key` (`string`, 1..=256 bytes, uppercase ASCII, digits, and underscores).
+- **Parameters**: `key` (`string`, 1..=64 bytes, uppercase ASCII, digits, and underscores).
 - **Returns**: The string value, or `nil` if unset or ungranted.
 
 #### `bitty.env.has(key)`
@@ -101,6 +101,9 @@ end
 ---
 
 ## Sandboxed Filesystem (`bitty.fs`)
+
+> [!IMPORTANT]
+> The `bitty.fs` call spellings (`read` / `write` / `list`) exist, but Bitty Core ships **no filesystem backend**: every call fails closed with `E_NOT_IMPLEMENTED`, even with grants declared. The capability grammar below documents the contract a future backend must honor.
 
 Per RFC-0005, the `bitty.fs` module provides a bounded, capability-gated filesystem bridge designed to prevent directory traversal and handle leaks.
 
@@ -197,7 +200,7 @@ end)
 
 - **Parameters**: `fn` (`function`).
 - **Returns**: `integer` task handle.
-- **Quota**: Capped at 16 concurrent tasks per plugin generation (`REGISTRATION_MAX_TASKS`). Exceeding quota raises error `E_BUDGET_TASK`.
+- **Quota**: Capped at 64 concurrent tasks per plugin generation (`REGISTRATION_MAX_TASKS`). The 65th spawn fails closed with error `E_BUDGET_TASK`.
 
 ### `bitty.tasks.cancel(handle)`
 

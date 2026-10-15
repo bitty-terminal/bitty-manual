@@ -41,3 +41,16 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: just upload-r2
+
+      - name: Verify published keys
+        # No R2 listing primitive is available (wrangler get/put/delete
+        # only), so verification fetches the expected canonical + legacy
+        # keys over public HTTPS. Uses only the public CDN base: no secrets.
+        run: |
+          base="https://cdn.bitty.run/manual/bitty-manual"
+          legacy="https://cdn.bitty.run/manual"
+          curl -fsSL --retry 3 --retry-delay 10 "$base/manifest.json" -o /dev/null
+          curl -fsSL --retry 3 --retry-delay 10 "$base/en.tar.gz" -o /dev/null
+          curl -fsSL --retry 3 --retry-delay 10 "$base/zh-CN.tar.gz" -o /dev/null
+          curl -fsSL --retry 3 --retry-delay 10 "$legacy/manifest.json" -o /dev/null
+          echo "Published keys verified (canonical + legacy compat)."

@@ -51,6 +51,31 @@
       "reload_class": "Live",
       "description": "Window corner radius in physical pixels (0..=24)."
     },
+    "window.blur_radius": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Background blur radius in logical pixels (0..=128; platform support varies)."
+    },
+    "window.background_image": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Window background image path (absolute or ~-anchored, <= 4096 bytes, approved roots)."
+    },
+    "window.background_fit": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Window background fit mode (fill, fit, center, tile, stretch; default fill)."
+    },
+    "window.background_opacity": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Window background image dim factor (0.0..=1.0, default 1.0)."
+    },
+    "window.background_position": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Window background position for fit/center letterbox (default center)."
+    },
     "decoration.border": {
       "type": "integer",
       "reload_class": "Live",

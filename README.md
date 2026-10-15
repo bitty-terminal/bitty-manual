@@ -14,20 +14,39 @@ It serves as the single source of truth for:
 
 ## Distribution & CDN Endpoints
 
-Documentation artifacts are continuously published to Cloudflare R2 and served at `https://cdn.bitty.run/manual/`:
+Documentation artifacts are continuously published to the `bitty` Cloudflare R2 bucket and served at `https://cdn.bitty.run/manual/`. The canonical layout is per-package (`manual/<package>/`, package `bitty-manual`); a new locale ships as new files without renaming existing keys.
 
-- **Manifest**: `https://cdn.bitty.run/manual/manifest.json` (also `/latest/manifest.json`)
-- **Search Index**: `https://cdn.bitty.run/manual/search-index.json` (offline fuzzy search)
-- **Table of Contents**: `https://cdn.bitty.run/manual/toc.json` (hierarchical navigation)
-- **Offline Tarball**: `https://cdn.bitty.run/manual/bitty-manual-latest.tar.gz`
-- **Offline Zip**: `https://cdn.bitty.run/manual/bitty-manual-latest.zip`
-- **Raw Documents**: `https://cdn.bitty.run/manual/<locale>/<section>/<file>.md`
+- **Manifest**: `https://cdn.bitty.run/manual/bitty-manual/manifest.json`
+- **Search Index**: `https://cdn.bitty.run/manual/bitty-manual/search-index.json` (offline fuzzy search)
+- **Table of Contents**: `https://cdn.bitty.run/manual/bitty-manual/toc.json` (hierarchical navigation)
+- **Per-Locale Tarballs**: `https://cdn.bitty.run/manual/bitty-manual/<locale>.tar.gz` (e.g. `en.tar.gz`, `zh-CN.tar.gz`)
+- **Per-Locale Zips**: `https://cdn.bitty.run/manual/bitty-manual/<locale>.zip`
+- **Versioned (immutable)**: `https://cdn.bitty.run/manual/bitty-manual/v<version>/<locale>.tar.gz` plus versioned `manifest.json`, `search-index.json`, `toc.json`
+- **Raw Documents**: `https://cdn.bitty.run/manual/bitty-manual/<locale>/<section>/<file>.md`
+
+### Legacy Compat (Dual-Publish)
+
+The previous flat keys keep working and are dual-published on every deploy — no existing URL breaks:
+
+| Legacy key                                                                      | Canonical replacement                                                   |
+| :------------------------------------------------------------------------------ | :---------------------------------------------------------------------- |
+| `manual/manifest.json`                                                          | `manual/bitty-manual/manifest.json`                                     |
+| `manual/search-index.json`, `manual/toc.json`                                   | `manual/bitty-manual/search-index.json`, `manual/bitty-manual/toc.json` |
+| `manual/bitty-manual-latest.tar.gz` / `.zip` (and versioned `-<version>` files) | `manual/bitty-manual/<locale>.tar.gz` / `.zip`                          |
+| `manual/<locale>/<section>/<file>.md`                                           | `manual/bitty-manual/<locale>/<section>/<file>.md`                      |
+| `manual/latest/...` mirror                                                      | `manual/bitty-manual/...`                                               |
+
+Compat mechanism is copies, not redirects (plain R2 public serving has no redirect primitive). Sunset: legacy keys stop being published once `bitty doc` and the website cut over to canonical keys; removal is tracked follow-up work, announced before it lands.
+
+### Live Verification (CD-Run Step)
+
+A local listing is not possible with the available tooling (`wrangler r2 object` supports get/put/delete only), so the expected key set is reconstructed from `scripts/upload-r2.mjs` and verified live in CD: after `just upload-r2`, the `Verify published keys` step fetches the canonical manifest, one per-locale bundle, and the legacy manifest over public HTTPS. Local work validates the same mapping with `just upload-r2-dry`, which prints every key without network access.
 
 ## Downstream `bitty doc` Offline Panel Integration
 
 The downstream documentation viewer plugin runs inside a Bitty Panel (similar to `cargo doc` or `tldr`):
 
-1. **Initial Sync / Update**: Fetches `https://cdn.bitty.run/manual/manifest.json` or downloads `bitty-manual-latest.tar.gz` into `$XDG_DATA_HOME/bitty/manual/` (Linux) or `%LOCALAPPDATA%\bitty\manual` (Windows).
+1. **Initial Sync / Update**: Fetches `https://cdn.bitty.run/manual/bitty-manual/manifest.json` or downloads `bitty-manual/<locale>.tar.gz` into `$XDG_DATA_HOME/bitty/manual/` (Linux) or `%LOCALAPPDATA%\bitty\manual` (Windows). Legacy flat keys under `manual/` keep working until the documented sunset.
 2. **Offline Fuzzy Finder**: Loads `search-index.json` to enable instant keyword search across all sections and headings without network latency.
 3. **In-Terminal Markdown Rendering**: Directly displays selected documentation inside an active terminal panel.
 

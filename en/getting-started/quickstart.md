@@ -35,29 +35,32 @@ What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary
 Every Linux package is install-smoked in a clean container of its own distro (Ubuntu 24.04 deb, Fedora rpm, Arch package, Alpine musl apk) before a release can publish, so a package that installs or runs nowhere never ships.
 
 ```bash
-# Arch Linux (AUR / paru) — published at tag time
-paru -S bitty-terminal
-
-# macOS (Homebrew) — published at tag time
-brew tap bitty-terminal/tap
-brew install bitty
-
-# Windows (Scoop) — published at tag time
+# Windows (Scoop)
 scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 scoop install bitty
+
+# macOS (Homebrew)
+brew tap bitty-terminal/homebrew-tap
+brew install bitty
+
+# Arch Linux (AUR): prebuilt binary package
+paru -S bitty-bin   # or: yay -S bitty-bin
+# Source build package `bitty` also exists; prefer `bitty-bin` unless
+# you specifically need a local source compile.
 ```
 
 > [!NOTE]
-> **PENDING — first tag publish.** AUR, Homebrew, and Scoop manifests are generated at tag time and gated on owner-side secrets. Until the first 0.0.23 tag publish completes, these channels may 404: use the install scripts or a native package instead. Flatpak (`flatpak install run.bitty.Bitty`) and further managers land progressively after 0.1.0 — **PENDING**.
+> **PENDING — first tag publish.** Scoop, Homebrew, and AUR manifests are generated at tag time and gated on owner-side secrets. Until the first 0.0.23 tag publish completes, these channels may 404: use the install scripts or a native package instead. Flatpak (`flatpak install run.bitty.Bitty`) and further managers land progressively after 0.1.0 — **PENDING**.
 
-### Cargo (crates.io)
+### Cargo (build from the Git repository)
 
-> [!NOTE]
-> **PENDING.** `cargo install bitty-terminal` is not published yet (the crate name is `bitty-terminal` because `bitty` was pre-registered on crates.io). Until the first crates.io publish lands, build from source:
->
-> ```bash
-> cargo install --git https://github.com/bitty-terminal/bitty.git --locked
-> ```
+There is no crates.io install path for the binary. Build from source instead:
+
+```bash
+# Install the `bitty` binary from the Git repository
+# (pin the toolchain explicitly: `cargo install --git` does not read rust-toolchain.toml)
+cargo +1.98.1 install --git https://github.com/bitty-terminal/bitty.git bitty-terminal --locked
+```
 
 ### Building from Source
 
@@ -113,7 +116,7 @@ scoop uninstall bitty
 # Homebrew (macOS)
 brew uninstall bitty
 
-# Cargo (crates.io)
+# Cargo (when installed from the Git repository)
 cargo uninstall bitty-terminal
 
 # Manual binary installation

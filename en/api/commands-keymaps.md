@@ -23,7 +23,8 @@ bitty.commands.register({
 })
 ```
 
-- **Parameters**: Table with `id` (`string`, max 64 bytes), `title` (`string`, max 128 bytes), optional `description` (`string`, max 256 bytes), and `run` (`function`).
+- **Parameters**: Table with `id` (`string`, max 128 bytes), `title` (`string`, max 128 bytes), optional `description` (`string`, max 1024 bytes), and `run` (`function`).
+- **Quota**: Up to 128 registered commands per plugin generation (`REGISTRATION_MAX_COMMANDS`).
 - **Lazy Manifest Declaration**: In `bitty-plugin.toml`, declare `commands = ["my-plugin:format-buffer"]` under `[lazy]`. The command appears in the Command Palette immediately upon startup without initializing the plugin's Lua VM. The VM loads on demand when the command is first invoked.
 
 ## Keymap Suggestions (`bitty.keymaps`)
@@ -97,14 +98,26 @@ bitty.events.subscribe("focus.changed", function(event)
 end)
 ```
 
-- **Parameters**: `kind` (`string`, max 64 bytes) and `handler` (`function`).
-- **Quota**: Up to 32 event subscriptions per plugin generation (`REGISTRATION_MAX_EVENTS`).
+- **Parameters**: `kind` (`string`, 1..=128 bytes) and `handler` (`function`).
+- **Quota**: Up to 256 event subscriptions per plugin generation (`REGISTRATION_MAX_EVENTS`).
 
 ### Standard Events
 
-| Event Name             | Payload Attributes                              | Description                       |
-| :--------------------- | :---------------------------------------------- | :-------------------------------- |
-| `"focus.changed"`      | `focused` (`boolean`), `panel_id` (`integer`)   | Pane or window focus gained/lost. |
-| `"workspace.switched"` | `workspace_id` (`string`), `prev_id` (`string`) | Active workspace changed.         |
-| `"theme.changed"`      | `theme` (`string`), `colors` (`table`)          | Global color theme reloaded.      |
-| `"terminal.bell"`      | `terminal_id` (`integer`)                       | Terminal bell alert triggered.    |
+The host admits a closed set of event kinds; subscribing to an unknown kind withholds the payload fail-closed:
+
+| Event Name                 | Description                                                                                                         |
+| :------------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| `"terminal.opened"`        | A terminal session opened.                                                                                          |
+| `"terminal.closed"`        | A terminal session closed.                                                                                          |
+| `"terminal.title-changed"` | A terminal title changed.                                                                                           |
+| `"terminal.cwd-changed"`   | A terminal working directory changed.                                                                               |
+| `"terminal.bell"`          | Terminal bell alert triggered.                                                                                      |
+| `"focus.changed"`          | Pane or window focus gained/lost.                                                                                   |
+| `"selection.changed"`      | The terminal selection changed.                                                                                     |
+| `"process.exited"`         | A supervised child process exited.                                                                                  |
+| `"config.reloaded"`        | The effective configuration was reloaded.                                                                           |
+| `"plugin.activated"`       | A plugin generation was activated.                                                                                  |
+| `"plugin.suspended"`       | A plugin generation was suspended.                                                                                  |
+| `"plugin.disposed"`        | A plugin generation was disposed.                                                                                   |
+| `"handler.violation"`      | A plugin handler violated its budget or contract.                                                                   |
+| `"intercept.*"`            | Gated interception hooks (`command-dispatch`, `terminal-spawn`, `paste`, `open-url`) — payloads redacted per grant. |

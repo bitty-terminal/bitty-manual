@@ -3,6 +3,20 @@
   "version": "0.1.0",
   "default_locale": "en",
   "locales": ["en", "zh-CN"],
+  "distribution": {
+    "package": "bitty-manual",
+    "cdn_base": "https://cdn.bitty.run/manual",
+    "canonical_prefix": "manual/bitty-manual",
+    "per_locale_bundle": "<locale>.tar.gz",
+    "versioned_prefix": "v<version>",
+    "legacy_compat": [
+      "manual/manifest.json",
+      "manual/<locale>/<section>/<file>.md",
+      "manual/bitty-manual-latest.tar.gz",
+      "manual/latest/..."
+    ],
+    "legacy_sunset": "dual-published until bitty doc and website cut over to canonical keys; removal is tracked follow-up work"
+  },
   "sections": [
     {
       "id": "getting-started",
@@ -33,6 +47,11 @@
           "slug": "workspaces-panels",
           "title": "Workspaces & Panels",
           "path": "configuration/workspaces-panels.md"
+        },
+        {
+          "slug": "actions-catalog",
+          "title": "Actions Catalog",
+          "path": "configuration/actions-catalog.md"
         }
       ]
     },
@@ -67,7 +86,7 @@
         },
         {
           "slug": "upstream-components",
-          "title": "Upstream Native Components (DIR-030)",
+          "title": "Native Component Boundary",
           "path": "plugins/upstream-components.md"
         }
       ]

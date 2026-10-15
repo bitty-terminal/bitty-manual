@@ -35,29 +35,31 @@ irm https://cdn.bitty.run/bitty/install/install.ps1 | iex
 每个 Linux 软件包在发布前都会在其发行版的干净容器中做安装冒烟测试（Ubuntu 24.04 deb、Fedora rpm、Arch 软件包、Alpine musl apk），无法安装或运行的包不会发布。
 
 ```bash
-# Arch Linux (AUR / paru)——随 tag 发布
-paru -S bitty-terminal
-
-# macOS (Homebrew)——随 tag 发布
-brew tap bitty-terminal/tap
-brew install bitty
-
-# Windows (Scoop)——随 tag 发布
+# Windows (Scoop)
 scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 scoop install bitty
+
+# macOS (Homebrew)
+brew tap bitty-terminal/homebrew-tap
+brew install bitty
+
+# Arch Linux (AUR)：预编译二进制包
+paru -S bitty-bin   # 或：yay -S bitty-bin
+# 源码包 `bitty` 同样存在；除非需要本地源码编译，否则优先 `bitty-bin`。
 ```
 
 > [!NOTE]
-> **PENDING —— 首次 tag 发布。**AUR、Homebrew 与 Scoop 清单在打 tag 时生成，且依赖所有者侧密钥。在 0.0.23 首次 tag 发布完成前，这些渠道可能返回 404：请改用安装脚本或原生软件包。Flatpak（`flatpak install run.bitty.Bitty`）及更多包管理器将在 0.1.0 之后陆续落地——**PENDING**。
+> **PENDING —— 首次 tag 发布。**Scoop、Homebrew 与 AUR 清单在打 tag 时生成，且依赖所有者侧密钥。在 0.0.23 首次 tag 发布完成前，这些渠道可能返回 404：请改用安装脚本或原生软件包。Flatpak（`flatpak install run.bitty.Bitty`）及更多包管理器将在 0.1.0 之后陆续落地——**PENDING**。
 
-### Cargo (crates.io)
+### Cargo（从 Git 仓库构建）
 
-> [!NOTE]
-> **PENDING。**`cargo install bitty-terminal` 尚未发布（Crate 名称为 `bitty-terminal`，因为 crates.io 上的 `bitty` 名称在此之前已被其他项目注册）。在首次 crates.io 发布落地前，请从源码构建：
->
-> ```bash
-> cargo install --git https://github.com/bitty-terminal/bitty.git --locked
-> ```
+二进制程序没有 crates.io 安装途径，请从源码构建：
+
+```bash
+# 从 Git 仓库安装 `bitty` 二进制程序
+# （需显式固定工具链：`cargo install --git` 不读取 rust-toolchain.toml）
+cargo +1.98.1 install --git https://github.com/bitty-terminal/bitty.git bitty-terminal --locked
+```
 
 ### 从源码编译
 
@@ -113,7 +115,7 @@ scoop uninstall bitty
 # Homebrew (macOS)
 brew uninstall bitty
 
-# Cargo (crates.io)
+# Cargo（从 Git 仓库安装时）
 cargo uninstall bitty-terminal
 
 # 手动二进制安装

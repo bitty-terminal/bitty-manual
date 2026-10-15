@@ -62,19 +62,34 @@ bitty config check
 
 ---
 
-## Plugin Diagnostics (`bitty plugin doctor`)
+## Plugin Diagnostics (`bitty plugin list` + `bitty doctor`)
 
-When a plugin behaves unexpectedly, runs slowly, or drops events, run `bitty plugin doctor`:
+When a plugin behaves unexpectedly, inspect its record and the host environment:
 
 ```bash
-bitty plugin doctor
+# Recorded plugins, sources, states, and capability grants
+bitty plugin list
+
+# One plugin's manifest plus recorded grants
+bitty plugin info <id>
+
+# Host environment health (GPU, fonts, dependencies)
+bitty doctor
 ```
 
-### Diagnostic Output Highlights
+> [!NOTE]
+> There is no `bitty plugin doctor` verb. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
 
-1. **Memory & Fuel**: Reports active heap size per plugin VM against the 32 MiB ceiling and instruction fuel counts.
-2. **Event Queues**: Highlights dropped events caused by slow event loops (buffer overflow indicators).
-3. **Tool Dependencies**: Checks declared `[tools.*]` requirements (e.g. `git`, `rg`, `fd`) against the user's host environment and reports missing binaries or version mismatches.
+---
+
+## Extension & Tool-Spawn Failures
+
+Failures in this area are fail-closed by design: nothing half-installed is left behind, and nothing untrusted is executed or printed.
+
+- **Pin-mismatch on `bitty extension install` (exit code `4`)**: the fetched release digest differs from the recorded TOFU pin. The pin never auto-updates. Verify the release out-of-band, then re-pin explicitly with `--force`.
+- **`show-source` prints nothing (exit code `4`)**: the install is missing or the executable no longer matches its pinned descriptor hash. Re-install the extension; Bitty refuses to print untrusted bytes.
+- **Tool spawn refused under confinement**: on Linux, admitted tool spawns run under Landlock execute confinement; a refusal naming confinement means setup failed (e.g. pre-5.13 kernel or a container policy forbidding unprivileged restriction) and the spawn was refused rather than run unconfined. On macOS and Windows, admitted tool spawns are refused fail-closed with a confinement diagnostic until platform mechanisms land.
+- **Capability denied after update**: grants bind to the exact manifest hash. Re-run `bitty plugin install` and approve the fresh consent prompt; use `bitty plugin revoke <id> --cap <capability>` to drop a single grant without removing the plugin.
 
 ---
 

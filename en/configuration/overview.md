@@ -16,11 +16,16 @@ Bitty classifies all configuration changes into three categories:
 
 ### Window & Padding
 
-| Field              | Type      | Reload Class | Description                                         |
-| :----------------- | :-------- | :----------- | :-------------------------------------------------- |
-| `window.opacity`   | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`). |
-| `window.padding`   | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).  |
-| `window.radius_px` | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`). |
+| Field                        | Type      | Reload Class | Description                                                                                                                                                            |
+| :--------------------------- | :-------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`).                                                                                                                    |
+| `window.padding`             | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).                                                                                                                     |
+| `window.radius_px`           | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`).                                                                                                                    |
+| `window.blur_radius`         | `integer` | **Live**     | Background blur radius in logical pixels (`0..=128`; platform support varies).                                                                                         |
+| `window.background_image`    | `string`  | **Live**     | Window background image path (absolute or `~`-anchored, `<= 4096` bytes, approved roots).                                                                              |
+| `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`.                                                                             |
+| `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); orthogonal to `window.opacity`.                                                                                         |
+| `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it. |
 
 ### Decoration & Borders
 
@@ -70,14 +75,14 @@ Core-owned view decorations operate in logical pixels:
 
 ### Layout & Workspaces
 
-| Field                | Type      | Reload Class        | Description                                                                                                       |
-| :------------------- | :-------- | :------------------ | :---------------------------------------------------------------------------------------------------------------- |
-| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                          |
-| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                   |
-| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.5`, default `0.05`).                                       |
-| `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).                                           |
-| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (consumed by downstream `bar` plugin).                              |
-| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by `bar` plugin). |
+| Field                | Type      | Reload Class        | Description                                                                                                     |
+| :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------------------------------- |
+| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                        |
+| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                 |
+| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.5`, default `0.05`).                                     |
+| `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).                                         |
+| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (reserved Core input consumed by extensions).                     |
+| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by extensions). |
 
 ### Appearance, Themes & Animations
 
@@ -156,7 +161,8 @@ return {
   },
   workspace = {
     layout = "dwindle",
-    -- The following keys configure the downstream `bar` plugin (Bitty Core draws no native bar):
+    -- The following keys are reserved Core inputs consumed by extensions
+    -- (Bitty Core draws no native bar):
     show_bar = true,
     bar = {
       edge = "bottom",

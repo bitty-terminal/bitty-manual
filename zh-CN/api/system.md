@@ -83,7 +83,7 @@ if current_dir then
 end
 ```
 
-- **参数**：`key` (`string`, 1..=256 字节，大写 ASCII、数字和下划线)。
+- **参数**：`key` (`string`, 1..=64 字节，大写 ASCII、数字和下划线)。
 - **返回值**：字符串值；未设置或未授权时返回 `nil`。
 
 #### `bitty.env.has(key)`
@@ -101,6 +101,9 @@ end
 ---
 
 ## 沙箱化文件系统 (`bitty.fs`)
+
+> [!IMPORTANT]
+> `bitty.fs` 的调用形式（`read` / `write` / `list`）存在，但 Bitty Core **没有附带文件系统后端**：即使声明了授予，每次调用都以 `E_NOT_IMPLEMENTED` 安全中断。下述能力语法记录的是未来后端必须遵守的契约。
 
 根据 RFC-0005，`bitty.fs` 模块提供一个有界、受能力管控的文件系统桥接，旨在杜绝路径遍历攻击和句柄泄漏。
 
@@ -197,7 +200,7 @@ end)
 
 - **参数**：`fn` (`function`)。
 - **返回值**：`integer` 任务句柄。
-- **配额**：每个插件代次最多允许 16 个并发任务 (`REGISTRATION_MAX_TASKS`)。超出配额将抛出 `E_BUDGET_TASK` 错误。
+- **配额**：每个插件代次最多允许 64 个并发任务 (`REGISTRATION_MAX_TASKS`)。第 65 个 spawn 将以 `E_BUDGET_TASK` 错误安全中断。
 
 ### `bitty.tasks.cancel(handle)`
 

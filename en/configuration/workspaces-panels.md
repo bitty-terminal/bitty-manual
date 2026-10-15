@@ -7,7 +7,7 @@ Bitty organizes your window environment through a composable container hierarchy
 ```text
 Window
 └── Workspaces (Virtual Desktops / Tabs)
-    ├── Chrome Insets / Slot (visual bar rendered by downstream bar plugin)
+    ├── Chrome Insets / Slot (visual bar rendered by an extension, never by Core)
     └── Panels (Containers)
         ├── Presentation Mode: Tiled, Floating, or Overlay
         └── View: Shell process / PTY session or native UI widget
@@ -19,7 +19,7 @@ A **Workspace** is an independent virtual desktop. Each workspace manages its ow
 
 - Switching workspaces changes the visible pane arrangement without suspending or interrupting background shell jobs.
 - The default tiling algorithm is configured via `workspace.layout` (e.g. `"dwindle"`, `"bsp"`).
-- **Workspace Bar Separation**: In accordance with Bitty's microkernel architecture, Bitty Core draws no visual workspace bar itself. Visual presentation is provided by the downstream `bar` plugin. Configuration keys `workspace.show_bar` and `workspace.bar.edge` (default `"bottom"`, or `"top"`) are reserved inputs consumed by the `bar` extension.
+- **Workspace Bar Separation**: In accordance with Bitty's microkernel architecture, Bitty Core draws no visual workspace bar itself. Visual presentation is provided by an extension. Configuration keys `workspace.show_bar` and `workspace.bar.edge` (default `"bottom"`, or `"top"`) are reserved Core inputs consumed by extensions.
 
 ### Panels & Layout Spacing
 

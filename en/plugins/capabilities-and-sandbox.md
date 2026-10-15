@@ -48,11 +48,16 @@ version = ">=2.30"
    - `workspace.read`: Allows inspecting workspaces via `bitty.workspace.list`.
    - `workspace.control`: Allows switching, creating, closing, and moving workspaces and panels.
 4. **`network` Family**:
-   - Mediated exclusively through the upstream `bitty-net` native coprocess (DIR-030). Plugins never touch raw sockets.
+   - Mediated exclusively through an upstream native coprocess behind the Native Component Boundary (see [Native Component Boundary](upstream-components.md)). Plugins never touch raw sockets.
    - Hosts and domains must be allowlisted under `[network].allow`.
 5. **`process.spawn` & Tool Family**:
-   - Ambient process creation is strictly forbidden.
+   - Ambient process creation is strictly forbidden. No shell is ever constructed: argument arrays go directly to the spawn call, so metacharacters in arguments are inert data.
    - Plugins can only invoke explicit, allowlisted system tools declared in `[tools.<name>]` (e.g. `process.spawn:git`), subject to host argument sanitization, timeout, and output caps (8 KiB default).
+   - Every spawn decision (allow or deny) is recorded exactly once in a bounded audit ledger: caller identity, tool name, and bounded argument previews only. Environment values and secrets never enter the ledger. The ledger retains at most 1024 entries with drop-oldest semantics and counts evicted entries.
+   - On Linux, admitted tool invocations additionally run under inherited OS confinement (Landlock execute rules covering the tool binaries plus their loaders), so an admitted binary cannot exec outside the allowlist from inside. Confinement setup failure refuses the spawn fail-closed with a confinement diagnostic; no admitted spawn ever runs unconfined. Non-Linux platforms refuse admitted spawns the same fail-closed way until their mechanisms land.
+6. **Consent & Revocation**:
+   - Capability grants use explicit confirmation: `bitty plugin install` prompts `Grant these capabilities? [y/N]` (up to 3 attempts); `--yes` approves non-interactively, while a decline aborts with nothing changed. Grants are bound to the exact manifest hash, so a later manifest that adds a capability blocks until re-approved.
+   - Revoke without dropping the record: `bitty plugin revoke <id>` drops every granted capability and disables the plugin; `bitty plugin revoke <id> --cap <capability>` drops one capability and remembers it as explicitly denied (no silent re-prompt). Re-grant with `install` under explicit consent.
 
 ## Resource Quotas & Budgets
 
@@ -77,10 +82,11 @@ Events dispatched across the host bus are buffered in three-tier bounded rings:
 - **Global Host Queue**: 8,192 events (2 MiB).
 - When a plugin fails to drain events in time, the host uses `DropOldest` semantics to prevent memory unbounded growth.
 
-## Diagnostic Introspection (`bitty plugin doctor`)
+## Diagnostic Introspection (`bitty plugin list`)
 
-Run `bitty plugin doctor` at any time to inspect live memory usage, execution fuels, queue drops, and tool dependencies across all installed plugins:
+Inspect recorded sources, states, and capability grants at any time:
 
 ```bash
-bitty plugin doctor
+bitty plugin list
+bitty plugin info <id>
 ```
