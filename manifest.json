@@ -31,6 +31,11 @@
           "slug": "cli",
           "title": "CLI Commands & Controls",
           "path": "getting-started/cli.md"
+        },
+        {
+          "slug": "onboarding-examples",
+          "title": "Onboarding Examples",
+          "path": "getting-started/onboarding-examples.md"
         }
       ]
     },
