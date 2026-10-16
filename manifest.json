@@ -97,6 +97,127 @@
       ]
     },
     {
+      "id": "extensions",
+      "title": "Extension Catalog",
+      "items": [
+        {
+          "slug": "overview",
+          "title": "Catalog Overview & Install Status",
+          "path": "extensions/overview.md"
+        },
+        {
+          "slug": "network",
+          "title": "network (native extension)",
+          "path": "extensions/network.md"
+        },
+        {
+          "slug": "ipc",
+          "title": "ipc (native extension)",
+          "path": "extensions/ipc.md"
+        },
+        {
+          "slug": "agent",
+          "title": "agent (native extension)",
+          "path": "extensions/agent.md"
+        },
+        {
+          "slug": "observability",
+          "title": "observability (native extension)",
+          "path": "extensions/observability.md"
+        },
+        {
+          "slug": "execution",
+          "title": "execution (native extension)",
+          "path": "extensions/execution.md"
+        },
+        {
+          "slug": "graphics",
+          "title": "graphics (native extension)",
+          "path": "extensions/graphics.md"
+        },
+        {
+          "slug": "a11y",
+          "title": "a11y (native extension)",
+          "path": "extensions/a11y.md"
+        },
+        {
+          "slug": "storage",
+          "title": "storage (native extension)",
+          "path": "extensions/storage.md"
+        },
+        {
+          "slug": "url-detector",
+          "title": "url-detector (native extension)",
+          "path": "extensions/url-detector.md"
+        },
+        {
+          "slug": "platform-services",
+          "title": "platform-services (native extension)",
+          "path": "extensions/platform-services.md"
+        },
+        {
+          "slug": "activity",
+          "title": "activity (Lua plugin)",
+          "path": "extensions/activity.md"
+        },
+        {
+          "slug": "bar",
+          "title": "bar (Lua plugin)",
+          "path": "extensions/bar.md"
+        },
+        {
+          "slug": "composer",
+          "title": "composer (Lua plugin)",
+          "path": "extensions/composer.md"
+        },
+        {
+          "slug": "copy-mode",
+          "title": "copy-mode (Lua plugin)",
+          "path": "extensions/copy-mode.md"
+        },
+        {
+          "slug": "file-manager",
+          "title": "file-manager (Lua plugin)",
+          "path": "extensions/file-manager.md"
+        },
+        {
+          "slug": "git-panel",
+          "title": "git-panel (Lua plugin)",
+          "path": "extensions/git-panel.md"
+        },
+        {
+          "slug": "history",
+          "title": "history (Lua plugin)",
+          "path": "extensions/history.md"
+        },
+        {
+          "slug": "palette",
+          "title": "palette (Lua plugin)",
+          "path": "extensions/palette.md"
+        },
+        {
+          "slug": "search",
+          "title": "search (Lua plugin)",
+          "path": "extensions/search.md"
+        },
+        {
+          "slug": "statusline",
+          "title": "statusline (Lua plugin)",
+          "path": "extensions/statusline.md"
+        },
+        {
+          "slug": "wheel",
+          "title": "wheel (Lua plugin)",
+          "path": "extensions/wheel.md"
+        },
+        {
+          "slug": "devtools",
+          "title": "devtools (Lua plugin)",
+          "path": "extensions/devtools.md"
+        }
+      ]
+    },
+    {
       "id": "api",
       "title": "Lua API Reference",
       "items": [
