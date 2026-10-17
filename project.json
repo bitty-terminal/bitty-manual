@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-10-08 07:43:25",
+  "git_common_dir": "***REDACTED-PATH***",
+  "id": "01M0W9F2XC05P834QEG7FA8MAN",
+  "main_branch": "main",
+  "name": "bitty-manual",
+  "repository_root": "***REDACTED-PATH***",
+  "schema_version": 4,
+  "task_prefix": "CTX",
+  "updated_at": "2026-10-08 07:43:25"
+}
