@@ -31,8 +31,6 @@ bitty [OPTIONS] -- PROGRAM [ARGS...]
 | `--test-mode`          | Run deterministic headless E2E servo loop connected to `BITTY_SOCKET` IPC until exit.          |
 | `-v, --verbose`        | Shorthand for `--log-level debug`; emits per-frame render tick statistics.                     |
 | `--log-level <LEVEL>`  | Set stderr logging level (`error`, `warn`, `info`, `debug`, `trace`).                          |
-| `--mascot`             | Print the Bittie mascot ASCII art to stdout and exit.                                          |
-| `--no-splash`          | Suppress the first-run mascot greeting.                                                        |
 | `--no-color`           | Disable ANSI coloring (also honors `NO_COLOR`).                                                |
 | `--socket <PATH>`      | Control target socket (with `ctl` / `list instances`).                                         |
 | `--instance <ID>`      | Control target instance (with `ctl` / `list instances`).                                       |
@@ -59,6 +57,8 @@ Launch directly into specific pane configurations:
 | :------------ | :------------------------------------------------------------------------------------ |
 | `--headless`  | Run a single headless tick smoke test without creating a window and exit.             |
 | `--test-mode` | Run deterministic headless E2E servo loop connected to `BITTY_SOCKET` IPC until exit. |
+
+These modes do not exercise the headed event loop or native clipboard setup. Passing them does not establish GUI stability, native input behavior, or plugin UI usability.
 
 ---
 
@@ -102,12 +102,14 @@ Alias: `bitty cfg`
 # Print the resolved configuration file path
 bitty config path
 
-# Validate configuration syntax and schema without launching a GUI
+# Validate main configuration syntax and schema without launching a GUI
 bitty config check
 
 # Open current configuration in $VISUAL or $EDITOR
 bitty config edit
 ```
+
+`config check` does not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
 
 ### Setup Wizard (`bitty init`)
 

@@ -37,4 +37,7 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 Panels and workspaces can be controlled through default shortcut keys or programmatically via the Lua API:
 
 - Use shortcuts to create, split, and navigate panels.
+- `close_view` (`alt+d` or `alt+q` by default) closes the focused panel. When tiled siblings remain, focus moves to the previous survivor in stable layout order, wrapping from the first panel to the last survivor.
+- Closing a workspace's last tiled panel removes the empty workspace only when another workspace exists and there are no local floating panels. A sole workspace or one with local floating panels is not pruned by this rule. Closing the last panel in the whole window uses the window-close confirmation policy.
+- Close confirmation still protects busy sessions: repeat the close chord to confirm, or press `Esc` to cancel. Closing a zoomed panel counts its hidden siblings; pending or cancelled confirmation preserves the zoomed layout.
 - For complete Lua automation functions (such as creating panels, toggling floating modes, or switching workspaces), see the [bitty.panel & bitty.workspace API Reference](../api/panel-workspace.md).

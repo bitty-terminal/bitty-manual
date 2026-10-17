@@ -1,25 +1,44 @@
 # Per-Plugin Config Files
 
-Each plugin owns one optional user file. Values you put there override the plugin's shipped built-in defaults **per key**; anything you omit keeps working on defaults — a fresh install ships working, and configuration is override-only.
+Per-plugin files override declared settings **per key**. Omitted or rejected values use the next lower value layer. Settings do not enable a plugin or grant capabilities.
 
 ## File location
 
 ```text
-$XDG_CONFIG_HOME/bitty/plugins/<owner>.<name>.toml
+$XDG_CONFIG_HOME/bitty/plugins/<owner>.<name>.lua
 ```
 
-Fallback `~/.config/bitty/plugins/<owner>.<name>.toml`. Windows follows the same platform precedence as the main config (`%APPDATA%` / `%LOCALAPPDATA%`). The file name derives from the validated plugin id only, so a validated id can never escape the `plugins/` directory. An absent file (or an absent `plugins/` directory) is not an error.
+Fallback `~/.config/bitty/plugins/`. Windows follows the same platform precedence as the main config (`%APPDATA%` / `%LOCALAPPDATA%`). File names derive from validated plugin ids. An absent file or directory is not an error.
 
-Examples:
+The host selects one file during activation, in this order:
 
-```text
-~/.config/bitty/plugins/bitty-terminal.bar.toml
-~/.config/bitty/plugins/bitty-terminal.composer.toml
+1. Canonical `<owner>.<name>.lua`, such as `bitty-terminal.bar.lua`.
+2. Short-name `<name>.lua`, such as `bar.lua`, only if canonical Lua is absent and complete, validated plugin discovery identifies exactly one owner of that short name. Ambiguous aliases are ignored.
+3. Legacy canonical `<owner>.<name>.toml`, only if neither canonical nor eligible alias Lua is present.
+
+A selected Lua file that fails reading, evaluation, or result validation falls back to lower **value layers**. It does not select another alias or the TOML file. Prefer canonical names to avoid alias collisions.
+
+## Restricted Lua settings
+
+Return a table of declared settings. For example, `bitty-terminal.bar.lua`:
+
+```lua
+return {
+  show = true,
+  name_max_chars = 32,
+  modules_left = { "workspaces", "cpu" },
+}
 ```
 
-## The TOML subset (flat keys only)
+Lua settings run in a fresh, restricted VM without host services, plugin APIs, module loading, or side-effecting libraries. Instruction, wall-clock, and memory budgets bound evaluation. The loader accepts booleans, integers, strings, and string arrays only when their types match the plugin's manifest declarations; it does not coerce strings into numbers or booleans. Unknown and wrong-typed entries are ignored.
 
-The file is parsed as data, never executed: no `include`, no `exec`, no shell, no sections, no dotted keys, no nesting.
+Lua limits are **16 KiB source**, nesting depth **16**, **64 entries per table**, **256 returned values**, **2048 bytes per string**, and **16 KiB aggregate output**, including structural overhead. Invalid encoding, a result other than a string-keyed settings table, cycles, duplicate literal keys, or exceeded evaluation/extraction limits reject the file.
+
+The evaluator can extract nested tables, but plugin settings do not accept nonempty map values. This does not enable per-module option groups in the bar; those remain inert. See the [bar modules guide](bar-modules.md).
+
+## Legacy TOML subset (flat keys only)
+
+Legacy `<owner>.<name>.toml` files are parsed as data, never executed: no `include`, no `exec`, no shell, no sections, no dotted keys, no nesting.
 
 ```toml
 # flat keys only
@@ -31,23 +50,23 @@ modules_left = ["workspaces", "cpu"]  # single-line array of strings
 
 Value rules:
 
-- Values are booleans, bare integers, double-quoted strings, or single-line string arrays. Floats, quoted numbers, inline tables, nested arrays, and multi-line values are not in the subset: the offending key falls back to its default while the rest of the file still applies.
+- Values are booleans, bare integers, double-quoted strings, or single-line string arrays. Floats, inline tables, nested arrays, and multi-line values are unsupported. A quoted number remains a string and cannot override an integer setting. Invalid values fall back to lower layers for that key while other valid entries still apply.
 - Unknown keys (keys the plugin manifest never declared) change nothing: they are recorded as skipped.
-- Duplicate keys, a `[section]`, a line without `=`, or a malformed key fails the **whole file** closed — the plugin keeps running on defaults. An unterminated string or array only skips that key.
-- Tables are not in the v1 grammar. This is why per-module option groups (such as the bar's per-module settings) stay inert until a table/dot-path follow-up lands — see the [bar modules guide](bar-modules.md). Storing a table today mismatches the declared kind and reads as the default.
+- Duplicate keys, a `[section]`, a line without `=`, or a malformed key rejects the **whole file**, leaving lower value layers in effect. An unterminated string or array only skips that key.
+- Tables and dotted keys are unsupported; per-module option groups remain inert.
 - Non-UTF-8 files fail closed; a plugin never observes mojibake it could mistake for configuration.
 
-Size bounds fail closed before any value is trusted: at most 16 KiB and 512 lines per file, 64 keys, 512 bytes per string, 32 string items per array.
+TOML file limits are **16 KiB**, **512 lines**, **1024 bytes per line**, and **64 keys**; exceeding them rejects the file. Value limits are **512 bytes per string**, **32 items per string array**, and **128 bytes per array item**; exceeding them skips that key. These TOML limits are distinct from Lua's limits above.
 
 ## Precedence and wrong-type fallback
 
 Lowest precedence first:
 
 ```text
-manifest shipped default < shared host source < your file
+manifest shipped default < shared host source < selected user file
 ```
 
-A wrong-typed value at any layer falls back to the next lower layer **for that key only** — garbage in, fail-to-default out, the rest of the file unaffected.
+A wrong-typed value at any layer leaves the next lower correctly typed value in effect **for that key only**. Only keys declared by the plugin are resolved. The shared host source is not arbitrary access to the host's configuration through `bitty.settings.get`.
 
 ## Worked examples
 
@@ -61,21 +80,13 @@ modules_left = ["workspaces", "cpu", "memory", "battery"]
 modules_right = ["clock", "pulseaudio"]
 ```
 
-Composer chords (all five keys; invalid chords fall back to defaults):
-
-```toml
-newline = "enter"
-submit = "ctrl+enter"
-close = "escape"
-external_editor = "alt+e"
-open_chord = "alt+e"
-```
-
-Validate without launching a GUI:
+Save the TOML example as `bitty-terminal.bar.toml` only when no Lua file is selected. To check the **main configuration** without launching a GUI:
 
 ```bash
 bitty config check
 ```
+
+This command is not a comprehensive validator for per-plugin settings. Those files are loaded during plugin activation; consult the host's [settings warnings](../faq/troubleshooting.md#plugin-diagnostics-bitty-plugin-list--bitty-doctor) for ignored entries or rejected files.
 
 ## Values versus authority
 

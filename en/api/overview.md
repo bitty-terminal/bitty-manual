@@ -16,7 +16,7 @@ Global bitty Namespace
 │   ├── bitty.workspace       # Query and arrange workspaces
 │   ├── bitty.notify          # Display system notifications
 │   ├── bitty.store           # Generation-isolated key-value storage
-│   ├── bitty.settings        # Read/write user configuration
+│   ├── bitty.settings        # Read-only, per-plugin declared settings
 │   ├── bitty.timers          # High-resolution asynchronous timers
 │   ├── bitty.tasks           # Asynchronous task runner
 │   └── bitty.services        # Cross-plugin service provider bus (peer-provided only)
@@ -26,6 +26,8 @@ Global bitty Namespace
 
 - **L1 Control Level**: Manages state, handles actions, coordinates commands, and reacts to events. Alters behavior without touching the rendering pipeline.
 - **L2 Presentation Level**: Mounts declarative UI scene subtrees into host-managed slots. Alters appearance, never terminal stream truth.
+
+For declared settings reads and errors, see [`bitty.settings.get`](system.md#bittysettingsgetkey).
 
 ## Version Discovery
 

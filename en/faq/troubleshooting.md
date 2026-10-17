@@ -4,7 +4,7 @@ This guide provides troubleshooting procedures, diagnostic commands, and recover
 
 ## Emergency Safe Mode (`--safe`)
 
-If a newly installed plugin, syntax error, or incompatible hardware state prevents Bitty from starting normally, launch in **Safe Mode**:
+If a newly installed plugin or configuration error prevents Bitty from starting normally, try **Safe Mode**:
 
 ```bash
 bitty --safe
@@ -12,13 +12,13 @@ bitty --safe
 
 ### What Happens in Safe Mode
 
-- **Plugins Disabled**: All third-party plugins are completely ignored. No Lua virtual machines are instantiated.
-- **Defaults Enforced**: User `init.lua` is bypassed; Bitty starts with compiled-in fallback defaults.
+- **Third-party plugins bypassed**: No third-party plugin Lua VMs are instantiated. The host uses package provenance, not an id prefix, to distinguish bundled plugins.
+- **Defaults enforced**: External configuration and third-party settings files are bypassed; Bitty uses compiled-in safe defaults.
 - **Watchers Suspended**: Dynamic file watchers and background reload hooks are temporarily deactivated.
 
-Safe Mode allows you to open a terminal session, locate offending configuration files, or remove broken plugins without GUI crashes.
+Safe Mode helps isolate configuration and third-party plugin failures. It does not guarantee recovery from GPU, hardware, or other GUI crashes.
 
-Safe-mode CLI verbs (`bitty doctor`, `bitty config check`, `bitty plugin list`) run without any plugin VM, so diagnosis works even when a plugin is the problem. The headless parity suite pins this: safe mode is a full startup posture, not a degraded guess.
+Diagnostic commands such as `bitty doctor`, `bitty --safe config check`, and `bitty plugin list` do not activate plugin VMs. A successful diagnostic or headless run does not establish headed stability or plugin UI usability.
 
 ---
 
@@ -26,17 +26,17 @@ Safe-mode CLI verbs (`bitty doctor`, `bitty config check`, `bitty plugin list`) 
 
 The host validates every plugin before activation and fails closed — a rejected plugin is disabled with a diagnostic, never partially activated. Match what you see against this table:
 
-| Symptom                                                       | Meaning                                                                                                                                                                                                                                                              | Fix                                                                                                                                            |
-| :------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| Install exits `4` with a compat diagnostic                    | The plugin's `[compat] bitty` range admits no intersection with your host (e.g. a plugin floored above your release, or your release above its ceiling). Official plugins floor at `>=0.0.21,<0.1`, admitting the whole 0.0.x line; a rejection means genuine skew.  | Upgrade Bitty, or install a plugin release whose range admits your host. The ceiling is deliberately restrictive because 0.x minors may break. |
-| `bitty plugin list` shows the plugin disabled after an update | Version or capability mismatch recorded at load (`disabled_reason`); the plugin registered nothing — no commands, no keymap, no overlay.                                                                                                                             | Same as above; then `bitty plugin enable <id>` to retry after upgrading.                                                                       |
-| A bar module is missing but the bar renders                   | Not an error: the provider is absent, ungranted, stale, revoked, or malformed, so the module hid fail closed. Providers send raw numbers only — a lost source degrades to absence, never zeros.                                                                      | Grant the capability (`bitty plugin list` shows granted vs requested), or accept the hide on hosts without that hardware.                      |
-| Clicking a bar control shows a notification instead of acting | The control grant is missing or the host denied the call (`E_NOT_PERMITTED`). The click degrades to a notification by design — it never retries or escalates.                                                                                                        | Grant the control capability at install/consent time, or keep the read-only render.                                                            |
-| `E_SETTINGS_UNDECLARED` at activation                         | Plugin-author bug: the plugin read a settings key it never declared. Users cannot fix this from a config file.                                                                                                                                                       | Report it against the plugin; run `bitty --safe` to keep working meanwhile.                                                                    |
-| Your per-plugin config value seems ignored                    | Either the key is unknown (recorded as skipped, changes nothing), wrong-typed (that key fell back to its default), the whole file failed closed (duplicate key or structural garbage — everything runs on defaults), or the value needs a grant you did not approve. | Run `bitty config check`, compare each key against the plugin's declared settings, and check `bitty plugin list` for granted capabilities.     |
+| Symptom                                                       | Meaning                                                                                                                                                                                         | Fix                                                                                                                                                                                                     |
+| :------------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Install exits `4` with a compat diagnostic                    | The plugin's `[compat] bitty` range does not admit your host version. Check the particular package's host and API ranges; see the compatibility floors below.                                   | Upgrade Bitty, or choose a plugin revision whose declared ranges admit your host. Do not lower the manifest's ranges to bypass rejection.                                                               |
+| `bitty plugin list` shows the plugin disabled after an update | Version or capability mismatch recorded at load (`disabled_reason`); the plugin registered nothing — no commands, no keymap, no overlay.                                                        | Same as above; then `bitty plugin enable <id>` to retry after upgrading.                                                                                                                                |
+| A bar module is missing but the bar renders                   | Not an error: the provider is absent, ungranted, stale, revoked, or malformed, so the module hid fail closed. Providers send raw numbers only — a lost source degrades to absence, never zeros. | Grant the capability (`bitty plugin list` shows granted vs requested), or accept the hide on hosts without that hardware.                                                                               |
+| Clicking a bar control shows a notification instead of acting | The control grant is missing or the host denied the call (`E_NOT_PERMITTED`). The click degrades to a notification by design — it never retries or escalates.                                   | Grant the control capability at install/consent time, or keep the read-only render.                                                                                                                     |
+| `E_SETTINGS_UNDECLARED` at activation                         | Plugin-author bug: the plugin read a settings key it never declared. Users cannot fix this from a config file.                                                                                  | Report it against the plugin; run `bitty --safe` to keep working meanwhile.                                                                                                                             |
+| Your per-plugin config value seems ignored                    | The selected file was rejected, the key is undeclared or wrong-typed, a higher-priority file was selected, or a needed capability was not approved. Rejected values retain lower value layers.  | Check host settings warnings, compare the file with the plugin's declared settings, and inspect grants with `bitty plugin list`. `config check` checks main configuration, not all per-plugin settings. |
 
 > [!NOTE]
-> **PENDING — live-activation proofs.** Per-extension live activation on headed hosts is being proven in the 0.0.23 verification campaign. A plugin that installs cleanly headless but misbehaves headed is a verify-grade report: include `bitty doctor --format json` output and the plugin id and version.
+> Installing or enabling a plugin does not prove its UI works on a headed host. When reporting a headed failure, include `bitty doctor --format json` output and the plugin id and version; review diagnostic output for personal information before sharing it.
 
 ---
 
@@ -44,14 +44,24 @@ The host validates every plugin before activation and fails closed — a rejecte
 
 Two floors gate what runs where, and both fail closed with a diagnostic rather than a crash:
 
-- **Plugin-to-host floor**: each manifest declares `[compat] bitty` (official plugins: `>=0.0.21,<0.1`) and `plugin-api = "^1.0"`. The host resolves the intersection at install time; no overlap means no activation, exit code `4`.
+- **Plugin-to-host floor**: each manifest declares its own `[compat] bitty` and `plugin-api` ranges. The approved revisions listed below for activity, bar, file-manager, git-panel, and palette require **`>=0.0.24,<0.1`**, with plugin API and registry SDK ranges **`^1.0`**. This does not apply to every plugin or prove release availability. Incompatible installation fails with exit code `4`.
 - **Package-to-distro floor**: native Linux packages declare their runtime dependencies per format (fontconfig, freetype, libgcc family) and every package is install-smoked in a clean container of its distro before release. An unrelated distro is best-effort, not supported — use the install script or build from source there.
+
+| Plugin       | Approved revision                          |
+| :----------- | :----------------------------------------- |
+| activity     | `e1566380b9bddb92a5db8b9f1ba96c080995ef8a` |
+| bar          | `f007a03dfa6036ff67458095dc71169c0c6ee7e3` |
+| file-manager | `bf3a17ea6aa1ea0fcc3a45a13ceaa069e83b71d4` |
+| git-panel    | `862df1f90ad137eb1e92379ac0710c6cd22c7f21` |
+| palette      | `c17dc321c8c7d4c8a1b8c5e7853d33e943af7c3d` |
+
+The [statusline](../extensions/statusline.md) revision documented here instead requires `>=0.1,<1.0`; it is incompatible with Bitty 0.0.24.
 
 ---
 
 ## Validating Configuration Offline
 
-Before reloading your terminal, test your Lua configuration file without launching a GUI:
+Before reloading your terminal, check the **main configuration** without launching a GUI:
 
 ```bash
 bitty config check
@@ -59,6 +69,8 @@ bitty config check
 
 - Returns exit code `0` if all syntax and schema fields are valid.
 - Prints specific line numbers, column offsets, and error descriptions if parsing or validation fails.
+
+Per-plugin settings are selected and loaded during activation. `config check` is not a comprehensive validator for those files; use the settings warnings below as well.
 
 ---
 
@@ -76,6 +88,10 @@ bitty plugin info <id>
 # Host environment health (GPU, fonts, dependencies)
 bitty doctor
 ```
+
+The host retains at most **four settings warning summaries per plugin activation**: an ambiguous short alias, canonical Lua shadowing an alias, the count of ignored entries, or a rejected file with fallback to lower value layers. Summaries may identify the short alias, but omit setting key names, values, and file error contents. See [per-plugin config files](../plugins/plugin-settings.md) for selection rules and limits.
+
+Settings warning summaries are host log messages, not a Lua diagnostics API or settings/grant dump in activation reports.
 
 > [!NOTE]
 > There is no `bitty plugin doctor` verb. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
