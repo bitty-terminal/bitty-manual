@@ -4,18 +4,16 @@ Bounded PNG decode plus the raster mechanics subset for inline images. Placement
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-graphics` ([github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics))
 - Crate: `bitty-graphics` (library, `src/lib.rs`)
-- Maturity: landed and independently verified; single `0.0.1` library crate.
+- Maturity: the graphics host seam is merged and tested; `bitty-graphics` remains a library crate with no implemented worker executable or native-component descriptor. Packaging material from a non-mainline pilot is not evidence of a feature-usable worker.
 
 ## Install status
 
-> Unpublished — verified 2026-10-16 (CDN `extensions/` probes return 404; see the [catalog overview](overview.md)). There is no version to pass to `extension install`.
+> Not an installable native component — no worker executable, `bitty-component.toml`, `v0.0.24` tag, or CDN bundle is evidenced. The packaging pilot is not on the mainline branch, and no built or published pilot binary is evidenced.
 
-Track the source checkout above. This is the extension bitty#2143 names (`extension install bitty-graphics --version X.Y.Z`): the command shape is real, but no `bitty-graphics` bundle exists yet, so there is no version to substitute. Once a prebuilt ships, installation follows the standard shape:
+Track the source checkout above. There is no graphics worker binary for `bitty extension add` or `bitty extension install`; the implemented installer requires a published native component artifact, and this library does not provide one. The graphics host seam and library tests are not evidence that a separately installed worker or production worker routing exists. Core retains protocol intake, placement, resource policy, and renderer upload validation.
 
 ```bash
-bitty extension list   # confirm what is staged today (empty table, exit 0)
-# Later, when published:
-# bitty extension install bitty-graphics --version X.Y.Z
+bitty extension list   # inspect the local component inventory
 ```
 
 ## Lua / host surface
