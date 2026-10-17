@@ -58,7 +58,7 @@ Launch directly into specific pane configurations:
 | `--headless`  | Run a single headless tick smoke test without creating a window and exit.             |
 | `--test-mode` | Run deterministic headless E2E servo loop connected to `BITTY_SOCKET` IPC until exit. |
 
-These modes do not exercise the headed event loop or native clipboard setup. Passing them does not establish GUI stability, native input behavior, or plugin UI usability.
+These modes do not exercise the headed event loop or validate native clipboard behavior. Passing them does not establish GUI stability, native input behavior, or plugin UI usability.
 
 ---
 
@@ -185,9 +185,11 @@ Local plugin record management (no plugin VM is ever loaded):
 # List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Install a bundled plugin id, or a local directory package
+# Install a bundled id, local directory, Git source, or local archive
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
+bitty plugin install <git-url> [--yes]
+bitty plugin install <archive> [--yes]
 
 # Remove a record (bundled: drop entry; installed: delete tree)
 bitty plugin remove <id> --force
@@ -204,7 +206,9 @@ bitty plugin info <id>
 ```
 
 > [!NOTE]
-> Remote (`git`) sources and local archives are not accepted yet: `install` takes a bundled id or an unpacked local directory. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
+> Git sources accept `https://<host>/<path>.git`, `git+https://<host>/<path>.git`, or `git@<host>:<path>`. Other URL schemes, including `http://`, `file://`, and `ssh://`, are rejected. Archives must be local `.tar.gz`, `.tgz`, `.tar.zst`, or `.zip` files; remote archive URLs are not supported.
+
+Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
