@@ -1,10 +1,11 @@
 # file-manager (Lua plugin)
 
-File manager listing, navigation, and preview with terminal observation only and a bounded 8 KiB payload. The single requested capability gates the read-only cwd/title observation the listing cache refreshes from.
+Builds bounded candidate-path metadata using read-only terminal cwd/title observation. At revision `bf3a17ea6aa1ea0fcc3a45a13ceaa069e83b71d4`, it does not enumerate, read, write, or rename files, and it does not mount a file-manager panel.
 
-- Plugin id: `bitty-terminal.file-manager` · manifest version `0.1.0` (`bitty-plugin.toml:11-14`)
+- Plugin id: `bitty-terminal.file-manager` · manifest version `0.1.0`
 - Source: [github.com/bitty-terminal/file-manager](https://github.com/bitty-terminal/file-manager) · official registry entry
-- Capabilities (`bitty-plugin.toml:23-36`): `terminal.semantic-read`
+- Requested capability: `terminal.semantic-read`
+- Compatibility at this revision: Bitty `>=0.0.24,<0.1`, plugin API `^1.0`, registry SDK `^1.0`.
 
 ## Install
 
@@ -18,29 +19,19 @@ bitty plugin list   # confirm state and grants
 
 ## Lua API surface
 
-Declared triggers (`bitty-plugin.toml:37-54`):
+Declared triggers:
 
 - Commands: `bitty-terminal.file-manager:open`, `:preview`, `:rename`
 - Events: `terminal.cwd-changed`, `terminal.title-changed`, `focus.changed`
 
 Calls used in `lua/file-manager/`:
 
-- `bitty.commands.register` — registers the three commands (`init.lua:214-252`)
-- `bitty.events.subscribe` — refreshes the snapshot-derived cache (`init.lua:49-52`)
+- `bitty.commands.register` — registers the three commands
+- `bitty.events.subscribe` — refreshes the snapshot-derived cache
 - `bitty.terminal.snapshot` — read-only cwd/title observation
-- `bitty.ui.mount` / `bitty.ui.register_panel` — presents the listing surface
-- `bitty.settings.get` — reads `entries` (`init.lua:116`) and `root` (`init.lua:130`)
 
-Settings keys (file `~/.config/bitty/plugins/bitty-terminal.file-manager.toml`): `entries`, `root`. Absent keys fall back to built-in defaults; see [per-plugin config files](../plugins/plugin-settings.md).
+`open` shapes supplied candidate paths into bounded metadata; `preview` validates and returns metadata for one candidate, without reading its contents. `rename` validates source and destination paths and returns a pair; it performs no filesystem rename. None of these commands registers or mounts a panel.
 
-## Minimal config
+## Settings
 
-```toml
-# ~/.config/bitty/plugins/bitty-terminal.file-manager.toml
-root = "~/projects"
-```
-
-```bash
-bitty plugin enable bitty-terminal.file-manager
-bitty config check   # validate without launching a GUI
-```
+This revision declares no manifest settings. Its internal attempts to read `entries` and `root` catch undeclared-key errors; adding those names to a settings file does not make them effective. No per-plugin settings file is needed. See [per-plugin config files](../plugins/plugin-settings.md) for declaration and authority rules.

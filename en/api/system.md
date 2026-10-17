@@ -34,23 +34,22 @@ end
 
 ---
 
-## Configuration Reflection (`bitty.settings`)
+## Plugin Settings (`bitty.settings`)
 
-The `bitty.settings` module provides a read-only view of the host's active effective configuration.
+The `bitty.settings` module provides read-only access to the calling plugin generation's resolved, manifest-declared settings. See [per-plugin config files](../plugins/plugin-settings.md) for file selection and value precedence.
 
 ### `bitty.settings.get(key)`
 
-Queries the current value of a configuration setting:
+Reads a key declared in the calling plugin's manifest. For example, inside the bar plugin, whose manifest declares `show`:
 
 ```lua
-local current_theme = bitty.settings.get("appearance.theme")
-local font_family = bitty.settings.get("font.family")
-local scrollback = bitty.settings.get("terminal.scrollback")
+local show = bitty.settings.get("show")
 ```
 
-- **Parameters**: `key` (`string`, 1..=128 bytes). Must name a declared configuration field path (e.g. `"appearance.theme"`, `"font.size"`).
-- **Returns**: The effective setting value, or `nil` if unset or undeclared.
-- **Security Boundary**: Read-only. Plugins cannot alter user settings through this interface; user configuration files retain exclusive sovereignty.
+- **Parameters**: `key` (`string`, 1..=128 bytes), declared in this plugin's manifest `[settings]`.
+- **Returns**: The resolved value for that key, or `nil` if a declared key has no value in the settings source.
+- **Errors**: An empty key or one longer than 128 bytes raises `E_SETTINGS_KEY_INVALID`. An undeclared key raises `E_SETTINGS_UNDECLARED`; it does not return `nil`.
+- **Security boundary**: This is not arbitrary host configuration or cross-plugin access. There is no settings setter, and setting a value grants no capability.
 
 ---
 
