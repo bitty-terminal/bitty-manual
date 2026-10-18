@@ -16,7 +16,10 @@ jobs:
   deploy:
     name: Package and Deploy to R2
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Worst case with UPLOAD_ATTEMPTS=3 backoff is ~12.6 min (288/4 x 10.5 s),
+    # so the job must outlive the retry budget or a timeout can skip the
+    # always() verification step entirely.
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
