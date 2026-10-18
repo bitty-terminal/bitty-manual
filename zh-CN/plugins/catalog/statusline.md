@@ -1,6 +1,6 @@
 # statusline（Lua 插件）
 
-> **退役说明。** 独立的 `bitty-terminal.statusline` 插件身份已退役：由 [bar](bar.md) 插件取代，可见的工作区状态栏及其呈现归 `bar` 负责。但 `statusline` 仍可作为 UI API 中的通用兼容槽位名保留（例如 `bitty.ui.mount("statusline", …)`）。因此本页仅作参考保留，不再作为当前安装建议。
+> **退役说明。** 独立的 `bitty-terminal.statusline` 插件身份已退役：由 [bar](bar.md) 插件取代，可见的工作区状态栏及其呈现归 `bar` 负责。`statusline` 不属于 v1 UI 槽位集合——挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭——因此这里只把它当作历史名称。本页仅作参考保留，不再作为当前安装建议。
 
 经状态组件组合呈现 cwd、模式、git 与任务：响应式终端事件到来即重组声明式组件。
 

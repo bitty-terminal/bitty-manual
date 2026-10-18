@@ -185,8 +185,7 @@ Local plugin record management (no plugin VM is ever loaded):
 # List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Install a bundled plugin id, a local directory package, a git source,
-# or a local archive
+# Install a bundled id, local directory, Git source, or local archive
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
 bitty plugin install <git-url> [--yes]
@@ -207,7 +206,9 @@ bitty plugin info <id>
 ```
 
 > [!NOTE]
-> `install` accepts four source shapes: a bundled plugin **id**, a local **path/directory** package, a **git URL** (exactly `https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Git and archive installs stage through the same local-path pipeline; unsupported schemes (`file://`, `http://`, `ssh://`, …) fail closed with a naming diagnostic. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
+> Git sources accept `https://<host>/<path>.git`, `git+https://<host>/<path>.git`, or `git@<host>:<path>`. Other URL schemes, including `http://`, `file://`, and `ssh://`, are rejected. Archives must be local `.tar.gz`, `.tgz`, `.tar.zst`, or `.zip` files; remote archive URLs are not supported.
+
+Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 

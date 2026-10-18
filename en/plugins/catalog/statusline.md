@@ -1,6 +1,6 @@
 # statusline (Lua plugin)
 
-> **Retirement notice.** The standalone `bitty-terminal.statusline` plugin identity is retired: the [bar](bar.md) plugin supersedes it and owns the visible workspace bar and its presentation. `statusline` may however remain a generic compatibility slot name in the UI API (for example `bitty.ui.mount("statusline", …)`). This page is therefore kept for reference, not as a current install recommendation.
+> **Retirement notice.** The standalone `bitty-terminal.statusline` plugin identity is retired: the [bar](bar.md) plugin supersedes it and owns the visible workspace bar and its presentation. `statusline` is not part of the v1 UI slot set — mounting it fails closed with `E_UI_COMPONENT_INVALID` — so the name is historical here. This page is kept for reference, not as a current install recommendation.
 
 Cwd, mode, git, and task presentation via status-component composition: recomposes declarative components whenever a reactive terminal event fires.
 

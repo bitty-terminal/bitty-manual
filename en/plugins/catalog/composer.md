@@ -33,7 +33,7 @@ Calls used in `lua/composer/init.lua`:
 - `bitty.keymaps.suggest` — advertises the open chord
 - `bitty.settings.get` — reads chord settings (`:1007`)
 
-Settings keys with built-in defaults (`init.lua:48-61`): `newline` (`enter`), `submit` (`ctrl+enter`), `close` (`escape`), `external_editor` (`alt+e`), `open_chord` (`alt+e`). See also [Composer Modal Usage](composer.md).
+Settings keys with built-in defaults (`init.lua:48-61`): `newline` (`enter`), `submit` (`ctrl+enter`), `close` (`escape`), `external_editor` (`alt+e`), `open_chord` (`alt+e`). See also [Composer Modal Usage](../composer.md).
 
 ## Minimal config
 
