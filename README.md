@@ -97,9 +97,10 @@ list **upstream Rust-level extensions**, while `en/plugins/catalog/` and
 The catalog split ([#28](https://github.com/bitty-terminal/bitty-manual/pull/28))
 renamed published keys — section keys `extensions/<name>.md` →
 `plugins/catalog/<name>.md`, and search ids `en:extensions:<slug>` →
-`en:plugins:catalog-<slug>`. This is an accepted pre-1.0 break: the old raw keys
-stop resolving from the next `main` deploy onward, and no redirect shim is
-published.
+`en:plugins:catalog-<slug>`. This is an accepted pre-1.0 break: the pipeline no longer writes the old
+keys, but previously published objects stay readable until they are pruned,
+so the old paths can serve stale copies in the meantime (tracked in
+[#35](https://github.com/bitty-terminal/bitty-manual/issues/35)).
 
 ## Quality Gates & Commands
 
