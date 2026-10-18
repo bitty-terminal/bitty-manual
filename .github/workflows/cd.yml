@@ -43,6 +43,9 @@ jobs:
         run: just upload-r2
 
       - name: Verify published keys
+        # Always run: an upload failure must not skip verification, otherwise a
+        # missing or stale key could ship behind a "deploy failed" message.
+        if: always()
         # No R2 listing primitive is available (wrangler get/put/delete
         # only), so verification fetches the expected canonical + legacy
         # keys over public HTTPS. Uses only the public CDN base: no secrets.
