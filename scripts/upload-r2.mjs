@@ -216,7 +216,8 @@ async function uploadTask(task) {
   let lastError = null;
   for (let attempt = 1; attempt <= UPLOAD_ATTEMPTS; attempt++) {
     try {
-      const label = attempt > 1 ? ` (attempt ${attempt}/${UPLOAD_ATTEMPTS})` : "";
+      const label =
+        attempt > 1 ? ` (attempt ${attempt}/${UPLOAD_ATTEMPTS})` : "";
       console.log(`Uploading: ${task.r2Key}${label}...`);
       await execAsync(cmd);
       uploadedCount++;
