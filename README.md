@@ -67,15 +67,39 @@ bitty-manual/
 ├── en/                        # Canonical English documentation
 │   ├── getting-started/       # Installation & initial tour
 │   ├── configuration/         # Configuration keys, types, and reload classes
+│   ├── extensions/            # Upstream Rust-level extension catalog
 │   ├── plugins/               # Plugin architecture, manifests, and capabilities
+│   │   └── catalog/           # Downstream Lua plugin catalog
 │   ├── api/                   # Sandboxed Lua API reference
 │   └── faq/                   # Troubleshooting, safe mode, and diagnostics
+├── zh-CN/                     # Simplified Chinese mirror of en/ (same layout)
 ├── scripts/                   # Verification and validation scripts
 │   ├── verify-config-schema.mjs
 │   ├── package-manual.mjs     # Packaging & archive bundling
 │   └── upload-r2.mjs          # Cloudflare R2 continuous delivery
 └── justfile                   # Quality gate automation
 ```
+
+### Published keys
+
+The manual publishes one bundle per locale plus a legacy compatibility tree (see
+`distribution` in `manifest.json`):
+
+- canonical: `manual/bitty-manual/manifest.json`, `manual/bitty-manual/<locale>.tar.gz`
+  and `manual/bitty-manual/v<version>/...`, with `SHA256SUMS.txt`
+- legacy compatibility: `manual/manifest.json`, `manual/<locale>/<section>/<file>.md`,
+  `manual/latest/...`
+
+Two catalog trees must not be confused: `en/extensions/` and `zh-CN/extensions/`
+list **upstream Rust-level extensions**, while `en/plugins/catalog/` and
+`zh-CN/plugins/catalog/` list **downstream Lua plugins**.
+
+The catalog split ([#28](https://github.com/bitty-terminal/bitty-manual/pull/28))
+renamed published keys — section keys `extensions/<name>.md` →
+`plugins/catalog/<name>.md`, and search ids `en:extensions:<slug>` →
+`en:plugins:catalog-<slug>`. This is an accepted pre-1.0 break: the old raw keys
+stop resolving from the next `main` deploy onward, and no redirect shim is
+published.
 
 ## Quality Gates & Commands
 
