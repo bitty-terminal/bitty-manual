@@ -4,17 +4,17 @@ Bounded PNG decode plus the raster mechanics subset for inline images. Placement
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-graphics` ([github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics))
 - Crate: `bitty-graphics` (library, `src/lib.rs`)
-- Maturity: landed and independently verified; single `0.0.1` library crate.
+- Maturity: the graphics host seam is merged and tested; a non-mainline packaging pilot provides packaging source and workflow, a descriptor, and pack scripts, but no built or published pilot binary is evidenced. Packaging material is not evidence of a feature-usable worker.
 
 ## Install status
 
-> Unpublished — verified 2026-10-16 (CDN `extensions/` probes return 404; see the [catalog overview](overview.md)). There is no version to pass to `extension install`.
+> Unpublished; pilot pending — current release-readiness evidence reports no live CDN bundle or `0.0.24` release. The packaging pilot is not on the mainline branch, and no built or published pilot binary is evidenced.
 
-Track the source checkout above. This is the extension bitty#2143 names (`extension install bitty-graphics --version X.Y.Z`): the command shape is real, but no `bitty-graphics` bundle exists yet, so there is no version to substitute. Once a prebuilt ships, installation follows the standard shape:
+Track the source checkout above. The implemented seed installer `bitty extension install bitty-graphics --version X.Y.Z` currently cannot succeed because no matching `bitty-graphics` CDN artifact is published and Core `0.0.24` is not released. The packaging source and workflow are not evidence that Core production decode/raster routing is feature-usable. Once the matching artifact and Core release are available, installation follows the standard shape:
 
 ```bash
-bitty extension list   # confirm what is staged today (empty table, exit 0)
-# Later, when published:
+bitty extension list   # inspect the local component inventory
+# When the matching artifact and Core release are available:
 # bitty extension install bitty-graphics --version X.Y.Z
 ```
 

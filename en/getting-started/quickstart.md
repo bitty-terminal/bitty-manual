@@ -92,16 +92,36 @@ On first startup, Bitty probes for your configuration file according to platform
 
 ## Default Keybindings
 
-| Shortcut            | Action           | Description                                 |
-| :------------------ | :--------------- | :------------------------------------------ |
-| `Ctrl+Shift+T`      | New Tab / Window | Open a new terminal workspace               |
-| `Ctrl+Shift+W`      | Close View       | Close currently focused pane or panel       |
-| `Ctrl+Shift+P`      | Command Palette  | Open interactive palette with fuzzy search  |
-| `Ctrl+Shift+F`      | Search           | Open scrollback pattern search              |
-| `Ctrl+=` / `Ctrl+-` | Zoom             | Increase or decrease live font point size   |
-| `Ctrl+0`            | Reset Zoom       | Reset font size to default configured value |
-| `Ctrl+Shift+C`      | Copy             | Copy selection to system clipboard          |
-| `Ctrl+Shift+V`      | Paste            | Paste text from system clipboard            |
+The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to jump, `Shift+Alt` to split, and so on). It is what the binary defaults to and what `bitty init` writes; setting `mod_key = "super"` flips the `Mod` slot to `Super` on every `Mod`-aware chord. Bare `Tab`, arrows, letters, and digits are deliberately unbound so they reach the shell.
+
+| Keys                                                                                          | Action                | Description                                         |
+| :-------------------------------------------------------------------------------------------- | :-------------------- | :-------------------------------------------------- |
+| `Alt+h` / `Alt+j` / `Alt+k` / `Alt+l` (`Alt+arrows`, `Ctrl+Alt+arrows`)                       | Focus                 | Move focus left / down / up / right                 |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab`                                                                 | Cycle focus           | Focus the next / previous panel                     |
+| `Shift+Alt+h/j/k/l` (`Shift+Alt+arrows`)                                                      | Split                 | Create a split left / down / up / right             |
+| `Shift+Ctrl+h/j/k/l` (`Shift+Ctrl+arrows`, `Ctrl+Shift+Alt+h/j/k/l`, `Ctrl+Shift+Alt+arrows`) | Resize                | Resize the focused split                            |
+| `Ctrl+Shift+C` / `Ctrl+Shift+V`                                                               | Copy / Paste          | Copy selection / paste from the system clipboard    |
+| `Alt+n`                                                                                       | New panel             | Open a new panel (adaptive dwindle axis)            |
+| `Alt+t`                                                                                       | New workspace         | Open a fresh workspace                              |
+| `Alt+d` / `Alt+q`                                                                             | Close pane            | Close the focused pane/view (with confirm)          |
+| `Alt+w`                                                                                       | Close workspace       | Close the workspace (kill-confirm)                  |
+| `Alt+-` / `Alt+=`                                                                             | Workspace prev / next | Switch to the previous / next workspace             |
+| `Alt+Tab`                                                                                     | Last-used workspace   | Switch to the previously used workspace             |
+| `Alt+[` / `Alt+]`                                                                             | Occupied workspace    | Next / previous occupied workspace (with wrap)      |
+| `Alt+1` … `Alt+9`                                                                             | Jump to workspace     | Focus workspace N                                   |
+| `Shift+Alt+1` … `Shift+Alt+9`                                                                 | Move window           | Move the focused window to workspace N              |
+| `Ctrl+Shift+Alt+1` … `Ctrl+Shift+Alt+9`                                                       | Swap workspace        | Swap with, or move to, workspace N                  |
+| `Alt+z` / `Alt+m` / `Alt+f`                                                                   | Zoom                  | Toggle zoom of the focused panel                    |
+| `Alt+a`                                                                                       | Toggle floating       | Toggle the focused panel between tiled and floating |
+| `Alt+u` / `Alt+i`                                                                             | Scroll                | Page down (toward live) / page up (into history)    |
+| `Shift+Alt+PageUp` / `Shift+Alt+PageDown`                                                     | Prompt navigation     | Jump to the previous / next shell prompt            |
+| `Alt+o`                                                                                       | Select output         | Select the last command's output                    |
+| `Ctrl+=` / `Ctrl++` / `Ctrl+-`                                                                | Font zoom             | Increase / decrease the live font point size        |
+| `Ctrl+0`                                                                                      | Reset font size       | Reset the font size to the configured default       |
+| ``Alt+` `` (`Alt+?`)                                                                          | Help                  | Toggle the shortcut help overlay                    |
+
+> [!NOTE]
+> `Ctrl+Shift+F` and `Ctrl+Shift+Space` are **not** search chords: they are shell input again. Scrollback search has no Core default chord; a plugin may rebind one (see [Configuration Reference](../configuration/overview.md)).
 
 ## Uninstallation & Data Cleanup
 

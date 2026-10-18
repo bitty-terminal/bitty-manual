@@ -70,8 +70,10 @@ bitty plugin install ./my-plugin
 bitty plugin list
 ```
 
+`install` accepts four source shapes: a bundled plugin **id** (e.g. `bitty plugin install bitty-terminal.shell-integration`), a **local path/directory**, a **git URL** (`https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Add `--yes` for non-interactive capability consent.
+
 ## Next Steps
 
 - [Capabilities & Sandboxing](capabilities-and-sandbox.md) — Learn about security boundaries, resource quotas, and capability families.
-- [Native Component Boundary](upstream-components.md) — Understand how upstream prebuilt extensions share native infrastructure across plugins.
+- [Native Component Boundary](../extensions/upstream-components.md) — Understand how upstream prebuilt extensions share native infrastructure across plugins.
 - [Lua API Reference](../api/overview.md) — Explore the sandboxed `bitty.*` API surface.

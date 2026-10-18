@@ -48,7 +48,7 @@ version = ">=2.30"
    - `workspace.read`: Allows inspecting workspaces via `bitty.workspace.list`.
    - `workspace.control`: Allows switching, creating, closing, and moving workspaces and panels.
 4. **`network` Family**:
-   - Mediated exclusively through an upstream native coprocess behind the Native Component Boundary (see [Native Component Boundary](upstream-components.md)). Plugins never touch raw sockets.
+   - Mediated exclusively through an upstream native coprocess behind the Native Component Boundary (see [Native Component Boundary](../extensions/upstream-components.md)). Plugins never touch raw sockets.
    - Hosts and domains must be allowlisted under `[network].allow`.
 5. **`process.spawn` & Tool Family**:
    - Ambient process creation is strictly forbidden. No shell is ever constructed: argument arrays go directly to the spawn call, so metacharacters in arguments are inert data.

@@ -31,7 +31,7 @@ Calls used in `lua/file-manager/`:
 - `bitty.ui.mount` / `bitty.ui.register_panel` — presents the listing surface
 - `bitty.settings.get` — reads `entries` (`init.lua:116`) and `root` (`init.lua:130`)
 
-Settings keys (file `~/.config/bitty/plugins/bitty-terminal.file-manager.toml`): `entries`, `root`. Absent keys fall back to built-in defaults; see [per-plugin config files](../plugins/plugin-settings.md).
+Settings keys (file `~/.config/bitty/plugins/bitty-terminal.file-manager.toml`): `entries`, `root`. Absent keys fall back to built-in defaults; see [per-plugin config files](../plugin-settings.md).
 
 ## Minimal config
 

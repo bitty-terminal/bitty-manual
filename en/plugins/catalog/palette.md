@@ -30,7 +30,7 @@ Calls used in `lua/palette/`:
 - `bitty.ui.overlay.acquire` / `bitty.ui.overlay.update` — single Core-owned switch mounts the surface and paints content
 - `bitty.settings.get` — reads `entries` (`init.lua:52`) and `query` (`init.lua:60`)
 
-Settings keys (file `~/.config/bitty/plugins/bitty-terminal.palette.toml`): `entries`, `query`. Absent keys fall back to built-in defaults; see [per-plugin config files](../plugins/plugin-settings.md).
+Settings keys (file `~/.config/bitty/plugins/bitty-terminal.palette.toml`): `entries`, `query`. Absent keys fall back to built-in defaults; see [per-plugin config files](../plugin-settings.md).
 
 ## Minimal config
 

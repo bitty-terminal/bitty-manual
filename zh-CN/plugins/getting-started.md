@@ -70,8 +70,10 @@ bitty plugin install ./my-plugin
 bitty plugin list
 ```
 
+`install` 接受四种来源形式：内置插件 **id**（例如 `bitty plugin install bitty-terminal.shell-integration`）、**本地路径/目录**、**git URL**（`https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。追加 `--yes` 可以非交互方式完成能力授权。
+
 ## 下一步
 
 - [能力鉴权与沙箱机制](capabilities-and-sandbox.md) — 了解安全边界、资源配额与能力家族。
-- [原生组件边界](upstream-components.md) — 理解上游预构建扩展如何在插件间共享原生基础设施。
+- [原生组件边界](../extensions/upstream-components.md) — 理解上游预构建扩展如何在插件间共享原生基础设施。
 - [Lua API 参考手册](../api/overview.md) — 探索沙箱化 `bitty.*` API 全貌。

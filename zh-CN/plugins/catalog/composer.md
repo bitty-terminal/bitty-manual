@@ -33,7 +33,7 @@ bitty plugin list   # 确认状态与授权
 - `bitty.keymaps.suggest` —— 通告打开 chord
 - `bitty.settings.get` —— 读取 chord 设置（`:1007`）
 
-设置键与内置默认值（`init.lua:48-61`）：`newline`（`enter`）、`submit`（`ctrl+enter`）、`close`（`escape`）、`external_editor`（`alt+e`）、`open_chord`（`alt+e`）。另见 [Composer 模态用法](../plugins/composer.md)。
+设置键与内置默认值（`init.lua:48-61`）：`newline`（`enter`）、`submit`（`ctrl+enter`）、`close`（`escape`）、`external_editor`（`alt+e`）、`open_chord`（`alt+e`）。另见 [Composer 模态用法](../composer.md)。
 
 ## 最小配置
 

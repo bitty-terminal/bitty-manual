@@ -31,7 +31,7 @@ bitty plugin list   # 确认状态与授权
 - `bitty.ui.mount`／`bitty.ui.register_panel` —— 呈现列表界面
 - `bitty.settings.get` —— 读取 `entries`（`init.lua:116`）与 `root`（`init.lua:130`）
 
-设置键（文件 `~/.config/bitty/plugins/bitty-terminal.file-manager.toml`）：`entries`、`root`。缺失的键回落到内置默认值；见[按插件配置文件](../plugins/plugin-settings.md)。
+设置键（文件 `~/.config/bitty/plugins/bitty-terminal.file-manager.toml`）：`entries`、`root`。缺失的键回落到内置默认值；见[按插件配置文件](../plugin-settings.md)。
 
 ## 最小配置
 

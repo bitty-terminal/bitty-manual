@@ -4,17 +4,19 @@ The shared, optional network runtime: connection pooling, DNS, TLS, and the wire
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-network` ([github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network))
 - Crates: `bitty-network-api`, `bitty-network-core`, `bitty-network-dns`, `bitty-network-tls`, `bitty-network-wire`, `bitty-network-lua`, `bitty-net`
-- Maturity: active L1 Rust Core Extension library; no packed component binary yet.
+- Maturity: source includes the `bitty-net` executable and merged packaging/publisher workflow; no component artifact is published, and the Core production broker path is not verified or in use.
 
 ## Install status
 
-> Unpublished — verified 2026-10-16 (CDN `extensions/` probes return 404; see the [catalog overview](overview.md)). There is no version to pass to `extension install`.
+> Unpublished; packaging pending — current release-readiness evidence reports no live CDN bundle or `0.0.24` release. The merged packaging workflow is release machinery only: no tag or upload was evidenced, and there is no version to pass to `extension install`.
 
-Track the source checkout above. Once a prebuilt ships, installation follows the standard shape:
+Track the source checkout above. A locally available compatible executable may be staged with `bitty extension add <path>`; the native component path is not thereby verified for Core production use. The implemented seed installer is currently blocked because no matching CDN artifact is published and Core `0.0.24` is not released. If those inputs become available, installation follows the standard shape:
 
 ```bash
-bitty extension list   # confirm what is staged today (empty table, exit 0)
-# Later, when published:
+bitty extension list   # inspect the local component inventory
+# Local mechanism only, when a compatible executable is available:
+# bitty extension add <path>
+# When the matching artifact and Core release are available:
 # bitty extension install <name> --version X.Y.Z
 ```
 

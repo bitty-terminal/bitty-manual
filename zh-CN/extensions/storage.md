@@ -20,7 +20,7 @@ bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0
 
 ## Lua / 宿主界面
 
-该 crate 自身没有 Lua 命名空间，但它记录了 Lua 插件已在使用的后端：KV 上限“镜像 `bitty.store` 文件系统后端”（`src/ceiling.rs:4`），`src/kv.rs:3` 移植自 Core `bitty.store` 后端（有界 key 语法）。[activity](activity.md) 插件经 `bitty.store` 持久化其聚合。插件作者使用 Core 的 `bitty.store`／历史 KV API；该 crate 是背后的机制。
+该 crate 自身没有 Lua 命名空间，但它记录了 Lua 插件已在使用的后端：KV 上限“镜像 `bitty.store` 文件系统后端”（`src/ceiling.rs:4`），`src/kv.rs:3` 移植自 Core `bitty.store` 后端（有界 key 语法）。[activity](../plugins/catalog/activity.md) 插件经 `bitty.store` 持久化其聚合。插件作者使用 Core 的 `bitty.store`／历史 KV API；该 crate 是背后的机制。
 
 ## 最小配置
 
