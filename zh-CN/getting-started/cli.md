@@ -206,6 +206,8 @@ bitty plugin info <id>
 > [!NOTE]
 > `install` 接受四种来源形式：内置插件 **id**、本地**路径/目录**包、**git URL**（精确为 `https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。git 与压缩包来源会经由同一套本地路径流水线完成暂存；不支持的方案（`file://`、`http://`、`ssh://` 等）会以具名诊断失败关闭。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
+git 安装使用系统的 `git`；压缩包安装使用 `tar`（`.tar.zst` 需要 `unzstd`）或 `unzip`。所需工具必须在 `PATH` 上；工具缺失或拉取/解压失败会中止安装。git checkout 与解压出的目录会和本地目录包一样，经过同一套清单、兼容性、哈希与能力同意检查。安装期间不运行任何插件代码。
+
 能力安装时提示 `Grant these capabilities? [y/N]`；`--yes` 以非交互方式批准。授权绑定到精确的清单哈希，新增能力始终需要重新确认。
 
 ### 原生扩展管理 (`bitty extension`)
