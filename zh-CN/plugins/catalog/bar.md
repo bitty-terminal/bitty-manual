@@ -32,7 +32,7 @@ bitty plugin list   # 确认状态与授权
 - `bitty.ui.mount`／`bitty.ui.update` —— 挂载并刷新 bar 带
 - `bitty.settings.get` —— 读取 chassis 设置（`:332-333`）
 
-设置键与内置默认值（`init.lua:56-61`）：`show`（默认 true）、`edge`（默认 `"bottom"`）、`show_single`（默认 false）、`name_max_chars`。另见[bar 模块用户指南](../plugins/bar-modules.md)。
+设置键与内置默认值（`init.lua:56-61`）：`show`（默认 true）、`edge`（默认 `"bottom"`）、`show_single`（默认 false）、`name_max_chars`。另见[bar 模块用户指南](../bar-modules.md)。
 
 ## 最小配置
 

@@ -5,7 +5,7 @@ Bitty provides a unified, pure-parsing command-line toolchain for launching the 
 Run `bitty --help` for the compact overview, `bitty --help -v` for all flags, or `bitty <command> --help` for per-command detail.
 
 > [!NOTE]
-> There is no `bitty help` subcommand: `bitty help` treats `help` as a program to spawn. Use `bitty --help` or `bitty -h`. (Tracked in [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900).)
+> `bitty help [cmd]` is a real subcommand that prints help **without spawning any program**: bare `bitty help` prints the same compact overview as `bitty --help` (add `-v` for full detail via `bitty --help -v`), and `bitty help <cmd>` prints the same per-command detail as `bitty <command> --help`. Unknown command names fail closed with exit code 2 and a list of valid commands. A program literally named `help` needs `bitty -- help ...` (or `bitty run -- help ...`), because bare `bitty help` never spawns. Evidence: `crates/bitty-terminal/src/cli.rs` maps `"help" => Some("help")` and ships `help_usage()`.
 
 ## Terminal Invocation (`bitty`)
 
@@ -64,7 +64,7 @@ These modes do not exercise the headed event loop or validate native clipboard b
 
 ## Subcommands
 
-Bitty ships 15 subcommands. Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
+Bitty ships 16 subcommands (including `help`). Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
 
 ### Explicit Child Launch (`bitty run`)
 
@@ -185,7 +185,8 @@ Local plugin record management (no plugin VM is ever loaded):
 # List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Install a bundled id, local directory, Git source, or local archive
+# Install a bundled plugin id, a local directory package, a git source,
+# or a local archive
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
 bitty plugin install <git-url> [--yes]
@@ -206,9 +207,7 @@ bitty plugin info <id>
 ```
 
 > [!NOTE]
-> Git sources accept `https://<host>/<path>.git`, `git+https://<host>/<path>.git`, or `git@<host>:<path>`. Other URL schemes, including `http://`, `file://`, and `ssh://`, are rejected. Archives must be local `.tar.gz`, `.tgz`, `.tar.zst`, or `.zip` files; remote archive URLs are not supported.
-
-Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
+> `install` accepts four source shapes: a bundled plugin **id**, a local **path/directory** package, a **git URL** (exactly `https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Git and archive installs stage through the same local-path pipeline; unsupported schemes (`file://`, `http://`, `ssh://`, …) fail closed with a naming diagnostic. See [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901).
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
@@ -265,6 +264,19 @@ Emit prompt hooks (OSC 7 cwd + OSC 133 marks) plus completion wiring. Same shell
 
 ```bash
 bitty shell-init bash
+```
+
+### Help (`bitty help`)
+
+Print help without spawning a program (local, no instance). Same 16 canonical names as `--help`; `cfg`/`ls`/`comp` aliases resolve to their canonical command, and `component` is a hidden deprecated alias for `extension`.
+
+```bash
+# Compact overview (identical to `bitty --help`)
+bitty help
+
+# Per-command detail (identical to `bitty <command> --help`)
+bitty help plugin
+bitty help ctl
 ```
 
 ### Version (`bitty version`)

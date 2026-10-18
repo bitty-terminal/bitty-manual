@@ -20,7 +20,7 @@ bitty extension list   # confirm what is staged today (empty table, exit 0)
 
 ## Lua / host surface
 
-This crate exposes no direct `bitty.*` Lua namespace. It is the delivery mechanism behind the `platform.notify` capability and the `bitty.notify.show` call Lua plugins use (see [activity](activity.md) and [wheel](wheel.md)). Plugins request `platform.notify` and call `bitty.notify.show`; Core rate-limits and this crate delivers.
+This crate exposes no direct `bitty.*` Lua namespace. It is the delivery mechanism behind the `platform.notify` capability and the `bitty.notify.show` call Lua plugins use (see [activity](../plugins/catalog/activity.md) and [wheel](../plugins/catalog/wheel.md)). Plugins request `platform.notify` and call `bitty.notify.show`; Core rate-limits and this crate delivers.
 
 ## Minimal config
 

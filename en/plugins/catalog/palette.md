@@ -35,4 +35,4 @@ Calls used in `lua/palette/`:
 
 ## Settings
 
-This revision declares no manifest settings. Its internal reads of `entries` and `query` catch undeclared-key errors and fall back to an empty list and empty query. Those names in a per-plugin settings file do not configure this revision. The overlay grant does not declare settings or grant command-routing authority. See [per-plugin config files](../plugins/plugin-settings.md).
+This revision declares no manifest settings. Its internal reads of `entries` and `query` catch undeclared-key errors and fall back to an empty list and empty query. Those names in a per-plugin settings file do not configure this revision. The overlay grant does not declare settings or grant command-routing authority. See [per-plugin config files](../plugin-settings.md).

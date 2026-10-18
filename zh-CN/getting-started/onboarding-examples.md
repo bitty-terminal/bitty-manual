@@ -74,7 +74,7 @@ bitty config check
 
 ## 3. 扩展流程示例
 
-扩展是独立于插件管理的站外进程二进制（见[原生组件边界](../plugins/upstream-components.md)）。`list` 仅显示已安装项——没有仓库查询，`install` 也不做版本求解：版本必填且必须精确。
+扩展是独立于插件管理的站外进程二进制（见[原生组件边界](../extensions/upstream-components.md)）。`list` 仅显示已安装项——没有仓库查询，`install` 也不做版本求解：版本必填且必须精确。
 
 ```bash
 # 仅列出已安装的扩展（未安装时为空）

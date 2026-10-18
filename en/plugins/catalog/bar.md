@@ -32,7 +32,7 @@ Calls used in `lua/bar/init.lua`:
 - `bitty.ui.mount` / `bitty.ui.update` — mounts and refreshes the bar band
 - `bitty.settings.get` — reads chassis settings (`:332-333`)
 
-Settings keys with built-in defaults (`init.lua:56-61`): `show` (default true), `edge` (default `"bottom"`), `show_single` (default false), `name_max_chars`. See also the [bar modules user guide](../plugins/bar-modules.md).
+Settings keys with built-in defaults (`init.lua:56-61`): `show` (default true), `edge` (default `"bottom"`), `show_single` (default false), `name_max_chars`. See also the [bar modules user guide](../bar-modules.md).
 
 ## Minimal config
 

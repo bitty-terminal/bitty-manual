@@ -55,7 +55,7 @@ Two floors gate what runs where, and both fail closed with a diagnostic rather t
 | git-panel    | `862df1f90ad137eb1e92379ac0710c6cd22c7f21` |
 | palette      | `c17dc321c8c7d4c8a1b8c5e7853d33e943af7c3d` |
 
-The [statusline](../extensions/statusline.md) revision documented here instead requires `>=0.1,<1.0`; it is incompatible with Bitty 0.0.24.
+The [statusline](../plugins/catalog/statusline.md) revision documented here instead requires `>=0.1,<1.0`; it is incompatible with Bitty 0.0.24.
 
 ---
 

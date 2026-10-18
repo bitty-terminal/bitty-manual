@@ -90,9 +90,64 @@
           "path": "plugins/capabilities-and-sandbox.md"
         },
         {
-          "slug": "upstream-components",
-          "title": "Native Component Boundary",
-          "path": "plugins/upstream-components.md"
+          "slug": "catalog-activity",
+          "title": "activity (Lua plugin)",
+          "path": "plugins/catalog/activity.md"
+        },
+        {
+          "slug": "catalog-bar",
+          "title": "bar (Lua plugin)",
+          "path": "plugins/catalog/bar.md"
+        },
+        {
+          "slug": "catalog-composer",
+          "title": "composer (Lua plugin)",
+          "path": "plugins/catalog/composer.md"
+        },
+        {
+          "slug": "catalog-copy-mode",
+          "title": "copy-mode (Lua plugin)",
+          "path": "plugins/catalog/copy-mode.md"
+        },
+        {
+          "slug": "catalog-devtools",
+          "title": "devtools (Lua plugin)",
+          "path": "plugins/catalog/devtools.md"
+        },
+        {
+          "slug": "catalog-file-manager",
+          "title": "file-manager (Lua plugin)",
+          "path": "plugins/catalog/file-manager.md"
+        },
+        {
+          "slug": "catalog-git-panel",
+          "title": "git-panel (Lua plugin)",
+          "path": "plugins/catalog/git-panel.md"
+        },
+        {
+          "slug": "catalog-history",
+          "title": "history (Lua plugin)",
+          "path": "plugins/catalog/history.md"
+        },
+        {
+          "slug": "catalog-palette",
+          "title": "palette (Lua plugin)",
+          "path": "plugins/catalog/palette.md"
+        },
+        {
+          "slug": "catalog-search",
+          "title": "search (Lua plugin)",
+          "path": "plugins/catalog/search.md"
+        },
+        {
+          "slug": "catalog-statusline",
+          "title": "statusline (Lua plugin)",
+          "path": "plugins/catalog/statusline.md"
+        },
+        {
+          "slug": "catalog-wheel",
+          "title": "wheel (Lua plugin)",
+          "path": "plugins/catalog/wheel.md"
         }
       ]
     },
@@ -104,6 +159,11 @@
           "slug": "overview",
           "title": "Catalog Overview & Install Status",
           "path": "extensions/overview.md"
+        },
+        {
+          "slug": "upstream-components",
+          "title": "Native Component Boundary",
+          "path": "extensions/upstream-components.md"
         },
         {
           "slug": "network",
@@ -154,66 +214,6 @@
           "slug": "platform-services",
           "title": "platform-services (native extension)",
           "path": "extensions/platform-services.md"
-        },
-        {
-          "slug": "activity",
-          "title": "activity (Lua plugin)",
-          "path": "extensions/activity.md"
-        },
-        {
-          "slug": "bar",
-          "title": "bar (Lua plugin)",
-          "path": "extensions/bar.md"
-        },
-        {
-          "slug": "composer",
-          "title": "composer (Lua plugin)",
-          "path": "extensions/composer.md"
-        },
-        {
-          "slug": "copy-mode",
-          "title": "copy-mode (Lua plugin)",
-          "path": "extensions/copy-mode.md"
-        },
-        {
-          "slug": "file-manager",
-          "title": "file-manager (Lua plugin)",
-          "path": "extensions/file-manager.md"
-        },
-        {
-          "slug": "git-panel",
-          "title": "git-panel (Lua plugin)",
-          "path": "extensions/git-panel.md"
-        },
-        {
-          "slug": "history",
-          "title": "history (Lua plugin)",
-          "path": "extensions/history.md"
-        },
-        {
-          "slug": "palette",
-          "title": "palette (Lua plugin)",
-          "path": "extensions/palette.md"
-        },
-        {
-          "slug": "search",
-          "title": "search (Lua plugin)",
-          "path": "extensions/search.md"
-        },
-        {
-          "slug": "statusline",
-          "title": "statusline (Lua plugin)",
-          "path": "extensions/statusline.md"
-        },
-        {
-          "slug": "wheel",
-          "title": "wheel (Lua plugin)",
-          "path": "extensions/wheel.md"
-        },
-        {
-          "slug": "devtools",
-          "title": "devtools (Lua plugin)",
-          "path": "extensions/devtools.md"
         }
       ]
     },

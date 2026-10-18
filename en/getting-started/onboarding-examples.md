@@ -74,7 +74,7 @@ bitty config check
 
 ## 3. Extension flow example
 
-Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../plugins/upstream-components.md)). `list` shows only what is already installed — there is no registry query and `install` does no version solving: the version is required and exact.
+Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../extensions/upstream-components.md)). `list` shows only what is already installed — there is no registry query and `install` does no version solving: the version is required and exact.
 
 ```bash
 # Installed extensions only (empty when nothing is installed)

@@ -30,7 +30,7 @@ bitty plugin list   # 确认状态与授权
 - `bitty.ui.overlay.acquire`／`bitty.ui.overlay.update` —— 一次 Core 拥有的切换挂载界面并绘制内容
 - `bitty.settings.get` —— 读取 `entries`（`init.lua:52`）与 `query`（`init.lua:60`）
 
-设置键（文件 `~/.config/bitty/plugins/bitty-terminal.palette.toml`）：`entries`、`query`。缺失的键回落到内置默认值；见[按插件配置文件](../plugins/plugin-settings.md)。
+设置键（文件 `~/.config/bitty/plugins/bitty-terminal.palette.toml`）：`entries`、`query`。缺失的键回落到内置默认值；见[按插件配置文件](../plugin-settings.md)。
 
 ## 最小配置
 

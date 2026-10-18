@@ -1,5 +1,7 @@
 # statusline（Lua 插件）
 
+> **退役说明。** 独立的 `bitty-terminal.statusline` 插件身份已退役：由 [bar](bar.md) 插件取代，可见的工作区状态栏及其呈现归 `bar` 负责。但 `statusline` 仍可作为 UI API 中的通用兼容槽位名保留（例如 `bitty.ui.mount("statusline", …)`）。因此本页仅作参考保留，不再作为当前安装建议。
+
 经状态组件组合呈现 cwd、模式、git 与任务：响应式终端事件到来即重组声明式组件。
 
 - 插件 id：`bitty-terminal.statusline` · manifest 版本 `0.0.1`（`bitty-plugin.toml:11-14`）
@@ -27,7 +29,7 @@ bitty plugin list   # 确认状态与授权
 - `bitty.ui.mount`／`bitty.ui.update` —— 挂载并刷新状态行槽
 - `bitty.settings.get` —— 经 `M.SETTINGS` 映射读取呈现设置（`init.lua:32-39,42-68`）：`separator`、`show_cwd`、`show_title`、`show_exit`、`max_components`、`component_max_chars`
 
-设置键（文件 `~/.config/bitty/plugins/bitty-terminal.statusline.toml`）：`separator`、`show_cwd`、`show_title`、`show_exit`、`max_components`、`component_max_chars`。缺失的键回落到内置默认值；见[按插件配置文件](../plugins/plugin-settings.md)。
+设置键（文件 `~/.config/bitty/plugins/bitty-terminal.statusline.toml`）：`separator`、`show_cwd`、`show_title`、`show_exit`、`max_components`、`component_max_chars`。缺失的键回落到内置默认值；见[按插件配置文件](../plugin-settings.md)。
 
 ## 最小配置
 

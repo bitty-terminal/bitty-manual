@@ -12,20 +12,38 @@ Bitty 将所有配置变更划分为三个级别：
 2. **`RestartRequired`**：被解析并持久化至有效配置中，但在下次进程启动时才会生效（用于初始化底层运行时结构）。
 3. **`Rejected`**：遇到错误类型、超出范围或未声明的字段时直接失败关闭（fail-closed），并回滚到之前的配置，同时抛出诊断信息。
 
+## 命名配置（Named Profiles）
+
+命名配置是一种可复用的配置层，存放于 `$XDG_CONFIG_HOME/bitty/profiles/<name>.lua`（即 `~/.config/bitty/profiles/<name>.lua`）。请求的名称来自 `--profile <name>` 命令行参数（优先生效）或 `BITTY_PROFILE` 环境变量；名称以失败关闭（fail-closed）方式校验，仅允许 `[A-Za-z0-9_-]` 字符（1–64 个字符，不含路径与扩展名）。
+
+`init.lua` 是用户文件层。命名配置作为其**下层**参与组合，合并顺序为：
+
+```text
+CLI 覆盖 > init.lua（用户文件层）> 命名配置 > 编译内置默认值
+```
+
+`extends` 仅允许出现在命名配置层内部，构成带跳数上限的单父链：被请求的配置逐字段覆盖其祖先层。
+
+> [!NOTE]
+> **当前不存在 `default_profile` 键**：Bitty 没有可自动选择配置的配置项。默认配置必须通过 `--profile` 或 `BITTY_PROFILE` 显式指定（或使用别名 / `bitty shell-init` 包装器提供）。
+
 ## 完整配置模式
 
 ### 窗口与内边距 (Window & Padding)
 
-| 配置字段                     | 类型      | 重载级别 | 描述                                                                                                                                                   |
-| :--------------------------- | :-------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `window.opacity`             | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。                                                                                                                        |
-| `window.padding`             | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。                                                                                                                   |
-| `window.radius_px`           | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）。                                                                                                                   |
-| `window.blur_radius`         | `integer` | **Live** | 背景模糊半径（逻辑像素，`0..=128`；各平台支持程度不同）。                                                                                              |
-| `window.background_image`    | `string`  | **Live** | 窗口背景图路径（绝对路径或 `~` 开头，`<= 4096` 字节，需位于批准根目录下）。                                                                            |
-| `window.background_fit`      | `string`  | **Live** | 适配模式：`"fill"`（覆盖，默认）、`"fit"`（容纳）、`"center"`、`"tile"`、`"stretch"`。                                                                 |
-| `window.background_opacity`  | `float`   | **Live** | 背景图压暗系数（`0.0..=1.0`，默认 `1.0`）；与 `window.opacity` 正交。                                                                                  |
-| `window.background_position` | `string`  | **Live** | `"center"`（默认）、`"top-left"`、`"top"`、`"top-right"`、`"left"`、`"right"`、`"bottom-left"`、`"bottom"`、`"bottom-right"`；仅 `fit`/`center` 生效。 |
+| 配置字段                     | 类型      | 重载级别 | 描述                                                                                                                                                                     |
+| :--------------------------- | :-------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。                                                                                                                                          |
+| `window.padding`             | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。                                                                                                                                     |
+| `window.radius_px`           | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）；加载器接受该键，但当前为解析后的 no-op（CTX-0241 S0，合成器支持延后）。                                                              |
+| `window.blur_radius`         | `integer` | **Live** | 预留的模糊半径（逻辑像素，`0..=128`）；**当前 Lua 加载器不接受该键** —— 模糊为 no-op 占位实现，因此 `window` 表中的 `blur_radius` 键会以未声明键失败关闭（见下方提示）。 |
+| `window.background_image`    | `string`  | **Live** | 窗口背景图路径（绝对路径或 `~` 开头，`<= 4096` 字节，需位于批准根目录下）。                                                                                              |
+| `window.background_fit`      | `string`  | **Live** | 适配模式：`"fill"`（覆盖，默认）、`"fit"`（容纳）、`"center"`、`"tile"`、`"stretch"`。                                                                                   |
+| `window.background_opacity`  | `float`   | **Live** | 背景图压暗系数（`0.0..=1.0`，默认 `1.0`）；与 `window.opacity` 正交。                                                                                                    |
+| `window.background_position` | `string`  | **Live** | `"center"`（默认）、`"top-left"`、`"top"`、`"top-right"`、`"left"`、`"right"`、`"bottom-left"`、`"bottom"`、`"bottom-right"`；仅 `fit`/`center` 生效。                   |
+
+> [!NOTE]
+> `window.blur_radius` 存在于规范字段模式中，但**不可加载**：Lua 加载器从不解析它（模糊为 no-op 占位实现，当前恒为 `0`），且在 `window` 表中写入 `blur_radius` 键会以未声明键失败关闭。此处保留是因为 `just verify-schema` 以模式文件为权威；只有在模糊契约落地后它才会真正生效。相关的 `window.radius_px` 虽被加载器接受，但当前同样是解析后的 no-op。
 
 ### 装饰与边框 (Decoration & Borders)
 
@@ -62,16 +80,16 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 
 ### 终端行为与选区 (Terminal Behavior & Selection)
 
-| 配置字段                           | 类型      | 重载级别            | 描述                                                                                |
-| :--------------------------------- | :-------- | :------------------ | :---------------------------------------------------------------------------------- |
-| `terminal.scrollback`              | `integer` | **RestartRequired** | 最大回滚缓冲区行数（`0..=100000`，默认 `10000`）。                                  |
-| `terminal.shell`                   | `string`  | **RestartRequired** | 首选默认 Shell 可执行程序路径（`argv[0]`）。                                        |
-| `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | 滚轮每刻度滚动的行数（`1..=32`，默认 `3`）。                                        |
-| `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | 滚轮每刻度平滑滚动的像素数（`1..=256`，默认 `16`）。                                |
-| `terminal.cursor_style`            | `string`  | **RestartRequired** | 初始光标形状（`"default"`、`"blinking_block"`、`"steady_block"`、`"steady_bar"`）。 |
-| `terminal.bell`                    | `string`  | **RestartRequired** | 终端响铃行为（`"off"`、`"visual"`、`"audible"`、`"both"`）。                        |
-| `selection.auto_copy`              | `boolean` | **RestartRequired** | 选中文本是否自动复制至系统剪贴板（默认 `false`）。                                  |
-| `close_confirm`                    | `string`  | **RestartRequired** | 视图关闭确认安全模式：`"always"`、`"when_busy"`（默认）或 `"never"`。               |
+| 配置字段                           | 类型      | 重载级别            | 描述                                                                                                                                                |
+| :--------------------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `terminal.scrollback`              | `integer` | **RestartRequired** | 最大回滚缓冲区行数（`0..=100000`，默认 `10000`）。                                                                                                  |
+| `terminal.shell`                   | `string`  | **RestartRequired** | 首选默认 Shell 可执行程序路径（`argv[0]`）。                                                                                                        |
+| `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | 滚轮每刻度滚动的行数（`1..=32`，默认 `3`）。                                                                                                        |
+| `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | 滚轮每刻度平滑滚动的像素数（`1..=256`，默认 `16`）。                                                                                                |
+| `terminal.cursor_style`            | `string`  | **RestartRequired** | 初始光标形状（`"default"`、`"blinking_block"`、`"steady_block"`、`"blinking_underline"`、`"steady_underline"`、`"blinking_bar"`、`"steady_bar"`）。 |
+| `terminal.bell`                    | `string`  | **RestartRequired** | 终端响铃行为（`"off"`、`"visual"`、`"audible"`、`"both"`）。                                                                                        |
+| `selection.auto_copy`              | `boolean` | **RestartRequired** | 选中文本是否自动复制至系统剪贴板（默认 `false`）。                                                                                                  |
+| `close_confirm`                    | `string`  | **RestartRequired** | 视图关闭确认安全模式：`"always"`、`"when_busy"`（默认）或 `"never"`。                                                                               |
 
 ### 布局与工作区 (Layout & Workspaces)
 
