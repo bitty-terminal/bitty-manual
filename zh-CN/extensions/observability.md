@@ -20,7 +20,7 @@ bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0
 
 ## Lua / 宿主界面
 
-该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它支撑 Core 向已授权插件提供的只读检查 API——即 [devtools](devtools.md) 插件消费的 `bitty.debug.inspect` / `bitty.debug.trace` / `bitty.debug.trace_get`（脱敏与采集分类见 `crates/bitty-observability-core/src/`）。插件只能观测 Core 允许的内容；该 crate 从不授予权限。
+该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它支撑 Core 向已授权插件提供的只读检查 API——即 [devtools](../plugins/catalog/devtools.md) 插件消费的 `bitty.debug.inspect` / `bitty.debug.trace` / `bitty.debug.trace_get`（脱敏与采集分类见 `crates/bitty-observability-core/src/`）。插件只能观测 Core 允许的内容；该 crate 从不授予权限。
 
 ## 最小配置
 

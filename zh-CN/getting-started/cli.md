@@ -5,7 +5,7 @@ Bitty 提供了统一、纯解析的命令行工具链，用于启动终端、�
 运行 `bitty --help` 查看精简概览，`bitty --help -v` 查看全部标志，`bitty <command> --help` 查看单命令详情。
 
 > [!NOTE]
-> 不存在 `bitty help` 子命令：`bitty help` 会把 `help` 当作待启动的程序。请使用 `bitty --help` 或 `bitty -h`。（见 [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900)。）
+> `bitty help [cmd]` 是一个真实子命令，**不会启动任何程序**：单独运行 `bitty help` 打印与 `bitty --help` 相同的精简概览（追加 `-v` 可获得完整详情，等价于 `bitty --help -v`），`bitty help <cmd>` 打印与 `bitty <command> --help` 相同的单命令详情。未知命令名会以退出码 2 失败关闭，并列出有效命令。若程序本身名为 `help`，需写作 `bitty -- help ...`（或 `bitty run -- help ...`），因为裸 `bitty help` 从不派生进程。依据：`crates/bitty-terminal/src/cli.rs` 中 `"help" => Some("help")`，并提供 `help_usage()`。
 
 ## 终端调用 (`bitty`)
 
@@ -64,7 +64,7 @@ bitty [OPTIONS] -- PROGRAM [ARGS...]
 
 ## 子命令
 
-Bitty 共 15 个子命令。本地动词无需运行实例；运行时动词（`ctl`、`cmd`）通过 IPC（仅 Unix）操控一个 live 实例。
+Bitty 共 16 个子命令（含 `help`）。本地动词无需运行实例；运行时动词（`ctl`、`cmd`）通过 IPC（仅 Unix）操控一个 live 实例。
 
 ### 显式子进程启动 (`bitty run`)
 
@@ -183,9 +183,11 @@ bitty dev overlay <list|show <damage|cells|glyphs|images|layout|banner>>
 # 列出已记录与已安装插件、来源与能力授予
 bitty plugin list
 
-# 安装内置插件 id，或本地目录包
+# 安装内置插件 id、本地目录包、git 来源或本地压缩包
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
+bitty plugin install <git-url> [--yes]
+bitty plugin install <archive> [--yes]
 
 # 移除记录（内置：删除条目；已安装：删除树）
 bitty plugin remove <id> --force
@@ -202,7 +204,7 @@ bitty plugin info <id>
 ```
 
 > [!NOTE]
-> 远端（`git`）来源与本地压缩包暂不支持：`install` 只接受内置 id 或已解包的本地目录。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
+> `install` 接受四种来源形式：内置插件 **id**、本地**路径/目录**包、**git URL**（精确为 `https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。git 与压缩包来源会经由同一套本地路径流水线完成暂存；不支持的方案（`file://`、`http://`、`ssh://` 等）会以具名诊断失败关闭。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
 能力安装时提示 `Grant these capabilities? [y/N]`；`--yes` 以非交互方式批准。授权绑定到精确的清单哈希，新增能力始终需要重新确认。
 
@@ -259,6 +261,19 @@ bitty completion fish > ~/.config/fish/completions/bitty.fish
 
 ```bash
 bitty shell-init bash
+```
+
+### 帮助 (`bitty help`)
+
+在不启动任何程序的前提下打印帮助（本地命令，无需实例）。与 `--help` 相同的 16 个规范命令名；`cfg`/`ls`/`comp` 别名解析为其规范命令，`component` 是 `extension` 的隐藏已弃用别名。
+
+```bash
+# 精简概览（与 `bitty --help` 完全一致）
+bitty help
+
+# 单命令详情（与 `bitty <command> --help` 完全一致）
+bitty help plugin
+bitty help ctl
 ```
 
 ### 版本 (`bitty version`)

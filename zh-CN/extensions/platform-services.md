@@ -20,7 +20,7 @@ bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0
 
 ## Lua / 宿主界面
 
-该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它是 `platform.notify` 能力与 Lua 插件所用 `bitty.notify.show` 背后的投递机制（见 [activity](activity.md) 与 [wheel](wheel.md)）。插件申请 `platform.notify` 并调用 `bitty.notify.show`；Core 限流，该 crate 投递。
+该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它是 `platform.notify` 能力与 Lua 插件所用 `bitty.notify.show` 背后的投递机制（见 [activity](../plugins/catalog/activity.md) 与 [wheel](../plugins/catalog/wheel.md)）。插件申请 `platform.notify` 并调用 `bitty.notify.show`；Core 限流，该 crate 投递。
 
 ## 最小配置
 

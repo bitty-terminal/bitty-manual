@@ -20,7 +20,7 @@ bitty extension list   # confirm what is staged today (empty table, exit 0)
 
 ## Lua / host surface
 
-This crate exposes no direct `bitty.*` Lua namespace. It backs the read-only inspection APIs Core offers to granted plugins — the `bitty.debug.inspect` / `bitty.debug.trace` / `bitty.debug.trace_get` calls consumed by the [devtools](devtools.md) plugin (`debug/describe` redaction and capture classification live in `crates/bitty-observability-core/src/`). A plugin observes only what Core permits; this crate never grants authority.
+This crate exposes no direct `bitty.*` Lua namespace. It backs the read-only inspection APIs Core offers to granted plugins — the `bitty.debug.inspect` / `bitty.debug.trace` / `bitty.debug.trace_get` calls consumed by the [devtools](../plugins/catalog/devtools.md) plugin (`debug/describe` redaction and capture classification live in `crates/bitty-observability-core/src/`). A plugin observes only what Core permits; this crate never grants authority.
 
 ## Minimal config
 

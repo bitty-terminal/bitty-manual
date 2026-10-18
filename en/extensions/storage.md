@@ -20,7 +20,7 @@ bitty extension list   # confirm what is staged today (empty table, exit 0)
 
 ## Lua / host surface
 
-This crate exposes no Lua namespace of its own, but it documents the backend Lua plugins already use: KV ceilings "mirror the `bitty.store` filesystem backend" (`src/ceiling.rs:4`), and `src/kv.rs:3` is ported from the Core `bitty.store` backend (bounded key grammar). The [activity](activity.md) plugin persists its aggregates through `bitty.store`. Plugin authors use Core's `bitty.store` / history-KV APIs; this crate is the mechanics behind them.
+This crate exposes no Lua namespace of its own, but it documents the backend Lua plugins already use: KV ceilings "mirror the `bitty.store` filesystem backend" (`src/ceiling.rs:4`), and `src/kv.rs:3` is ported from the Core `bitty.store` backend (bounded key grammar). The [activity](../plugins/catalog/activity.md) plugin persists its aggregates through `bitty.store`. Plugin authors use Core's `bitty.store` / history-KV APIs; this crate is the mechanics behind them.
 
 ## Minimal config
 

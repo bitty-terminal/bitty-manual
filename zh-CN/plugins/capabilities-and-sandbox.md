@@ -48,7 +48,7 @@ version = ">=2.30"
    - `workspace.read`：允许通过 `bitty.workspace.list` 检查工作区状态。
    - `workspace.control`：允许切换、创建、关闭和移动工作区与面板。
 4. **`network` 家族**：
-   - 必须且仅能经原生组件边界之后的上游原生协进程代理转发（见[原生组件边界](upstream-components.md)），插件永远无法直接接触裸套接字。
+   - 必须且仅能经原生组件边界之后的上游原生协进程代理转发（见[原生组件边界](../extensions/upstream-components.md)），插件永远无法直接接触裸套接字。
    - 主机与域名必须在 `[network].allow` 白名单中明确声明。
 5. **`process.spawn` 与工具家族**：
    - 严禁随意创建进程。绝不构造 Shell：参数数组直达派生调用，参数中的元字符仅为惰性数据。

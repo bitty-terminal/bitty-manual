@@ -12,20 +12,38 @@ Bitty classifies all configuration changes into three categories:
 2. **`RestartRequired`**: Accepted and persisted into effective configuration, but takes effect on the next process startup because it sets initial runtime structures.
 3. **`Rejected`**: Invalid types, out-of-range bounds, or undeclared fields fail closed, triggering a rollback to the previous active configuration with clear diagnostics.
 
+## Named Profiles
+
+A named profile is a reusable configuration layer stored at `$XDG_CONFIG_HOME/bitty/profiles/<name>.lua` (i.e. `~/.config/bitty/profiles/<name>.lua`). The requested name comes from the `--profile <name>` CLI flag (which wins) or the `BITTY_PROFILE` environment variable; names are validated fail-closed to the characters `[A-Za-z0-9_-]` (1–64 characters, no paths or extensions).
+
+`init.lua` is the user file layer. A named profile composes **under** it, so the merge order is:
+
+```text
+CLI overrides > init.lua (user file) > named profile > compiled-in defaults
+```
+
+`extends` is accepted only inside a profile layer, as a single-parent chain with a bounded hop count: the requested profile overrides its ancestors per field.
+
+> [!NOTE]
+> There is **no `default_profile` key today**: Bitty has no configuration knob that selects a profile automatically. A default profile must be selected explicitly with `--profile` or `BITTY_PROFILE` (or an alias / `bitty shell-init` wrapper that supplies one).
+
 ## Complete Configuration Schema
 
 ### Window & Padding
 
-| Field                        | Type      | Reload Class | Description                                                                                                                                                            |
-| :--------------------------- | :-------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `window.opacity`             | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`).                                                                                                                    |
-| `window.padding`             | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).                                                                                                                     |
-| `window.radius_px`           | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`).                                                                                                                    |
-| `window.blur_radius`         | `integer` | **Live**     | Background blur radius in logical pixels (`0..=128`; platform support varies).                                                                                         |
-| `window.background_image`    | `string`  | **Live**     | Window background image path (absolute or `~`-anchored, `<= 4096` bytes, approved roots).                                                                              |
-| `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`.                                                                             |
-| `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); orthogonal to `window.opacity`.                                                                                         |
-| `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it. |
+| Field                        | Type      | Reload Class | Description                                                                                                                                                                                     |
+| :--------------------------- | :-------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`).                                                                                                                                             |
+| `window.padding`             | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).                                                                                                                                              |
+| `window.radius_px`           | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`); accepted by the loader but currently a parsed no-op (CTX-0241 S0, compositor opt-in deferred).                                              |
+| `window.blur_radius`         | `integer` | **Live**     | Schema-reserved blur radius in logical pixels (`0..=128`); **not accepted by the Lua loader today** — blur is a no-op stub, so a `blur_radius` key fails closed as undeclared (see note below). |
+| `window.background_image`    | `string`  | **Live**     | Window background image path (absolute or `~`-anchored, `<= 4096` bytes, approved roots).                                                                                                       |
+| `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`.                                                                                                      |
+| `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); orthogonal to `window.opacity`.                                                                                                                  |
+| `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it.                          |
+
+> [!NOTE]
+> `window.blur_radius` is listed in the canonical field schema but is **not loadable**: the Lua loader never parses it (blur is a no-op stub, currently always `0`), and a `blur_radius` key inside the `window` table fails closed as undeclared. It is kept here because `just verify-schema` treats the schema as the authority; it becomes functional only when a blur contract lands. The related `window.radius_px` is accepted by the loader but is likewise currently inert (parsed no-op).
 
 ### Decoration & Borders
 
@@ -62,16 +80,16 @@ Core-owned view decorations operate in logical pixels:
 
 ### Terminal Behavior & Selection
 
-| Field                              | Type      | Reload Class        | Description                                                                               |
-| :--------------------------------- | :-------- | :------------------ | :---------------------------------------------------------------------------------------- |
-| `terminal.scrollback`              | `integer` | **RestartRequired** | Maximum scrollback buffer lines (`0..=100000`, default `10000`).                          |
-| `terminal.shell`                   | `string`  | **RestartRequired** | Preferred default shell executable path (`argv[0]`).                                      |
-| `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | Lines scrolled per wheel notch (`1..=32`, default `3`).                                   |
-| `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | Smooth-scroll pixels per wheel notch (`1..=256`, default `16`).                           |
-| `terminal.cursor_style`            | `string`  | **RestartRequired** | Initial cursor shape (`"default"`, `"blinking_block"`, `"steady_block"`, `"steady_bar"`). |
-| `terminal.bell`                    | `string`  | **RestartRequired** | Bell alert behavior (`"off"`, `"visual"`, `"audible"`, `"both"`).                         |
-| `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).    |
-| `close_confirm`                    | `string`  | **RestartRequired** | View close safety confirmation: `"always"`, `"when_busy"` (default), or `"never"`.        |
+| Field                              | Type      | Reload Class        | Description                                                                                                                                               |
+| :--------------------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `terminal.scrollback`              | `integer` | **RestartRequired** | Maximum scrollback buffer lines (`0..=100000`, default `10000`).                                                                                          |
+| `terminal.shell`                   | `string`  | **RestartRequired** | Preferred default shell executable path (`argv[0]`).                                                                                                      |
+| `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | Lines scrolled per wheel notch (`1..=32`, default `3`).                                                                                                   |
+| `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | Smooth-scroll pixels per wheel notch (`1..=256`, default `16`).                                                                                           |
+| `terminal.cursor_style`            | `string`  | **RestartRequired** | Initial cursor shape (`"default"`, `"blinking_block"`, `"steady_block"`, `"blinking_underline"`, `"steady_underline"`, `"blinking_bar"`, `"steady_bar"`). |
+| `terminal.bell`                    | `string`  | **RestartRequired** | Bell alert behavior (`"off"`, `"visual"`, `"audible"`, `"both"`).                                                                                         |
+| `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).                                                                    |
+| `close_confirm`                    | `string`  | **RestartRequired** | View close safety confirmation: `"always"`, `"when_busy"` (default), or `"never"`.                                                                        |
 
 ### Layout & Workspaces
 

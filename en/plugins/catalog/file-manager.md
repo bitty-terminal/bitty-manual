@@ -34,4 +34,4 @@ Calls used in `lua/file-manager/`:
 
 ## Settings
 
-This revision declares no manifest settings. Its internal attempts to read `entries` and `root` catch undeclared-key errors; adding those names to a settings file does not make them effective. No per-plugin settings file is needed. See [per-plugin config files](../plugins/plugin-settings.md) for declaration and authority rules.
+This revision declares no manifest settings. Its internal attempts to read `entries` and `root` catch undeclared-key errors; adding those names to a settings file does not make them effective. No per-plugin settings file is needed. See [per-plugin config files](../plugin-settings.md) for declaration and authority rules.

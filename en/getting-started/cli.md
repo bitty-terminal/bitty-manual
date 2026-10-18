@@ -5,7 +5,7 @@ Bitty provides a unified, pure-parsing command-line toolchain for launching the 
 Run `bitty --help` for the compact overview, `bitty --help -v` for all flags, or `bitty <command> --help` for per-command detail.
 
 > [!NOTE]
-> There is no `bitty help` subcommand: `bitty help` treats `help` as a program to spawn. Use `bitty --help` or `bitty -h`. (Tracked in [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900).)
+> `bitty help [cmd]` is a real subcommand that prints help **without spawning any program**: bare `bitty help` prints the same compact overview as `bitty --help` (add `-v` for full detail via `bitty --help -v`), and `bitty help <cmd>` prints the same per-command detail as `bitty <command> --help`. Unknown command names fail closed with exit code 2 and a list of valid commands. A program literally named `help` needs `bitty -- help ...` (or `bitty run -- help ...`), because bare `bitty help` never spawns. Evidence: `crates/bitty-terminal/src/cli.rs` maps `"help" => Some("help")` and ships `help_usage()`.
 
 ## Terminal Invocation (`bitty`)
 
@@ -64,7 +64,7 @@ These modes do not exercise the headed event loop or validate native clipboard b
 
 ## Subcommands
 
-Bitty ships 15 subcommands. Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
+Bitty ships 16 subcommands (including `help`). Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
 
 ### Explicit Child Launch (`bitty run`)
 
@@ -265,6 +265,19 @@ Emit prompt hooks (OSC 7 cwd + OSC 133 marks) plus completion wiring. Same shell
 
 ```bash
 bitty shell-init bash
+```
+
+### Help (`bitty help`)
+
+Print help without spawning a program (local, no instance). Same 16 canonical names as `--help`; `cfg`/`ls`/`comp` aliases resolve to their canonical command, and `component` is a hidden deprecated alias for `extension`.
+
+```bash
+# Compact overview (identical to `bitty --help`)
+bitty help
+
+# Per-command detail (identical to `bitty <command> --help`)
+bitty help plugin
+bitty help ctl
 ```
 
 ### Version (`bitty version`)

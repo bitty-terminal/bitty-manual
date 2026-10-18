@@ -1,5 +1,7 @@
 # statusline (Lua plugin)
 
+> **Retirement notice.** The standalone `bitty-terminal.statusline` plugin identity is retired: the [bar](bar.md) plugin supersedes it and owns the visible workspace bar and its presentation. `statusline` is not part of the v1 UI slot set — mounting it fails closed with `E_UI_COMPONENT_INVALID` — so the name is historical here. This page is kept for reference, not as a current install recommendation.
+
 Cwd, mode, git, and task presentation via status-component composition: recomposes declarative components whenever a reactive terminal event fires.
 
 - Plugin id: `bitty-terminal.statusline` · manifest version `0.1.0`
@@ -32,4 +34,4 @@ If the host does not expose the UI bridge, the plugin observes snapshots without
 
 ## Settings
 
-This revision declares no manifest settings. Its internal names (`separator`, `show_cwd`, `show_title`, `show_exit`, `max_components`, `component_max_chars`) are not effective user-file settings. Adding them to a file does not declare them or bypass the host's undeclared-key check. See [per-plugin config files](../plugins/plugin-settings.md).
+This revision declares no manifest settings. Its internal names (`separator`, `show_cwd`, `show_title`, `show_exit`, `max_components`, `component_max_chars`) are not effective user-file settings. Adding them to a file does not declare them or bypass the host's undeclared-key check. See [per-plugin config files](../plugin-settings.md).
