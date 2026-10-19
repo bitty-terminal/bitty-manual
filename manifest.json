@@ -49,6 +49,11 @@
           "path": "configuration/overview.md"
         },
         {
+          "slug": "plugin-config",
+          "title": "Plugin Configuration",
+          "path": "configuration/plugin-config.md"
+        },
+        {
           "slug": "workspaces-panels",
           "title": "Workspaces & Panels",
           "path": "configuration/workspaces-panels.md"

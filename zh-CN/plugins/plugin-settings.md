@@ -83,5 +83,6 @@ bitty config check
 
 ## 下一步
 
+- [插件配置](../configuration/plugin-config.md)——面向任务的指南：文件选择、安全编辑与生效时机。
 - [状态栏模块用户指南](bar-modules.md)——每个模块的显示内容与选项。
 - [作曲家模态框用法](composer.md)——打开和弦、提交和弦与自定义设置。

@@ -102,5 +102,6 @@ Per-module option collections (one named group per module: `clock`, `cpu`, `memo
 
 ## Next steps
 
+- [Plugin Configuration](../configuration/plugin-config.md) — File locations, when edits take effect, and worked examples.
 - [Per-Plugin Config Files](plugin-settings.md) — File paths, the TOML subset, and the fail-to-default rules.
 - [Troubleshooting & Safe Mode](../faq/troubleshooting.md) — What hidden modules and activation errors mean.
