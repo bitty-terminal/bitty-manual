@@ -57,7 +57,7 @@ bitty plugin enable bitty-terminal.bar
 
 授权是显式的：安装器输出 `Grant these capabilities? [y/N]`；`--yes` 为非交互式批准，拒绝则以退出码 `1` 中止且不改变任何状态。授权绑定 manifest 精确哈希，新增能力必定需要重新确认。
 
-bar 的按插件配置文件位于 `~/.config/bitty/plugins/bitty-terminal.bar.toml`（仅扁平 TOML 键，见[按插件配置文件](../plugins/plugin-settings.md)）。当前仅底盘标量与三个模块列表生效；按模块选项组仍为 inert（见 [Bar 模块用户指南](../plugins/bar-modules.md)）：
+bar 的按插件配置文件位于 `~/.config/bitty/plugins/bitty-terminal.bar.toml`（仅扁平 TOML 键，见[插件配置](../configuration/plugin-config.md)与[按插件配置文件](../plugins/plugin-settings.md)）。当前仅底盘标量与三个模块列表生效；按模块选项组仍为 inert（见 [Bar 模块用户指南](../plugins/bar-modules.md)）：
 
 ```toml
 show = true
@@ -120,4 +120,5 @@ return {
 - [CLI 命令行控制](cli.md) — `config`、`plugin`、`extension` 动词全量参考。
 - [配置参考手册](../configuration/overview.md) — 每个键、类型与重载类别。
 - [Bar 模块用户指南](../plugins/bar-modules.md) — 每个 bar 模块的展示内容。
+- [插件配置](../configuration/plugin-config.md) — 文件位置、完整示例与生效时机。
 - [按插件配置文件](../plugins/plugin-settings.md) — TOML 子集与 fail-to-default 规则。

@@ -48,3 +48,5 @@ name_max_chars = 32
 bitty plugin enable bitty-terminal.bar
 bitty config check   # 不启动 GUI 即可校验
 ```
+
+文件选择、安全编辑与生效时机见[插件配置](../../configuration/plugin-config.md)。

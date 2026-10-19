@@ -94,5 +94,6 @@ Your config file carries **values only** — what the plugin should do. **Author
 
 ## Next steps
 
+- [Plugin Configuration](../configuration/plugin-config.md) — Task-oriented guide to file selection, safe editing, and when changes take effect.
 - [Bar Modules User Guide](bar-modules.md) — What each module shows and its options.
 - [Composer Modal Usage](composer.md) — Open chord, submit chords, and custom settings.

@@ -4,6 +4,8 @@ Bitty 从 `$XDG_CONFIG_HOME/bitty/init.lua`（默认为 `~/.config/bitty/init.lu
 
 配置采用纯 Lua 编写（WezTerm 风格的数据返回契约）。该文件在沙箱化、计费计量的环境中执行，且必须返回一个包含配置选项的表（table）。
 
+每插件设置使用 `plugins/` 目录下的独立文件。文件位置、格式与生效时机见[插件配置](plugin-config.md)。
+
 ## 实时调和与热重载级别
 
 Bitty 将所有配置变更划分为三个级别：

@@ -102,5 +102,6 @@ cava-lite 表头：按最多 32 个频谱桶渲染块字符文本行（`buckets`
 
 ## 下一步
 
+- [插件配置](../configuration/plugin-config.md)——文件位置、生效时机与完整示例。
 - [插件配置文件](plugin-settings.md)——文件路径、TOML 子集与 fail-to-default 规则。
 - [故障排查与安全模式](../faq/troubleshooting.md)——隐藏模块与激活错误的含义。

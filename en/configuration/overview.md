@@ -4,6 +4,8 @@ Bitty reads configuration from `$XDG_CONFIG_HOME/bitty/init.lua` (defaults to `~
 
 Configuration is written in pure Lua (wezterm-style data return). The file is evaluated in a sandboxed, fuel-metered environment and must return a table containing configuration options.
 
+Per-plugin settings use separate files under the `plugins/` directory. See [Plugin Configuration](plugin-config.md) for their locations, formats, and reload behavior.
+
 ## Live Reconciliation & Reload Classes
 
 Bitty classifies all configuration changes into three categories:

@@ -50,3 +50,6 @@ open_chord = "alt+e"
 bitty plugin enable bitty-terminal.composer
 bitty config check   # validate without launching a GUI
 ```
+
+See [Plugin Configuration](../../configuration/plugin-config.md) for file
+selection, safe editing, and when changes take effect.

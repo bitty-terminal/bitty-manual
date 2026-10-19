@@ -52,5 +52,6 @@ Rules for remapping:
 
 ## Next steps
 
+- [Plugin Configuration](../configuration/plugin-config.md) — File locations, when edits take effect, and worked chord examples.
 - [Per-Plugin Config Files](plugin-settings.md) — File paths, the TOML subset, and the fail-to-default rules.
 - [Troubleshooting & Safe Mode](../faq/troubleshooting.md) — Activation errors and what they mean.

@@ -52,5 +52,6 @@ open_chord = "alt+e"
 
 ## 下一步
 
+- [插件配置](../configuration/plugin-config.md)——文件位置、生效时机与和弦示例。
 - [插件配置文件](plugin-settings.md)——文件路径、TOML 子集与 fail-to-default 规则。
 - [故障排查与安全模式](../faq/troubleshooting.md)——激活错误及其含义。

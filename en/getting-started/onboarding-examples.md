@@ -57,7 +57,7 @@ bitty plugin enable bitty-terminal.bar
 
 Consent is explicit: the installer prints `Grant these capabilities? [y/N]`; `--yes` approves non-interactively, a decline aborts with exit `1` and nothing changes. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
-Configure the bar with a per-plugin file at `~/.config/bitty/plugins/bitty-terminal.bar.toml` (flat TOML keys only — see [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see [Bar Modules User Guide](../plugins/bar-modules.md)):
+Configure the bar with a per-plugin file at `~/.config/bitty/plugins/bitty-terminal.bar.toml` (flat TOML keys only — see [Plugin Configuration](../configuration/plugin-config.md) and [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see [Bar Modules User Guide](../plugins/bar-modules.md)):
 
 ```toml
 show = true
@@ -120,4 +120,5 @@ Press `alt+space`, then `w` (close view) or `v` (split right) inside the pending
 - [CLI Commands & Controls](cli.md) — Full `config`, `plugin`, and `extension` verb reference.
 - [Configuration Reference](../configuration/overview.md) — Every key, type, and reload class.
 - [Bar Modules User Guide](../plugins/bar-modules.md) — What each bar module shows.
+- [Plugin Configuration](../configuration/plugin-config.md) — File locations, worked examples, and when changes apply.
 - [Per-Plugin Config Files](../plugins/plugin-settings.md) — TOML subset and fail-to-default rules.
