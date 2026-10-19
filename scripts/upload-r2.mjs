@@ -2,10 +2,10 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, dirname, relative } from "path";
 import { fileURLToPath } from "url";
-import { exec, execSync } from "child_process";
+import { execFile, execFileSync } from "child_process";
 import { promisify } from "util";
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
@@ -180,31 +180,97 @@ console.log(`📋 Total objects to upload: ${uploadQueue.length}`);
 let uploadedCount = 0;
 let failedCount = 0;
 
-let wranglerBin = "wrangler";
-try {
-  execSync("wrangler --version", { stdio: "ignore" });
-} catch {
-  wranglerBin = "bunx --bun wrangler@4.135.0";
+const WRANGLER_VERSION = process.env.WRANGLER_VERSION || "4.135.0";
+if (!/^\d+\.\d+\.\d+$/.test(WRANGLER_VERSION)) {
+  console.error(
+    `❌ WRANGLER_VERSION must be a pinned x.y.z version (got ${JSON.stringify(process.env.WRANGLER_VERSION)}).`,
+  );
+  process.exit(1);
 }
+
+// Bounded retry budget; a bad value must fail loudly, never silently retry 0 times.
+const UPLOAD_ATTEMPTS = (() => {
+  const raw = process.env.UPLOAD_ATTEMPTS;
+  if (raw === undefined || raw === "") return 3;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1 || n > 10) {
+    console.error(
+      `❌ UPLOAD_ATTEMPTS must be an integer in 1..10 (got ${JSON.stringify(raw)}).`,
+    );
+    process.exit(1);
+  }
+  return n;
+})();
+
+// Resolve the wrangler CLI once, before any concurrent work starts.
+// Spawning `bunx --bun wrangler@<version>` per object raced while linking the
+// dependency tree in the shared bun cache and failed random uploads with
+// `EEXIST` (bitty-manual#34), so install it once and call the resolved binary.
+function resolveWranglerBin() {
+  try {
+    execFileSync("wrangler", ["--version"], { stdio: "ignore" });
+    return "wrangler";
+  } catch {
+    execFileSync(
+      "bun",
+      ["install", "--global", `wrangler@${WRANGLER_VERSION}`],
+      { stdio: "inherit" },
+    );
+    const binDir = execFileSync("bun", ["pm", "bin", "-g"], {
+      encoding: "utf-8",
+    }).trim();
+    return join(binDir, "wrangler");
+  }
+}
+
+const wranglerBin = isDryRun ? "wrangler" : resolveWranglerBin();
 
 async function uploadTask(task) {
   const destination = `${bucketName}/${task.r2Key}`;
   const cacheControl = getCacheControl(task.r2Key);
-  const cmd = `${wranglerBin} r2 object put "${destination}" --file "${task.localPath}" --content-type "${task.contentType}" --cache-control "${cacheControl}" --remote -y`;
+  const args = [
+    "r2",
+    "object",
+    "put",
+    destination,
+    "--file",
+    task.localPath,
+    "--content-type",
+    task.contentType,
+    "--cache-control",
+    cacheControl,
+    "--remote",
+    "-y",
+  ];
 
   if (isDryRun) {
     console.log(`[DRY-RUN] Would upload: ${task.r2Key} (${task.contentType})`);
     uploadedCount++;
-  } else {
+    return;
+  }
+
+  let lastError = null;
+  for (let attempt = 1; attempt <= UPLOAD_ATTEMPTS; attempt++) {
     try {
-      console.log(`Uploading: ${task.r2Key}...`);
-      await execAsync(cmd);
+      const label =
+        attempt > 1 ? ` (attempt ${attempt}/${UPLOAD_ATTEMPTS})` : "";
+      console.log(`Uploading: ${task.r2Key}${label}...`);
+      await execFileAsync(wranglerBin, args);
       uploadedCount++;
+      return;
     } catch (err) {
-      console.error(`❌ Failed to upload ${task.r2Key}:`, err.message || err);
-      failedCount++;
+      lastError = err;
+      if (attempt < UPLOAD_ATTEMPTS) {
+        // Bounded backoff for transient CLI or network failures.
+        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+      }
     }
   }
+  console.error(
+    `❌ Failed to upload ${task.r2Key}:`,
+    lastError && lastError.message ? lastError.message : lastError,
+  );
+  failedCount++;
 }
 
 async function runPool(items, limit) {
