@@ -54,7 +54,7 @@
     "window.blur_radius": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Background blur radius in logical pixels (0..=128; platform support varies)."
+      "description": "Background blur radius in logical pixels; OQ-038 accepts only 0 (non-zero fails closed)."
     },
     "window.background_image": {
       "type": "string",

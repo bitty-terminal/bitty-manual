@@ -33,19 +33,51 @@ CLI overrides > init.lua (user file) > named profile > compiled-in defaults
 
 ### Window & Padding
 
-| Field                        | Type      | Reload Class | Description                                                                                                                                                                                     |
-| :--------------------------- | :-------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `window.opacity`             | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`).                                                                                                                                             |
-| `window.padding`             | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).                                                                                                                                              |
-| `window.radius_px`           | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`); accepted by the loader but currently a parsed no-op (CTX-0241 S0, compositor opt-in deferred).                                              |
-| `window.blur_radius`         | `integer` | **Live**     | Schema-reserved blur radius in logical pixels (`0..=128`); **not accepted by the Lua loader today** — blur is a no-op stub, so a `blur_radius` key fails closed as undeclared (see note below). |
-| `window.background_image`    | `string`  | **Live**     | Window background image path (absolute or `~`-anchored, `<= 4096` bytes, approved roots).                                                                                                       |
-| `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`.                                                                                                      |
-| `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); orthogonal to `window.opacity`.                                                                                                                  |
-| `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it.                          |
+| Field                        | Type      | Reload Class | Description                                                                                                                                                                                                             |
+| :--------------------------- | :-------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live**     | Background window transparency level (`0.0..=1.0`).                                                                                                                                                                     |
+| `window.padding`             | `integer` | **Live**     | Inner window padding in logical pixels (`0..=64`).                                                                                                                                                                      |
+| `window.radius_px`           | `integer` | **Live**     | Window corner radius in physical pixels (`0..=24`); accepted by the loader but currently a parsed no-op (CTX-0241 S0, compositor opt-in deferred).                                                                      |
+| `window.blur_radius`         | `integer` | **Live**     | Background blur radius in logical pixels. OQ-038 has no accepted blur design, so **only `0` is accepted**; any non-zero value fails closed with a typed `window.blur_radius` error instead of acting as a silent no-op. |
+| `window.background_image`    | `string`  | **Live**     | Window background image path (absolute or `~`-anchored, `<= 4096` bytes, approved roots).                                                                                                                               |
+| `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`. See the fit semantics below.                                                                                                 |
+| `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); multiplies only the image alpha, before `window.opacity` scales the finished window.                                                                                     |
+| `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it.                                                  |
+
+#### Window background fit semantics
+
+The live surface (`window` extent) is the destination frame; it is re-derived
+on every resize, split/layout change, DPI change, and move. `window.padding`
+does not shrink the window image: it still spans the full window behind the
+grid.
+
+- `fill` (default): uniform cover scale. The image preserves its aspect ratio,
+  fills the window in both axes, crops the overflow evenly from the center,
+  and leaves **no edge gaps**. This is the recommended wallpaper mode.
+- `fit`: uniform contain scale. The full image is visible, centered in the
+  window, and the remaining bands show the theme background; they can be
+  moved with `window.background_position`.
+- `center`: native pixel size (multiplied by the DPI scale), centered once.
+  A larger image is cropped to the window; a smaller one leaves bands.
+  `window.background_position` is honored.
+- `tile`: native pixel size (multiplied by the DPI scale), repeated from the
+  top-left; no scaling.
+- `stretch`: the full image is scaled non-uniformly onto the whole window.
+  Distortion is intentional in this mode.
+
+`window.background_opacity` and `window.opacity` compose in a fixed order:
+`background_opacity` multiplies the image's alpha when it is blended over the
+theme background, then `window.opacity` scales the finished premultiplied
+window once for the compositor. They are independent knobs: 1.0 on either
+side removes only that side's effect, and the image is never dimmed twice by
+the same value.
 
 > [!NOTE]
-> `window.blur_radius` is listed in the canonical field schema but is **not loadable**: the Lua loader never parses it (blur is a no-op stub, currently always `0`), and a `blur_radius` key inside the `window` table fails closed as undeclared. It is kept here because `just verify-schema` treats the schema as the authority; it becomes functional only when a blur contract lands. The related `window.radius_px` is accepted by the loader but is likewise currently inert (parsed no-op).
+> `window.blur_radius = 0` is accepted and means no blur. Non-zero values are
+> rejected at config validation (`window.blur_radius: background blur is not
+supported (OQ-038): only 0 is accepted`) until a bounded blur contract is
+> accepted. The related `window.radius_px` is accepted by the loader but is
+> likewise currently inert (parsed no-op).
 
 ### Decoration & Borders
 

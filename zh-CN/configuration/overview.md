@@ -33,19 +33,42 @@ CLI 覆盖 > init.lua（用户文件层）> 命名配置 > 编译内置默认值
 
 ### 窗口与内边距 (Window & Padding)
 
-| 配置字段                     | 类型      | 重载级别 | 描述                                                                                                                                                                     |
-| :--------------------------- | :-------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `window.opacity`             | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。                                                                                                                                          |
-| `window.padding`             | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。                                                                                                                                     |
-| `window.radius_px`           | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）；加载器接受该键，但当前为解析后的 no-op（CTX-0241 S0，合成器支持延后）。                                                              |
-| `window.blur_radius`         | `integer` | **Live** | 预留的模糊半径（逻辑像素，`0..=128`）；**当前 Lua 加载器不接受该键** —— 模糊为 no-op 占位实现，因此 `window` 表中的 `blur_radius` 键会以未声明键失败关闭（见下方提示）。 |
-| `window.background_image`    | `string`  | **Live** | 窗口背景图路径（绝对路径或 `~` 开头，`<= 4096` 字节，需位于批准根目录下）。                                                                                              |
-| `window.background_fit`      | `string`  | **Live** | 适配模式：`"fill"`（覆盖，默认）、`"fit"`（容纳）、`"center"`、`"tile"`、`"stretch"`。                                                                                   |
-| `window.background_opacity`  | `float`   | **Live** | 背景图压暗系数（`0.0..=1.0`，默认 `1.0`）；与 `window.opacity` 正交。                                                                                                    |
-| `window.background_position` | `string`  | **Live** | `"center"`（默认）、`"top-left"`、`"top"`、`"top-right"`、`"left"`、`"right"`、`"bottom-left"`、`"bottom"`、`"bottom-right"`；仅 `fit`/`center` 生效。                   |
+| 配置字段                     | 类型      | 重载级别 | 描述                                                                                                                                                      |
+| :--------------------------- | :-------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `window.opacity`             | `float`   | **Live** | 背景窗口透明度（`0.0..=1.0`）。                                                                                                                           |
+| `window.padding`             | `integer` | **Live** | 窗口内部边距（逻辑像素，`0..=64`）。                                                                                                                      |
+| `window.radius_px`           | `integer` | **Live** | 窗口圆角半径（物理像素，`0..=24`）；加载器接受该键，但当前为解析后的 no-op（CTX-0241 S0，合成器支持延后）。                                               |
+| `window.blur_radius`         | `integer` | **Live** | 背景模糊半径（逻辑像素）。OQ-038 尚无已接受的模糊设计，因此**仅接受 `0`**；任何非零值都会以类型化的 `window.blur_radius` 错误失败关闭，而不是静默 no-op。 |
+| `window.background_image`    | `string`  | **Live** | 窗口背景图路径（绝对路径或 `~` 开头，`<= 4096` 字节，需位于批准根目录下）。                                                                               |
+| `window.background_fit`      | `string`  | **Live** | 适配模式：`"fill"`（覆盖，默认）、`"fit"`（容纳）、`"center"`、`"tile"`、`"stretch"`。具体语义见下方“窗口背景适配语义”。                                  |
+| `window.background_opacity`  | `float`   | **Live** | 背景图压暗系数（`0.0..=1.0`，默认 `1.0`）；只乘在图像 alpha 上，随后才由 `window.opacity` 缩放整个窗口。                                                  |
+| `window.background_position` | `string`  | **Live** | `"center"`（默认）、`"top-left"`、`"top"`、`"top-right"`、`"left"`、`"right"`、`"bottom-left"`、`"bottom"`、`"bottom-right"`；仅 `fit`/`center` 生效。    |
+
+#### 窗口背景适配语义
+
+目标框是实时窗口表面；每次窗口缩放、分屏/布局变化、DPI 变化和移动都会
+重新计算。`window.padding` 不会缩小窗口背景图：它仍然铺满整个窗口并位于
+网格之后。
+
+- `fill`（默认）：等比覆盖。保持图像宽高比，在横纵两个方向都铺满窗口，
+  从中心均匀裁剪溢出部分，**不留边缘空隙**。推荐的壁纸模式。
+- `fit`：等比容纳。完整图像可见并在窗口中居中，剩余区域显示主题背景；
+  可用 `window.background_position` 移动图像。
+- `center`：原始像素尺寸（乘以 DPI 缩放），居中绘制一次。图像大于窗口时
+  裁剪，小于窗口时留边。`window.background_position` 生效。
+- `tile`：原始像素尺寸（乘以 DPI 缩放），从左上角开始重复，不做缩放。
+- `stretch`：将完整图像非等比拉伸到整个窗口。此模式下的变形是预期行为。
+
+`window.background_opacity` 与 `window.opacity` 按固定顺序组合：
+`background_opacity` 在图像混合到主题背景时乘以图像 alpha，随后
+`window.opacity` 对完成预乘的整个窗口缩放一次并交给合成器。两者相互独立：
+任一侧设为 1.0 只会去掉该侧效果，同一个值不会把图像压暗两次。
 
 > [!NOTE]
-> `window.blur_radius` 存在于规范字段模式中，但**不可加载**：Lua 加载器从不解析它（模糊为 no-op 占位实现，当前恒为 `0`），且在 `window` 表中写入 `blur_radius` 键会以未声明键失败关闭。此处保留是因为 `just verify-schema` 以模式文件为权威；只有在模糊契约落地后它才会真正生效。相关的 `window.radius_px` 虽被加载器接受，但当前同样是解析后的 no-op。
+> `window.blur_radius = 0` 会被接受，表示不模糊。在有限成本的模糊契约被接受之前，
+> 非零值会在配置校验阶段被拒绝
+> （`window.blur_radius: background blur is not supported (OQ-038): only 0 is accepted`）。
+> 相关的 `window.radius_px` 虽被加载器接受，但当前同样是解析后的 no-op。
 
 ### 装饰与边框 (Decoration & Borders)
 
