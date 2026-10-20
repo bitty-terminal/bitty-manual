@@ -113,6 +113,50 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 | `appearance.animations.enabled`        | `boolean` | **Live** | 面板过渡与动效总开关。                                                 |
 | `appearance.animations.reduced_motion` | `string`  | **Live** | 减弱动效无障碍模式（`"never"`、`"always"`、`"system"`）。              |
 
+### 主题与自定义颜色 (Themes and custom colors)
+
+`appearance.theme` 选择 30 个内置预设之一（`bitty list themes` 可列出完整目录）。预设是终端颜色角色的简写：背景、前景、光标、选区背景以及 ANSI 0–15。
+
+如需完全跳过预设并定义自己的颜色，请设置完整的 `appearance.colors` 内联表。它会替换所选预设的终端颜色角色；预设仍提供聚焦/空闲面板外框颜色。
+
+```lua
+return {
+  appearance = {
+    theme = "bitty-dark", -- 可选：为外框提供基础预设
+    colors = {
+      background = "#0b1020",
+      foreground = "#e6e6fa",
+      cursor = "#ff2e88",
+      selection = "#24304a",
+      ansi = {
+        "#101020", "#ff5555", "#50fa7b", "#f1fa8c",
+        "#7aa2f7", "#ff79c6", "#8be9fd", "#c0caf5",
+        "#414868", "#ff6e6e", "#69ff94", "#ffffa5",
+        "#d6acff", "#ff92df", "#a4ffff", "#ffffff",
+      },
+    },
+  },
+}
+```
+
+该表采用 fail-closed 校验，且必须完整：
+
+| 字段         | 类型                  | 要求                                          |
+| :----------- | :-------------------- | :-------------------------------------------- |
+| `background` | `string`              | 必填，规范 `#RRGGBB`（不支持 alpha 或简写）。 |
+| `foreground` | `string`              | 必填，规范 `#RRGGBB`。                        |
+| `cursor`     | `string`              | 必填，规范 `#RRGGBB`。                        |
+| `selection`  | `string`              | 必填，规范 `#RRGGBB`。                        |
+| `ansi`       | 16 个字符串的 `array` | 必填，恰好 16 个规范 `#RRGGBB` 项（0–15）。   |
+
+缺少角色、`ansi` 长度错误或非十六进制值会拒绝整个配置或重载，并给出精确到字段（例如具体 `ansi` 索引）的诊断。角色不会与旧主题合并：要么完整生效，要么完全不生效。`appearance.theme` 与 `appearance.colors` 均为 **Live**；下一帧会重绘现有网格单元、回滚缓冲、选区覆盖层、光标以及已缓存字形。
+
+主题控制与派生的角色：
+
+- 受控：窗口/单元格背景、默认文本前景、ANSI 0–15（普通与亮色）、光标、选区背景，以及派生 Chrome 强调色（滚动条滑块、URL 悬停下划线、Leader 提示标签、待确认横幅、帮助面板、IME 预编辑）。
+- 派生：选中文本保留自身前景（默认或 ANSI）并叠加选区背景；滚动条与悬停下划线复用降低透明度的前景；提示标签使用选区底色与前景文本；待确认横幅使用 ANSI 3 并按对比度选择文字；帮助面板使用选区底色、ANSI 12 边框与前景文本；IME 预编辑使用选区底色、光标下划线与前景字形。
+- 非主题：聚焦/空闲面板外框（预设或显式 decoration 键）、辉光/阴影/着色/淡化（显式 appearance style / decoration 键）、布局、输入以及终端内容本身。
+
 ### 输入、键位与 Leader 键 (Input, Keymaps & Leader)
 
 | 配置字段            | 类型      | 重载级别 | 描述                                                        |
