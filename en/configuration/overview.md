@@ -113,6 +113,71 @@ Core-owned view decorations operate in logical pixels:
 | `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.                    |
 | `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"system"`).        |
 
+### Themes and custom colors
+
+`appearance.theme` selects one of the 30 built-in presets
+(`bitty list themes` prints the catalog). A preset is shorthand over the
+terminal color roles: background, foreground, cursor, selection background,
+and ANSI 0–15.
+
+To skip presets and define your own colors, set the complete inline
+`appearance.colors` table. It replaces the terminal roles from the selected
+preset; the preset still supplies the focused/idle pane outline tokens.
+
+```lua
+return {
+  appearance = {
+    theme = "bitty-dark", -- optional base preset for outline tokens
+    colors = {
+      background = "#0b1020",
+      foreground = "#e6e6fa",
+      cursor = "#ff2e88",
+      selection = "#24304a",
+      ansi = {
+        "#101020", "#ff5555", "#50fa7b", "#f1fa8c",
+        "#7aa2f7", "#ff79c6", "#8be9fd", "#c0caf5",
+        "#414868", "#ff6e6e", "#69ff94", "#ffffa5",
+        "#d6acff", "#ff92df", "#a4ffff", "#ffffff",
+      },
+    },
+  },
+}
+```
+
+The table is fail-closed and must be complete:
+
+| Field        | Type                  | Requirement                                              |
+| :----------- | :-------------------- | :------------------------------------------------------- |
+| `background` | `string`              | Required, canonical `#RRGGBB` (no alpha or shorthand).   |
+| `foreground` | `string`              | Required, canonical `#RRGGBB`.                           |
+| `cursor`     | `string`              | Required, canonical `#RRGGBB`.                           |
+| `selection`  | `string`              | Required, canonical `#RRGGBB`.                           |
+| `ansi`       | `array` of 16 strings | Required, exactly 16 canonical `#RRGGBB` entries (0–15). |
+
+A missing role, a wrong-length `ansi` array, or a non-hex value rejects the
+whole configuration or reload with a diagnostic naming the exact field (for
+example the offending `ansi` index). Roles are never merged with the previous
+theme: the change either applies completely or not at all. Both
+`appearance.theme` and `appearance.colors` are **Live**; the next presented
+frame repaints existing grid cells, scrollback, the selection overlay, the
+cursor, and cached glyphs.
+
+What the theme controls, and what is derived:
+
+- Controlled: window/cell background, default text foreground, ANSI 0–15
+  (normal and bright), cursor, selection background, and the derived chrome
+  accents (scrollbar thumb, URL-hover underline, leader hint pills, pending
+  banner, help panel, IME preedit).
+- Derived: selected text keeps its own foreground (default or ANSI) over the
+  selection background; the scrollbar and hover underline reuse the foreground
+  at reduced alpha; hint pills use the selection ground with foreground text;
+  the pending banner uses ANSI 3 with contrast-chosen text; the help panel uses
+  the selection ground, ANSI 12 ring, and foreground text; the IME preedit uses
+  the selection ground, cursor underline, and foreground glyphs.
+- Not themed: focused/idle pane outlines (preset or explicit decoration keys),
+  glow/shadow/tint/fade (explicit `appearance.style` / `decoration` keys),
+  layout, input, and terminal content itself.
+
 ### Input, Keymaps & Leader
 
 | Field               | Type      | Reload Class | Description                                                                       |
