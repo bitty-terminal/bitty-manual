@@ -16,18 +16,68 @@ Bitty classifies all configuration changes into three categories:
 
 ## Named Profiles
 
-A named profile is a reusable configuration layer stored at `$XDG_CONFIG_HOME/bitty/profiles/<name>.lua` (i.e. `~/.config/bitty/profiles/<name>.lua`). The requested name comes from the `--profile <name>` CLI flag (which wins) or the `BITTY_PROFILE` environment variable; names are validated fail-closed to the characters `[A-Za-z0-9_-]` (1–64 characters, no paths or extensions).
+A named profile is a reusable configuration layer stored at `$XDG_CONFIG_HOME/bitty/profiles/<name>.lua` (i.e. `~/.config/bitty/profiles/<name>.lua`). Names are validated fail-closed to the characters `[A-Za-z0-9_-]` (1–64 characters, no paths or extensions). `XDG_CONFIG_DIRS` is never consulted for profiles.
 
-`init.lua` is the user file layer. A named profile composes **under** it, so the merge order is:
+Selection and value precedence are separate:
 
 ```text
-CLI overrides > init.lua (user file) > named profile > compiled-in defaults
+selection: --profile NAME > BITTY_PROFILE > persisted init.lua selector
+values:    CLI overrides > init.lua (user file) > selected profile chain > compiled-in defaults
 ```
 
-`extends` is accepted only inside a profile layer, as a single-parent chain with a bounded hop count: the requested profile overrides its ancestors per field.
+`--profile` and `BITTY_PROFILE` select a profile for one launch and never rewrite the persisted selector. The child profile overrides its ancestors per field; `init.lua` still overrides the whole selected chain.
+
+`extends` is accepted only inside a profile layer, as a single-parent chain with a 16-profile cap: the requested profile overrides its ancestors. `extends` in `init.lua` remains undeclared; the persisted selector is a separate, versioned envelope.
+
+### Profile-backed setup
+
+`bitty init` writes a profile-backed layout:
+
+```text
+$XDG_CONFIG_HOME/bitty/init.lua
+$XDG_CONFIG_HOME/bitty/profiles/default.lua
+```
+
+`profiles/default.lua` holds the generated defaults. `init.lua` is a thin selector plus the place for your overrides:
+
+```lua
+-- $XDG_CONFIG_HOME/bitty/init.lua
+return {
+    format = "bitty-profile-v1",
+    profile = "default",
+    -- overrides go here, for example:
+    window = { opacity = 0.95, padding = 8 },
+}
+```
+
+The `format` discriminator marks the file as a selector. An existing complete `init.lua` without it is a legacy configuration and is never silently reinterpreted or replaced, even with `--force`.
+
+Common operations:
+
+```bash
+# Fresh profile-backed setup (interactive, or non-interactive defaults)
+bitty init
+bitty init --yes
+
+# Create or refresh only profiles/work.lua; does not activate it
+bitty init --yes --profile work
+
+# Activate explicitly (rewrites only the selector's profile value)
+bitty config profile use work
+
+# Inspect profiles
+bitty config profile list
+bitty config profile show work
+bitty config profile path work
+
+# Migrate an existing legacy init.lua explicitly
+bitty init --migrate
+```
+
+Creating `profiles/default.lua` or any other profile never activates it. A bare launch with no selector remains unprofiled. `--force` is an explicit reset of the named generated file with collision-free `.bak` backups; it never converts a legacy file into a selector. A default run refuses an existing target rather than merging into hand-edited Lua: the wizard does not serialize a typed plan back over source, so edit the profile directly or use an explicit reset. With an explicit `--config`/`BITTY_CONFIG` selector, profiles resolve beside that file; one-launch `--profile` and `BITTY_PROFILE` still resolve under the user config root.
 
 > [!NOTE]
-> There is **no `default_profile` key today**: Bitty has no configuration knob that selects a profile automatically. A default profile must be selected explicitly with `--profile` or `BITTY_PROFILE` (or an alias / `bitty shell-init` wrapper that supplies one).
+> There is no automatic per-directory profile switching and no multi-parent inheritance. Plugin declarations in a profile are configuration data only: selecting or creating a profile never installs, enables, or grants a plugin.
 
 ## Complete Configuration Schema
 

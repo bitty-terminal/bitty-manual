@@ -105,26 +105,42 @@ bitty config path
 # Validate main configuration syntax and schema without launching a GUI
 bitty config check
 
-# Open current configuration in $VISUAL or $EDITOR
+# Open current configuration (the selector, or a legacy file) in $VISUAL or $EDITOR
 bitty config edit
+
+# Manage named profiles
+bitty config profile list
+bitty config profile show work
+bitty config profile use work
+bitty config profile path work
 ```
+
+`config profile list` reads directory metadata only and evaluates no Lua. `show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
 
 `config check` does not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
 
 ### Setup Wizard (`bitty init`)
 
-An opt-in interactive configuration wizard:
+An opt-in setup wizard that writes a profile-backed configuration:
 
 ```bash
-# Run interactive setup wizard
+# Interactive setup: profiles/default.lua + a thin init.lua selector
 bitty init
 
-# Write sane default configuration without interactive prompts
+# Non-interactive defaults
 bitty init --yes
 
-# Overwrite existing configuration (creates .bak backup)
+# Create/refresh only profiles/NAME.lua; do not activate it
+bitty init --yes --profile NAME
+
+# Explicitly migrate a legacy init.lua to profiles/default.lua + selector
+bitty init --migrate
+
+# Overwrite generated files (collision-free .bak backups)
 bitty init --force
 ```
+
+`profiles/default.lua` holds the generated defaults; `init.lua` is a thin selector (`format = "bitty-profile-v1"`, `profile = "default"`) where user overrides belong. `--profile NAME` never changes the selector and never runs plugin, component, or shell-init follow-ups. `BITTY_PROFILE` is a one-launch input and is not an output target. A legacy `init.lua` without the versioned selector envelope is never replaced implicitly, including with `--force`; `--migrate` copies its complete bytes to `profiles/default.lua`, verifies the effective values are unchanged, and keeps a recoverable backup of the legacy file.
 
 ### Installation Diagnostics (`bitty doctor`)
 
