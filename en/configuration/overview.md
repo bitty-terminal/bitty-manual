@@ -46,10 +46,13 @@ CLI overrides > init.lua (user file) > named profile > compiled-in defaults
 
 #### Window background fit semantics
 
-The live surface (`window` extent) is the destination frame; it is re-derived
-on every resize, split/layout change, DPI change, and move. `window.padding`
-does not shrink the window image: it still spans the full window behind the
-grid.
+The window tier (`window.background_image`) uses the live window surface as
+its destination frame: it is stable across splits and pane moves, and is
+re-derived on every window resize and DPI change. `window.padding` does not
+shrink the window image: it still spans the full window behind the grid. The
+per-view tier (`decoration.background_image` and the `views.<selector>`
+override) uses that leaf's content frame instead, so it re-fits on a split,
+divider move, pane move, and window resize.
 
 - `fill` (default): uniform cover scale. The image preserves its aspect ratio,
   fills the window in both axes, crops the overflow evenly from the center,
