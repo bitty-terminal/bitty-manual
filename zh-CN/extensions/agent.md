@@ -20,7 +20,7 @@ bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0
 
 ## Lua / 宿主界面
 
-该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它定义 Core 与 AI 插件交换有界 Agent 消息所用的协议类型（`bitty.agent-1` 协议标记）。`wheel` 等 Lua 插件经由 Core 中介的 API 消费 Agent 流程，从不直接调用该 crate。AI 主机本身是独立扩展，拥有自己的[能力面](ai.md)。
+该 crate 不暴露直接的 `bitty.*` Lua 命名空间。它定义宿主无关的协议词汇（`bitty.agent-1` 协议标记），供 AI 与插件消费方交换有界 Agent 消息。Wheel 0.1.0 不是 Lua 插件：它以独立 harness 产物交付，在自身进程中运行，位于插件 VM 之外，也不会获得插件能力授权。见 [wheel](../plugins/catalog/wheel.md)。AI 主机本身是独立扩展，拥有自己的[能力面](ai.md)。
 
 ## 最小配置
 

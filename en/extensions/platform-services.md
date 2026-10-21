@@ -20,7 +20,9 @@ bitty extension list   # confirm what is staged today (empty table, exit 0)
 
 ## Lua / host surface
 
-This crate exposes no direct `bitty.*` Lua namespace. It is the delivery mechanism behind the `platform.notify` capability and the `bitty.notify.show` call Lua plugins use (see [activity](../plugins/catalog/activity.md) and [wheel](../plugins/catalog/wheel.md)). Plugins request `platform.notify` and call `bitty.notify.show`; Core rate-limits and this crate delivers.
+This crate exposes no direct `bitty.*` Lua namespace. It is the delivery mechanism behind the `platform.notify` capability and the `bitty.notify.show` call Lua plugins use — for example [activity](../plugins/catalog/activity.md). A plugin requests `platform.notify` in its manifest and calls `bitty.notify.show`; Core enforces the rate budget and passes an already-limited `{title, body}` to this crate for delivery. The library itself receives no plugin capability grant; it sees only that bounded payload.
+
+Wheel's transitional plugin scaffold (`bitty-plugin.toml`, manifest `0.0.1`) still requests `platform.notify`, but the Wheel 0.1.0 artifact is a standalone harness that runs outside the plugin VM and receives no plugin capabilities. See [wheel](../plugins/catalog/wheel.md).
 
 ## Minimal config
 
