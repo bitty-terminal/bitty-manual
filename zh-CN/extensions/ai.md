@@ -2,8 +2,9 @@
 
 AI 主机：提供 provider 与模型选择、上下文采集、工具派发，以及 helper 侧的
 `ai.*` 控制面。已接受的方向是 [原生组件边界](upstream-components.md)（DIR-030）
-中的组件 `ai`，可执行文件 `bitty-ai`。它的能力不止是 UI 或 Wheel 的后端：
+中的组件 `ai`，可执行文件 `bitty-ai`。它的能力不止是 UI 或模型后端：
 该组件拥有 AI 运行时，以及 AI 感知 Lua 插件所请求的能力族。
+[Wheel](../plugins/catalog/wheel.md) harness 是独立产物，不属于该扩展。
 
 - 源码 checkout：[github.com/bitty-terminal/bitty-ai](https://github.com/bitty-terminal/bitty-ai)
 - Crates：`bitty-ai-runtime`、`bitty-ai-slice`、`bitty-ai-control`、
