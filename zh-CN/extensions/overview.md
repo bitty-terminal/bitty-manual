@@ -34,19 +34,21 @@ Bitty 有两种可安装的扩展。本目录为每一种扩展提供一页文�
 
 ## Lua 插件
 
-| 插件                                         | Manifest 版本 | 注册表   | 页面                                               |
-| -------------------------------------------- | ------------- | -------- | -------------------------------------------------- |
-| activity (`bitty-featured.activity`)         | 0.0.1         | official | [activity](../plugins/catalog/activity.md)         |
-| bar (`bitty-terminal.bar`)                   | 0.0.1         | official | [bar](../plugins/catalog/bar.md)                   |
-| composer (`bitty-terminal.composer`)         | 0.0.1         | official | [composer](../plugins/catalog/composer.md)         |
-| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1         | official | [copy-mode](../plugins/catalog/copy-mode.md)       |
-| file-manager (`bitty-terminal.file-manager`) | 0.1.0         | official | [file-manager](../plugins/catalog/file-manager.md) |
-| git-panel (`bitty-terminal.git-panel`)       | 0.1.0         | official | [git-panel](../plugins/catalog/git-panel.md)       |
-| history (`bitty-terminal.history`)           | 0.0.1         | official | [history](../plugins/catalog/history.md)           |
-| palette (`bitty-terminal.palette`)           | 0.0.1         | official | [palette](../plugins/catalog/palette.md)           |
-| search (`bitty-terminal.search`)             | 0.0.1         | official | [search](../plugins/catalog/search.md)             |
-| statusline (`bitty-terminal.statusline`)     | 0.0.1         | 尚未注册 | [statusline](../plugins/catalog/statusline.md)     |
-| wheel (`bitty-terminal.wheel`)               | 0.0.1         | official | [wheel](../plugins/catalog/wheel.md)               |
-| devtools (`bitty-featured.devtools`)         | 0.1.0         | 尚未注册 | [devtools](../plugins/catalog/devtools.md)         |
+| 插件                                         | Manifest 版本 | 注册表             | 页面                                               |
+| -------------------------------------------- | ------------- | ------------------ | -------------------------------------------------- |
+| activity (`bitty-featured.activity`)         | 0.0.1         | official           | [activity](../plugins/catalog/activity.md)         |
+| bar (`bitty-terminal.bar`)                   | 0.0.1         | official           | [bar](../plugins/catalog/bar.md)                   |
+| composer (`bitty-terminal.composer`)         | 0.0.1         | official           | [composer](../plugins/catalog/composer.md)         |
+| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1         | official           | [copy-mode](../plugins/catalog/copy-mode.md)       |
+| file-manager (`bitty-terminal.file-manager`) | 0.1.0         | official           | [file-manager](../plugins/catalog/file-manager.md) |
+| git-panel (`bitty-terminal.git-panel`)       | 0.1.0         | official           | [git-panel](../plugins/catalog/git-panel.md)       |
+| history (`bitty-terminal.history`)           | 0.0.1         | official           | [history](../plugins/catalog/history.md)           |
+| palette (`bitty-terminal.palette`)           | 0.0.1         | official           | [palette](../plugins/catalog/palette.md)           |
+| search (`bitty-terminal.search`)             | 0.0.1         | official           | [search](../plugins/catalog/search.md)             |
+| statusline (`bitty-terminal.statusline`)     | 0.0.1         | 尚未注册           | [statusline](../plugins/catalog/statusline.md)     |
+| wheel（Agent Harness；过渡清单）             | 0.0.1（过渡） | official（脚手架） | [wheel](../plugins/catalog/wheel.md)               |
+| devtools (`bitty-featured.devtools`)         | 0.1.0         | 尚未注册           | [devtools](../plugins/catalog/devtools.md)         |
 
 `beacon`（跳转导航候选）不在目录中：它目前只是元数据脚手架，没有 manifest，也没有 Lua 实现。
+
+`wheel` 列在此处，是因为其仓库仍包含过渡插件清单。0.1.0 交付的是其页面所述的独立 harness 产物，不是插件包。
