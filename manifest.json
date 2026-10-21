@@ -49,6 +49,11 @@
           "path": "configuration/overview.md"
         },
         {
+          "slug": "themes",
+          "title": "Themes and Readability",
+          "path": "configuration/themes.md"
+        },
+        {
           "slug": "plugin-config",
           "title": "Plugin Configuration",
           "path": "configuration/plugin-config.md"
