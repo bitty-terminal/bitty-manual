@@ -76,6 +76,8 @@ bitty init --migrate
 
 Creating `profiles/default.lua` or any other profile never activates it. A bare launch with no selector remains unprofiled. `--force` is an explicit reset of the named generated file with collision-free `.bak` backups; it never converts a legacy file into a selector. A default run refuses an existing target rather than merging into hand-edited Lua: the wizard does not serialize a typed plan back over source, so edit the profile directly or use an explicit reset. With an explicit `--config`/`BITTY_CONFIG` selector, profiles resolve beside that file; one-launch `--profile` and `BITTY_PROFILE` still resolve under the user config root.
 
+`bitty init --migrate` copies the legacy bytes verbatim, so it refuses value flags instead of silently discarding them and refuses a legacy file above the 64 KiB configuration bound or a symlinked one. If `profiles/default.lua` already exists, it is reused when byte-identical to the legacy file; otherwise `--migrate --force` replaces it and keeps the previous profile in a collision-free `.bak[.N]` backup. `bitty config profile show` prints `(profile: <path>)` for values supplied by the profile chain and `(default)` for shipped defaults, and `bitty config profile use` can switch a migrated `config.lua` alias as well as `init.lua`.
+
 > [!NOTE]
 > There is no automatic per-directory profile switching and no multi-parent inheritance. Plugin declarations in a profile are configuration data only: selecting or creating a profile never installs, enables, or grants a plugin.
 
