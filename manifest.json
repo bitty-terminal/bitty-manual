@@ -196,6 +196,11 @@
           "path": "extensions/agent.md"
         },
         {
+          "slug": "ai",
+          "title": "ai (native extension)",
+          "path": "extensions/ai.md"
+        },
+        {
           "slug": "observability",
           "title": "observability (native extension)",
           "path": "extensions/observability.md"

@@ -21,6 +21,7 @@ Bitty 有两种可安装的扩展。本目录为每一种扩展提供一页文�
 | network（共享网络运行时）        | 已发布 0.0.1  | [network](network.md)                     |
 | ipc（跨进程 IPC 桥）             | 未发布        | [ipc](ipc.md)                             |
 | agent（Agent 协议词汇）          | 未发布        | [agent](agent.md)                         |
+| ai（AI 主机与 Lua 能力面）       | 未发布        | [ai](ai.md)                               |
 | observability（调试/追踪观测缝） | 未发布        | [observability](observability.md)         |
 | execution（作业监管器）          | 未发布        | [execution](execution.md)                 |
 | graphics（有界图像解码）         | 已发布 0.0.24 | [graphics](graphics.md)                   |
@@ -29,7 +30,7 @@ Bitty 有两种可安装的扩展。本目录为每一种扩展提供一页文�
 | url-detector（纯文本链接扫描）   | 未发布        | [url-detector](url-detector.md)           |
 | platform-services（桌面通知桥）  | 未发布        | [platform-services](platform-services.md) |
 
-当前证据：`graphics 0.0.24` 与 `net 0.0.1` 的 tarball 与 `SHA256SUMS` 已在 CDN 上线（2026-10-21 验证），精确锁定可通过文档所述的离线回退安装。扩展目录（`extensions/catalog.v1`）仍未发布（404），因此裸最新版安装会失败并关闭并给出 `--version` 提示，直至扩展 CD 任务发布目录。`network` 主线源码包含 `bitty-net` 可执行文件，但面向用户的网络路径仍使用内嵌绑定，因此安装 `net` 尚未使其成为生产 Lua 路径。`graphics` 发布有界解码组件，宿主 seam 与放置策略仍在 Core。其余八个扩展仍是仅有库的源码 checkout，没有已发布组件产物；`extension add <path>` 仅适用于本地可用的兼容可执行文件。
+当前证据：`graphics 0.0.24` 与 `net 0.0.1` 的 tarball 与 `SHA256SUMS` 已在 CDN 上线（2026-10-21 验证），精确锁定可通过文档所述的离线回退安装。扩展目录（`extensions/catalog.v1`）仍未发布（404），因此裸最新版安装会失败并关闭并给出 `--version` 提示，直至扩展 CD 任务发布目录。`network` 主线源码包含 `bitty-net` 可执行文件，但面向用户的网络路径仍使用内嵌绑定，因此安装 `net` 尚未使其成为生产 Lua 路径。`graphics` 发布有界解码组件，宿主 seam 与放置策略仍在 Core。其余九个扩展仍是仅有库的源码 checkout，没有已发布组件产物；`extension add <path>` 仅适用于本地可用的兼容可执行文件。
 
 ## Lua 插件
 
