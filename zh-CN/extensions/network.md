@@ -4,19 +4,22 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-network`（[github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network)）
 - Crates：`bitty-network-api`、`bitty-network-core`、`bitty-network-dns`、`bitty-network-tls`、`bitty-network-wire`、`bitty-network-lua`、`bitty-net`
-- 成熟度：活跃的 L1 Rust 核心扩展库；尚无打包好的组件二进制。
+- 成熟度：活跃的 L1 Rust 核心扩展库；`net 0.0.1` 组件二进制已发布，尚待路由变更使其成为面向用户的 Lua 网络路径。
 
 ## 安装状态
 
-> 未发布——已于 2026-10-16 验证（CDN `extensions/` 探测返回 404，见[目录总览](overview.md)）。没有可传给 `extension install` 的版本。
+> 已发布——`net 0.0.1` 的 CDN tarball 与 `SHA256SUMS` 均已上线（2026-10-21 验证）。扩展目录（`extensions/catalog.v1`）仍未发布（404），因此裸 `bitty extension install net`（最新版）当前会失败并关闭并给出 `--version` 提示。
 
-跟踪上述源码 checkout。首个预构建包发布后，按标准形式安装：
+跟踪上述源码 checkout。组件名为 `net`，可执行文件为 `bitty-net`。按精确版本安装已发布组件：
 
 ```bash
-bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0）
-# 将来发布后：
-# bitty extension install <name> --version X.Y.Z
+bitty extension install net --version 0.0.1
+bitty extension install bitty-net --version 0.0.1   # 仓库风格别名
+
+bitty extension list   # 确认当前已 staged 的内容
 ```
+
+本地若有兼容的可执行文件，仍可用 `bitty extension add <path>` 暂存。安装组件不会使原生组件成为面向用户的 Lua 网络路径：该路由仍是独立变更。
 
 ## Lua / 宿主界面
 

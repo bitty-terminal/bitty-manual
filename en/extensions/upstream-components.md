@@ -53,7 +53,11 @@ bitty extension list
 bitty extension add /usr/local/bin/bitty-net
 
 # Fetch one hash-verified R2 prebuilt release (TOFU-pinned, see below)
-bitty extension install net --version 0.0.23
+# Bare install takes the highest catalog version for this host target
+bitty extension install graphics
+# Pin exactly (recommended for scripts and reproducible setups)
+bitty extension install graphics --version 0.0.24
+bitty extension install net --version 0.0.1
 
 # Remove a user-tier extension (never touches the system tier)
 bitty extension remove net
@@ -64,6 +68,8 @@ bitty extension remove net
 `install` fetches through a minimal seed (fixed-argument system `curl`, system `tar`, SHA-256 verification before anything is staged). Trust works as follows:
 
 - **Explicit consent**: unless the release is dual-digest verified silent, installation prompts for confirmation; `--yes` approves non-interactively, a decline aborts with exit code `1` and nothing changed.
+- **Latest selection (bare `install`)**: without `--version`, the installer resolves the highest strict `X.Y.Z` entry for the exact `(name, host target)` in the bounded extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`), prints the resolved version before downloading, and then applies the same consent, digest, and TOFU rules. Prereleases are never published, so they are never selected. `latest` is convenience only: the catalog is mutable metadata, so pin `--version` when you need reproducibility. If the catalog is unavailable (including today's 404 before publication catches up) or has no entry, the install fails closed with a concrete `--version` example — it never guesses a version from tags or storage paths.
+- **Name aliases**: extension names accept one repo-style `bitty-` prefix (`bitty-graphics` resolves to `graphics`) in `list`, `install`, `remove`, and `show-source`. Stored names and TOFU pins never change; an ambiguous alias fails closed.
 - **TOFU pinning**: first contact records the verified CDN digest; a later differing digest fails closed as pin-mismatch (exit code `4`). The pin never auto-updates; `--force` re-pins after verification.
 - **Update-diff preview**: when a fetch would change the TOFU pin, `install` renders a unified old-vs-new diff preview before applying. Preview only — consent and `--force` semantics are unchanged, and the diff is computed locally with no network. First contact renders nothing.
 

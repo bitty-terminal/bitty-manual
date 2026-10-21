@@ -74,15 +74,21 @@ bitty config check
 
 ## 3. 扩展流程示例
 
-扩展是独立于插件管理的站外进程二进制（见[原生组件边界](../extensions/upstream-components.md)）。`list` 仅显示已安装项——没有仓库查询，`install` 也不做版本求解：版本必填且必须精确。
+扩展是独立于插件管理的站外进程二进制（见[原生组件边界](../extensions/upstream-components.md)）。`list` 仅显示已安装项。裸 `install` 会解析本机可用的最新目录版本；`--version` 精确锁定 `X.Y.Z`。
 
 ```bash
 # 仅列出已安装的扩展（未安装时为空）
 bitty extension list
 
-# 拉取一个哈希校验的 R2 预编译版本（TOFU 锁定，需显式确认）
-# 注意：下方 X.Y.Z 为占位符，不代表已发布版本。
-bitty extension install bitty-graphics --version X.Y.Z
+# 拉取最新已发布版本（TOFU 锁定，需显式确认）
+bitty extension install graphics
+
+# 锁定已确认的版本（脚本推荐）
+bitty extension install graphics --version 0.0.24
+bitty extension install net --version 0.0.1
+
+# 仓库风格名称是已存储组件名的别名
+bitty extension install bitty-graphics --version 0.0.24
 
 # 不下载，直接登记本地二进制（无网络）
 bitty extension add /usr/local/bin/bitty-net
@@ -92,7 +98,7 @@ bitty extension remove net
 bitty extension show-source net
 ```
 
-发现真实版本的方法（切勿编造）：先查扩展仓库的 releases，再确认 R2 键 `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS` 存在，方可执行 `install`。截至 2026-10-16，未发现 `bitty-graphics` 的已发布版本（该仓库无 GitHub release；CDN 上 `bitty-graphics/0.0.1/SHA256SUMS` 返回 `404`，别处引用的 `net 0.0.23` 示例同样返回 `404`）。请将 `X.Y.Z` 替换为已确认的 release，并保留精确的 `--version` 写法。
+发布状态会变化；权威选择器是扩展目录（`https://cdn.bitty.run/extensions/catalog.v1`）。裸 `install` 绝不猜测：目录不可用（2026-10-21 时仍为 `404`）或没有对应条目时，命令会失败并关闭，并打印具体的 `--version` 示例。可用 `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS` 确认锁定的版本；该日 `graphics/0.0.24` 与 `net/0.0.1` 均已上线。
 
 ## 4. Leader 键（默认 `alt+space`）
 
