@@ -54,11 +54,6 @@
           "path": "configuration/themes.md"
         },
         {
-          "slug": "dashboard",
-          "title": "Configuration Dashboard",
-          "path": "configuration/dashboard.md"
-        },
-        {
           "slug": "plugin-config",
           "title": "Plugin Configuration",
           "path": "configuration/plugin-config.md"
