@@ -4,17 +4,24 @@ Bounded PNG decode plus the raster mechanics subset for inline images. Placement
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-graphics` ([github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics))
 - Crate: `bitty-graphics` (library, `src/lib.rs`)
-- Maturity: the graphics host seam is merged and tested; `bitty-graphics` remains a library crate with no implemented worker executable or native-component descriptor. Packaging material from a non-mainline pilot is not evidence of a feature-usable worker.
+- Maturity: the graphics host seam is merged and tested; the published `0.0.24` component carries the bounded decode/raster subset, while placement policy, rect helpers, and renderer upload validation stay in Core.
 
 ## Install status
 
-> Not an installable native component — no worker executable, `bitty-component.toml`, `v0.0.24` tag, or CDN bundle is evidenced. The packaging pilot is not on the mainline branch, and no built or published pilot binary is evidenced.
+> Published — `graphics 0.0.24` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-21). The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so `bitty extension install graphics` (bare latest) currently fails closed with a `--version` hint; pin the published release.
 
-Track the source checkout above. There is no graphics worker binary for `bitty extension add` or `bitty extension install`; the implemented installer requires a published native component artifact, and this library does not provide one. The graphics host seam and library tests are not evidence that a separately installed worker or production worker routing exists. Core retains protocol intake, placement, resource policy, and renderer upload validation.
+Track the source checkout above. Install the published component exactly:
 
 ```bash
+# Recommended: pin the verified release (catalog latest needs the catalog)
+bitty extension install graphics --version 0.0.24
+# Repo-style alias (same stored component name)
+bitty extension install bitty-graphics --version 0.0.24
+
 bitty extension list   # inspect the local component inventory
 ```
+
+Core retains protocol intake, placement, resource policy, and renderer upload validation; installing the component does not move those responsibilities.
 
 ## Lua / host surface
 

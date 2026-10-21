@@ -222,7 +222,14 @@ bitty extension list
 bitty extension add /usr/local/bin/bitty-net
 
 # 拉取一个经哈希校验的 R2 预构建版本（显式确认，TOFU 锁定）
-bitty extension install net --version 0.0.23
+# 省略 --version 即取本机可用的最新目录版本
+bitty extension install graphics
+# 精确锁定（脚本推荐）
+bitty extension install graphics --version 0.0.24
+bitty extension install net --version 0.0.1
+
+# 接受仓库风格名称别名（bitty-graphics -> graphics）
+bitty extension install bitty-graphics --version 0.0.24
 
 # 移除用户层扩展（绝不触碰系统层）
 bitty extension remove net

@@ -74,15 +74,21 @@ bitty config check
 
 ## 3. Extension flow example
 
-Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../extensions/upstream-components.md)). `list` shows only what is already installed — there is no registry query and `install` does no version solving: the version is required and exact.
+Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../extensions/upstream-components.md)). `list` shows only what is already installed. A bare `install` resolves the latest catalog release for this host; `--version` pins an exact `X.Y.Z`.
 
 ```bash
 # Installed extensions only (empty when nothing is installed)
 bitty extension list
 
-# Fetch one hash-verified R2 prebuilt release (TOFU-pinned, explicit consent)
-# NOTE: X.Y.Z below is a PLACEHOLDER, not a published version.
-bitty extension install bitty-graphics --version X.Y.Z
+# Fetch the latest published release (TOFU-pinned, explicit consent)
+bitty extension install graphics
+
+# Pin a confirmed release (recommended for scripts)
+bitty extension install graphics --version 0.0.24
+bitty extension install net --version 0.0.1
+
+# Repo-style names are aliases for the stored component name
+bitty extension install bitty-graphics --version 0.0.24
 
 # Stage a local binary instead of downloading (no network)
 bitty extension add /usr/local/bin/bitty-net
@@ -92,7 +98,7 @@ bitty extension remove net
 bitty extension show-source net
 ```
 
-How to discover a real version (do not invent one): check the extension repository's releases, then confirm the R2 key exists at `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS` before running `install`. As of 2026-10-16 no published version was found for `bitty-graphics` (no GitHub releases; `bitty-graphics/0.0.1/SHA256SUMS` returns `404` on the CDN, as does the `net 0.0.23` example quoted elsewhere). Replace `X.Y.Z` with a confirmed release and keep the `--version` flag exact.
+Publication changes over time; the authoritative selector is the extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`). A bare `install` never guesses: when the catalog is unavailable (it was still `404` on 2026-10-21) or has no entry, the command fails closed and prints a concrete `--version` example. Confirm a pinned release by checking `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS`; `graphics/0.0.24` and `net/0.0.1` were live at that date.
 
 ## 4. Leader key (`alt+space` default)
 

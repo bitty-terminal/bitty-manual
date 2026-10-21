@@ -4,19 +4,24 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-graphics`（[github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics)）
 - Crate：`bitty-graphics`（库，`src/lib.rs`）
-- 成熟度：已落地并经独立验证；单一 `0.0.1` 库 crate。
+- 成熟度：主机 seam 已合并并测试；已发布的 `0.0.24` 组件包含有界解码/光栅子集，放置策略、矩形辅助与渲染器上传校验仍在 Core。
 
 ## 安装状态
 
-> 未发布——已于 2026-10-16 验证（CDN `extensions/` 探测返回 404，见[目录总览](overview.md)）。没有可传给 `extension install` 的版本。
+> 已发布——`graphics 0.0.24` 的 CDN tarball 与 `SHA256SUMS` 均已上线（2026-10-21 验证）。扩展目录（`extensions/catalog.v1`）仍未发布（404），因此裸 `bitty extension install graphics`（最新版）当前会失败并关闭并给出 `--version` 提示；请精确锁定已发布版本。
 
-跟踪上述源码 checkout。这正是 bitty#2143 点名的扩展（`extension install bitty-graphics --version X.Y.Z`）：命令形式是真实的，但尚无 `bitty-graphics` 包，因此没有任何版本可填。首个预构建包发布后，按标准形式安装：
+跟踪上述源码 checkout。按精确版本安装已发布组件：
 
 ```bash
-bitty extension list   # 确认当前已 staged 的内容（空表，退出码 0）
-# 将来发布后：
-# bitty extension install bitty-graphics --version X.Y.Z
+# 推荐：锁定已验证版本（最新版依赖目录上线）
+bitty extension install graphics --version 0.0.24
+# 仓库风格别名（同一已存储组件名）
+bitty extension install bitty-graphics --version 0.0.24
+
+bitty extension list   # 确认当前已 staged 的内容
 ```
+
+放置策略、资源策略与渲染器上传校验仍由 Core 保留；安装组件不会转移这些职责。
 
 ## Lua / 宿主界面
 

@@ -245,7 +245,14 @@ bitty extension list
 bitty extension add /usr/local/bin/bitty-net
 
 # Fetch one hash-verified R2 prebuilt release (explicit consent, TOFU-pinned)
-bitty extension install net --version 0.0.23
+# Omit --version to take the latest catalog release for this host
+bitty extension install graphics
+# Pin exactly (recommended for scripts)
+bitty extension install graphics --version 0.0.24
+bitty extension install net --version 0.0.1
+
+# Repo-style names are accepted as aliases (bitty-graphics -> graphics)
+bitty extension install bitty-graphics --version 0.0.24
 
 # Remove a user-tier extension (never touches the system tier)
 bitty extension remove net

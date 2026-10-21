@@ -4,21 +4,22 @@ The shared, optional network runtime: connection pooling, DNS, TLS, and the wire
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-network` ([github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network))
 - Crates: `bitty-network-api`, `bitty-network-core`, `bitty-network-dns`, `bitty-network-tls`, `bitty-network-wire`, `bitty-network-lua`, `bitty-net`
-- Maturity: mainline source includes the `bitty-net` executable, but no mainline packaging workflow or component artifact is published; the native `bitty-net` path is not yet the user-facing production Lua path.
+- Maturity: mainline source includes the `bitty-net` executable and `net 0.0.1` is published on the CDN; making the native component the user-facing Lua path remains a separate routing change.
 
 ## Install status
 
-> Unpublished; packaging pending — current release-readiness evidence reports no live CDN bundle or `v0.0.24` tag. Packaging source on a non-mainline preparation branch is release machinery only: no tag or upload was evidenced, and there is no version to pass to `extension install`.
+> Published — `net 0.0.1` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-21). The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so bare `bitty extension install net` (latest) currently fails closed with a `--version` hint.
 
-Track the source checkout above. The component name is `net` and its executable is `bitty-net`. A locally available compatible executable may be staged with `bitty extension add <path>`; staging does not make the native component the user-facing Lua network path. The implemented seed installer is currently blocked because no matching CDN artifact is published. If a matching artifact is published, installation follows the standard shape:
+Track the source checkout above. The component name is `net` and its executable is `bitty-net`. Install the published component exactly:
 
 ```bash
+bitty extension install net --version 0.0.1
+bitty extension install bitty-net --version 0.0.1   # repo-style alias
+
 bitty extension list   # inspect the local component inventory
-# Local mechanism only, when a compatible executable is available:
-# bitty extension add <path>
-# When the matching `net` artifact is available:
-# bitty extension install net --version X.Y.Z
 ```
+
+A locally available compatible executable may still be staged with `bitty extension add <path>`. Installing the component does not make the native component the user-facing Lua network path: that routing remains a separate change.
 
 ## Lua / host surface
 
