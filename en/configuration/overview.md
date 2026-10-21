@@ -203,7 +203,8 @@ Core-owned view decorations operate in logical pixels:
 `appearance.theme` selects one of the 30 built-in presets
 (`bitty list themes` prints the catalog). A preset is shorthand over the
 terminal color roles: background, foreground, cursor, selection background,
-and ANSI 0–15.
+and ANSI 0–15. See [Themes and readability](themes.md) for the catalog, the
+WCAG contrast guarantees, and the `bitty config check` diagnostics.
 
 To skip presets and define your own colors, set the complete inline
 `appearance.colors` table. It replaces the terminal roles from the selected
