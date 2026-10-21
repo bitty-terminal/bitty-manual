@@ -35,7 +35,7 @@ Opening is refused while a plugin overlay (for example the command palette) hold
 | `r`                                              | Re-read the data                                           |
 | `q` / `Esc`                                      | Close                                                      |
 
-Long sections keep at most 128 rows and end with a `+more` row, so a large plugin set never turns into an unbounded list. Values are shortened with `…` when they exceed the panel width.
+Long sections keep at most 128 rows and end with a `+more` row, so a large plugin set never turns into an unbounded list. Values are shortened with `…` when they exceed the panel width. If the window is too small for a legible panel, it shows `terminal too small` instead of consuming keys invisibly.
 
 ## Sections
 
@@ -59,7 +59,14 @@ A bundled plugin that has a managed record can be enabled or disabled from here.
 
 Read-only. For every installed plugin that declares settings, one row per setting shows the current value, the shipped default, and the source (`user` when your file sets it, `default` otherwise). Ignored keys and settings-file parse errors are listed with their plugin prefix.
 
-Edit plugin settings in `$XDG_CONFIG_HOME/bitty/plugins/<owner>.<name>.toml` (or the Lua form accepted by the same loader) as described in [Plugin Configuration](plugin-config.md); reload with `r` after saving.
+The panel does not edit settings: a persisted write needs the typed configuration API that is still in design. Use the CLI that owns the schema:
+
+```bash
+bitty plugin config show <id>       # current, default, source
+bitty plugin config scaffold <id>   # write a commented settings template
+```
+
+The section names this command too. Reload with `r` after saving a file, as described in [Plugin Configuration](plugin-config.md).
 
 ### Profiles
 
@@ -73,7 +80,17 @@ Your main configuration file still wins over the selected profile, as described 
 
 ### Extensions
 
-Read-only. One row per installed native extension with its active version, which tier owns it (`user` or `system`), and how many versions are installed. Install, upgrade, and remove extensions with the `bitty extension` commands.
+Read-only. For every installed native extension the panel shows the active version, the tier that owns it (`user` or `system`), ABI compatibility, the descriptor digest, the executable target path, the last recorded activation (`installed`, `active`, `stopped`, `crashed`, `denied:<reason>`), trust derived from that record, and the installed version count.
+
+Activation is the last recorded transition, not a liveness probe: the panel never spawns or pings a component. Trust means the last activation verified the executable digest; a component that was never activated shows `unverified`, and a component whose last activation was refused shows `untrusted`.
+
+The rows also show the exact command for each action — `bitty extension install <name>` for install/update and `bitty extension remove <name> <version>` for an older version. The panel never runs them: extensions download code and confirmation belongs to the CLI.
+
+### Diagnostics
+
+Read-only platform facts: the application version, the active profile and which layer chose it (`cli`, `env`, or `none`), the resolved config file and directory, the managed plugin ledger, the plugin store, the user and system extension roots, and the extension activation-state root. Each path is marked `present` or `missing`, which distinguishes "not created yet" from "wrong path".
+
+Use this section when a panel section disagrees with `bitty config path`, `bitty plugin list`, or `bitty extension list`: the panel reads the same resolved paths, including the `BITTY_COMPONENTS_DIR` / `BITTY_SYSTEM_COMPONENTS_DIR` overrides.
 
 ## Where the files live
 
@@ -98,4 +115,4 @@ Read-only. One row per installed native extension with its active version, which
 - It does not install or remove plugins or extensions.
 - It does not run a shell command, open a URL, or use the network.
 - It does not read environment variables, tokens, or credentials.
-- It does not create a plugin sandbox or load plugin code.
+- It does not create a plugin runtime or its services; plugin settings are read through the bounded plain-config loader.

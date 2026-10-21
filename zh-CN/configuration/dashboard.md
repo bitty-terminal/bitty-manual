@@ -35,7 +35,7 @@ return {
 | `r`                                              | 重新读取数据                     |
 | `q` / `Esc`                                      | 关闭                             |
 
-较长的分区最多保留 128 行，末尾显示 `+more` 行，因此插件很多时也不会变成无界列表。超出面板宽度的值会用 `…` 截断。
+较长的分区最多保留 128 行，末尾显示 `+more` 行，因此插件很多时也不会变成无界列表。超出面板宽度的值会用 `…` 截断。窗口小到放不下可读面板时，会显示 `terminal too small`，而不是无声地吞掉按键。
 
 ## 分区说明
 
@@ -59,7 +59,14 @@ return { appearance = { theme = "bitty-light" } }
 
 只读。对每个声明了设置的已安装插件，逐项显示当前值、出厂默认值以及来源（你的文件设置了该键时显示 `user`，否则显示 `default`）。被忽略的键和设置文件解析错误会带上插件前缀列出。
 
-插件设置请编辑 `$XDG_CONFIG_HOME/bitty/plugins/<owner>.<name>.toml`（或 `.lua` 形式），详见[插件配置](plugin-config.md)；保存后按 `r` 重新读取。
+面板不编辑设置：持久化写入需要仍在设计中的类型化配置 API。请使用拥有该 schema 的 CLI：
+
+```bash
+bitty plugin config show <id>       # 当前值、默认值、来源
+bitty plugin config scaffold <id>   # 生成带注释的设置模板
+```
+
+该分区也会显示这条命令。保存文件后按 `r` 重新读取，详见[插件配置](plugin-config.md)。
 
 ### Profiles（配置档案）
 
@@ -73,7 +80,17 @@ bitty --profile work
 
 ### Extensions（原生扩展）
 
-只读。每个已安装的原生扩展占一行，显示当前版本、归属层（`user` 或 `system`）以及已安装的版本数量。安装、升级与删除请使用 `bitty extension` 命令。
+只读。每个已安装的原生扩展显示当前版本、归属层（`user` 或 `system`）、ABI 兼容性、描述符摘要、可执行文件目标路径、最近一次记录的激活状态（`installed`、`active`、`stopped`、`crashed`、`denied:<reason>`）、由该记录推导的信任状态，以及已安装版本数量。
+
+激活状态是最近一次记录的迁移，不是存活探测：面板不会启动或 ping 组件。信任表示最近一次激活通过了可执行文件摘要校验；从未激活的组件显示 `unverified`，上次激活被拒绝的组件显示 `untrusted`。
+
+每行还会显示对应操作的完整命令：`bitty extension install <name>`（安装/升级）与 `bitty extension remove <name> <version>`（删除旧版本）。面板不会执行这些命令：扩展需要下载代码，确认流程属于 CLI。
+
+### Diagnostics（诊断）
+
+只读的平台事实：应用版本、当前配置及其来源层（`cli`、`env` 或 `none`）、解析后的配置文件与目录、托管插件清单、插件存储、用户与系统扩展根目录，以及扩展激活状态根目录。每个路径都会标记 `present` 或 `missing`，用于区分"尚未创建"和"路径错误"。
+
+当某个分区与 `bitty config path`、`bitty plugin list` 或 `bitty extension list` 不一致时，请查看此分区：面板读取的是同一套解析路径，包括 `BITTY_COMPONENTS_DIR` / `BITTY_SYSTEM_COMPONENTS_DIR` 覆盖值。
 
 ## 文件位置
 
@@ -98,4 +115,4 @@ bitty --profile work
 - 不会安装或删除插件与原生扩展。
 - 不会执行 shell 命令、打开 URL 或访问网络。
 - 不会读取环境变量、令牌或凭据。
-- 不会创建插件沙箱，也不会加载插件代码。
+- 不会创建插件运行时或其服务；插件设置通过有界的纯配置加载器读取。
