@@ -18,6 +18,14 @@ The host selects one file during activation, in this order:
 
 A selected Lua file that fails reading, evaluation, or result validation falls back to lower **value layers**. It does not select another alias or the TOML file. Prefer canonical names to avoid alias collisions.
 
+## Inspect and scaffold
+
+`bitty plugin config show <id>` prints the declared settings (key, type, default), every candidate file, the file selected by resolution, and the effective value and layer per key. It never loads the plugin VM or runs plugin code.
+
+`bitty plugin config scaffold <id>` writes a commented template to the canonical Lua path, generated from the manifest defaults only. It refuses to overwrite an existing file unless you pass `--force`. Scaffolding neither enables the plugin nor grants capabilities.
+
+Successful `bitty plugin install` and `bitty plugin enable` runs point at this canonical Lua path and at both `config` commands. The CLI hint never advertises the legacy TOML fallback.
+
 ## Restricted Lua settings
 
 Return a table of declared settings. For example, `bitty-terminal.bar.lua`:
@@ -80,7 +88,7 @@ modules_left = ["workspaces", "cpu", "memory", "battery"]
 modules_right = ["clock", "pulseaudio"]
 ```
 
-Save the TOML example as `bitty-terminal.bar.toml` only when no Lua file is selected. To check the **main configuration** without launching a GUI:
+Save the TOML example as `bitty-terminal.bar.toml` only when no Lua file is selected (legacy compatibility path). Prefer `bitty plugin config scaffold bitty-terminal.bar` to create the canonical Lua file. To check the **main configuration** without launching a GUI:
 
 ```bash
 bitty config check

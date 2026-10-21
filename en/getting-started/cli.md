@@ -219,6 +219,12 @@ bitty plugin revoke <id> [--cap <capability>]
 
 # Show one plugin's manifest plus recorded grants
 bitty plugin info <id>
+
+# Inspect declared settings, candidate files, selected file, and effective values
+bitty plugin config show <id>
+
+# Write a commented canonical Lua settings template (refuses overwrite unless --force)
+bitty plugin config scaffold <id>
 ```
 
 > [!NOTE]
@@ -227,6 +233,8 @@ bitty plugin info <id>
 Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
+
+Successful `install` and `enable` runs print next steps: the plugin's store location, the canonical Lua settings path (`<config-root>/plugins/<owner>.<name>.lua`), and the `config show`/`config scaffold` commands. The hint never advertises the legacy TOML fallback.
 
 ### Native Extension Management (`bitty extension`)
 
