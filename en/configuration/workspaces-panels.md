@@ -37,6 +37,7 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 Panels and workspaces can be controlled through default shortcut keys or programmatically via the Lua API:
 
 - Use shortcuts to create, split, and navigate panels.
+- **Zoom reflow**: `toggle_zoom` (default `alt+z` / `alt+m` / `alt+f`) expands the focused panel to the full content frame. Its terminal grid and PTY winsize follow that frame and the shell receives `SIGWINCH`, so full-screen TUIs such as `btop` and `opencode` fill the window instead of painting at the old tiled size. Unzooming restores the tiled size; siblings hidden by the zoom keep their terminal grid and scrollback for the round trip.
 - `close_view` (`alt+d` or `alt+q` by default) closes the focused panel. When tiled siblings remain, focus moves to the previous survivor in stable layout order, wrapping from the first panel to the last survivor.
 - Closing a workspace's last tiled panel removes the empty workspace only when another workspace exists and there are no local floating panels. A sole workspace or one with local floating panels is not pruned by this rule. Closing the last panel in the whole window uses the window-close confirmation policy.
 - Close confirmation still protects busy sessions: repeat the close chord to confirm, or press `Esc` to cancel. Closing a zoomed panel counts its hidden siblings; pending or cancelled confirmation preserves the zoomed layout.
