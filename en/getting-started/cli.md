@@ -130,6 +130,11 @@ bitty init
 # Non-interactive defaults
 bitty init --yes
 
+# First-class preset seeds (deterministic, no prompts, no activation)
+bitty init --profile minimal   # smallest seed: theme only, shipped defaults elsewhere
+bitty init --profile dark      # generated defaults with the dark theme family
+bitty init --profile light     # generated defaults with the github-light theme
+
 # Create/refresh only profiles/NAME.lua; do not activate it
 bitty init --yes --profile NAME
 
@@ -140,7 +145,7 @@ bitty init --migrate
 bitty init --force
 ```
 
-`profiles/default.lua` holds the generated defaults; `init.lua` is a thin selector (`format = "bitty-profile-v1"`, `profile = "default"`) where user overrides belong. `--profile NAME` never changes the selector and never runs plugin, component, or shell-init follow-ups. `BITTY_PROFILE` is a one-launch input and is not an output target. A legacy `init.lua` without the versioned selector envelope is never replaced implicitly, including with `--force`; `--migrate` copies its complete bytes to `profiles/default.lua`, verifies the effective values are unchanged, and keeps a recoverable backup of the legacy file.
+`profiles/default.lua` holds the generated defaults; `init.lua` is a thin selector (`format = "bitty-profile-v1"`, `profile = "default"`) where user overrides belong. `--profile NAME` never changes the selector and never runs plugin, component, or shell-init follow-ups. `BITTY_PROFILE` is a one-launch input and is not an output target. An existing target profile or selector is a conflict: the run exits with status 2 and writes nothing without `--force`; with `--force`, the previous bytes go to a collision-free `<file>.bak[.N]` sibling before the atomic replacement. A legacy `init.lua` without the versioned selector envelope is never replaced implicitly, including with `--force`; `--migrate` copies its complete bytes to `profiles/default.lua`, verifies the effective values are unchanged, and keeps a recoverable backup of the legacy file.
 
 ### Installation Diagnostics (`bitty doctor`)
 
