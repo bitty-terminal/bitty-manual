@@ -289,11 +289,35 @@ bitty completion fish > ~/.config/fish/completions/bitty.fish
 
 ### Shell Integration (`bitty shell-init`)
 
-Emit prompt hooks (OSC 7 cwd + OSC 133 marks) plus completion wiring. Same shell list as `completion`.
+`bitty shell-init <shell>` prints a static shell-integration script to stdout (local: no instance, no config load, no plugin VM). The script installs prompt hooks and inlines Tab completion for the full CLI grammar — first-level commands, nested verbs, and flags. Supported shells are the same as `completion`: `bash`, `zsh`, `fish`, `powershell`, and `nushell` (`pwsh` and `nu` are accepted aliases; names are case-insensitive).
+
+Enable it from the shell startup file:
+
+| Shell      | Startup file  | Line                                                                                                                                                                                                          |
+| :--------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| bash       | `~/.bashrc`   | `eval "$(bitty shell-init bash)"`                                                                                                                                                                             |
+| zsh        | `~/.zshrc`    | `eval "$(bitty shell-init zsh)"`                                                                                                                                                                              |
+| fish       | `config.fish` | `bitty shell-init fish \| source`                                                                                                                                                                             |
+| PowerShell | `$PROFILE`    | `bitty shell-init powershell \| Out-String \| Invoke-Expression`                                                                                                                                              |
+| Nushell    | `config.nu`   | `bitty shell-init nushell \| save -f ~/.config/nushell/bitty-shell-init.nu`, then add `source ~/.config/nushell/bitty-shell-init.nu` to `config.nu` (the `save -f` runs once; `source` loads it per session). |
+
+For zsh, source the line after `compinit` so `compdef` can register Tab completion. The Nushell script must be saved before it is sourced: Nushell resolves `source` paths at parse time, so a just-written file cannot be sourced on first setup.
+
+What the script does:
+
+- **Inline completion.** Tab completion is part of the same script, generated from the parser-owned CLI grammar (nested subcommands included). Sourcing never invokes `bitty`, so an absent or older binary still sources cleanly; a separate `bitty completion` file is not required.
+- **Registers once.** Hooks and completion register once per session; re-sourcing the startup file is a no-op.
+- **Prompt marks on every prompt path.** Prompt hooks emit OSC 133 `A` (prompt start), `B` (command start), and `D;status` (command done plus exit status), plus OSC 7 with a percent-encoded cwd. Bitty uses these for semantic prompt zones and cwd tracking; terminals without support ignore them. PowerShell marks command start through PSReadLine, and Nushell through `pre_execution` when the session supports it.
+- **Strict-mode safe.** The generated code is safe under `set -euo pipefail` (bash), `setopt no_unset` (zsh), and `Set-StrictMode -Version Latest` (PowerShell), and stays silent in non-interactive fish.
+- **No plugin required.** The integration is independent of the bundled `shell-integration` plugin; it needs no plugin install, enable, or grant.
 
 ```bash
+# Print the script for inspection or save it manually
 bitty shell-init bash
+bitty shell-init nushell | less
 ```
+
+`--help` lists the five install lines. `--format` and `--no-color` are accepted and ignored because the output is a static script. Missing or unknown shells, extra arguments, and `--socket`/`--instance` exit with code 2 without printing a script.
 
 ### Help (`bitty help`)
 

@@ -12,7 +12,7 @@ Bitty has two installable extension kinds. This catalog gives each one a page wi
 - **Published** — a real `SHA256SUMS` exists on the CDN; the page shows the exact install command.
 - **Unpublished** — no CDN bundle exists; the page says so and gives the repo path for a local `add` or the implemented installer once its matching artifact and Core release are available.
 
-Publication status below is based on the current release-readiness evidence: no live native-extension CDN bundle or `v0.0.24` tag is available. A merged packaging workflow or a packaging pilot is source evidence only, not publication evidence.
+Publication status below is based on the current release-readiness evidence: only the artifacts marked **Published** have live CDN bundles, and a merged packaging workflow or a packaging pilot is source evidence only, not publication evidence.
 
 ## Native upstream extensions
 
