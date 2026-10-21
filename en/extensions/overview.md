@@ -21,6 +21,7 @@ Publication status below is based on the current release-readiness evidence: no 
 | network (shared network runtime)          | Published 0.0.1  | [network](network.md)                     |
 | ipc (out-of-process IPC bridge)           | Unpublished      | [ipc](ipc.md)                             |
 | agent (agent protocol vocabulary)         | Unpublished      | [agent](agent.md)                         |
+| ai (AI host and Lua capability surface)   | Unpublished      | [ai](ai.md)                               |
 | observability (debug/trace seam)          | Unpublished      | [observability](observability.md)         |
 | execution (job supervisor)                | Unpublished      | [execution](execution.md)                 |
 | graphics (bounded image decode)           | Published 0.0.24 | [graphics](graphics.md)                   |
@@ -29,7 +30,7 @@ Publication status below is based on the current release-readiness evidence: no 
 | url-detector (plaintext link scan)        | Unpublished      | [url-detector](url-detector.md)           |
 | platform-services (desktop notify bridge) | Unpublished      | [platform-services](platform-services.md) |
 
-Current evidence: `graphics 0.0.24` and `net 0.0.1` tarballs and `SHA256SUMS` are live on the CDN (verified 2026-10-21), so exact pins install through the documented offline fallback. The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so bare latest installs fail closed with a `--version` hint until the extension CD jobs publish it. `network` has a `bitty-net` executable in its mainline source; the user-facing network path still uses the embedded binding, so installing `net` does not yet make it the production Lua path. `graphics` publishes the bounded decode component while the host seam and placement policy stay in Core. The other eight extensions remain library-only source checkouts with no published component artifact; `extension add <path>` applies only to a locally available compatible executable.
+Current evidence: `graphics 0.0.24` and `net 0.0.1` tarballs and `SHA256SUMS` are live on the CDN (verified 2026-10-21), so exact pins install through the documented offline fallback. The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so bare latest installs fail closed with a `--version` hint until the extension CD jobs publish it. `network` has a `bitty-net` executable in its mainline source; the user-facing network path still uses the embedded binding, so installing `net` does not yet make it the production Lua path. `graphics` publishes the bounded decode component while the host seam and placement policy stay in Core. The other nine extensions remain library-only source checkouts with no published component artifact; `extension add <path>` applies only to a locally available compatible executable.
 
 ## Lua plugins
 

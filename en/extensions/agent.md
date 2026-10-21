@@ -20,7 +20,7 @@ bitty extension list   # confirm what is staged today (empty table, exit 0)
 
 ## Lua / host surface
 
-This crate exposes no direct `bitty.*` Lua namespace. It defines the protocol types (the `bitty.agent-1` protocol marker) that Core and AI plugins use to exchange bounded agent messages. Lua plugins such as `wheel` consume the agent flow through Core-mediated APIs, never this crate directly.
+This crate exposes no direct `bitty.*` Lua namespace. It defines the protocol types (the `bitty.agent-1` protocol marker) that Core and AI plugins use to exchange bounded agent messages. Lua plugins such as `wheel` consume the agent flow through Core-mediated APIs, never this crate directly. The AI host itself is a separate extension with its own capability surface: [ai](ai.md).
 
 ## Minimal config
 
