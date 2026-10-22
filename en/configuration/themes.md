@@ -1,7 +1,9 @@
 # Themes and readability
 
-Bitty ships 30 built-in color presets (20 dark, 10 light) and a complete inline
-palette. A preset is selected by name; there is no theme file to install.
+Bitty ships 30 built-in color presets (20 dark, 10 light), a complete inline
+palette, and an optional local theme file (0.0.27). Built-in presets are
+selected by name and are compiled into the binary; no theme fetch or download
+happens.
 
 ## Select a theme
 
@@ -27,7 +29,8 @@ return {
 A theme switch repaints existing text, ANSI colors, the cursor, the selection,
 scrollback, and derived chrome without restarting the process. An unknown name
 fails closed with a diagnostic listing the valid set; `bitty list themes` prints
-the catalog with categories and aliases.
+the catalog with categories, aliases, and a `PROVENANCE` column that reads
+`builtin` or `local`. Listing performs no network request.
 
 ### Dark presets
 
@@ -108,3 +111,54 @@ comments, types, and diagnostics.
 the terminal roles of the selected preset; the focused/idle outline pair stays
 with the preset. A malformed leaf rejects the whole layer with a diagnostic
 naming the exact field.
+
+## Local theme files (0.0.27)
+
+You can keep one theme per flat TOML file in
+`$XDG_CONFIG_HOME/bitty/themes/` (fallback `~/.config/bitty/themes/`) and
+select it explicitly:
+
+```lua
+return {
+    appearance = {
+        theme = "local:sunset",
+    },
+}
+```
+
+```toml
+# $XDG_CONFIG_HOME/bitty/themes/sunset.toml
+name = "sunset"
+category = "dark"
+source = "https://example.invalid/sunset"  # metadata only; never fetched
+license = "MIT"
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+cursor = "#f5e0dc"
+selection = "#313244"
+ansi = ["#45475a", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#f5c2e7", "#94e2d5", "#bac2de", "#585b70", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#f5c2e7", "#94e2d5", "#cdd6f4"]
+border_focused = "#33CCFF"   # optional
+border_idle = "#595959AA"    # optional
+```
+
+Rules that matter:
+
+- The `local:` prefix is required. A local file never changes a built-in
+  preset name, and selecting a built-in preset still performs zero file I/O.
+- At most 64 `.toml` files, each at most 64 KiB; symlinks are not accepted.
+  Keys are flat and one per line, so the `ansi` and `aliases` arrays stay on
+  one line. Unknown fields, malformed `#RRGGBB` colors, and arrays without
+  exactly 16 ANSI entries reject that file with a diagnostic.
+- Every accepted file must clear the normal-text **4.5:1** and focused-outline
+  **3:1** contrast floors; a failing theme is rejected, not shown as
+  selectable.
+- A valid edit is picked up automatically while Bitty runs. An invalid edit
+  keeps the last good palette and reports `load-error`; it never paints a
+  partial palette.
+- Local `source` is provenance metadata only. No theme path downloads, fetches,
+  or validates a URL.
+
+See `bitty list themes` for accepted local rows (`local:<name>`) and per-file
+diagnostics for rejected files. The full schema is still a candidate contract
+under OQ-047; `$XDG_DATA_HOME/bitty/themes/` installed theme packages are not
+implemented.
