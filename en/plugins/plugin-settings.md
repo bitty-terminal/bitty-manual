@@ -94,7 +94,7 @@ Save the TOML example as `bitty-terminal.bar.toml` only when no Lua file is sele
 bitty config check
 ```
 
-This command is not a comprehensive validator for per-plugin settings. Those files are loaded during plugin activation; consult the host's [settings warnings](../faq/troubleshooting.md#plugin-diagnostics-bitty-plugin-list--bitty-doctor) for ignored entries or rejected files.
+This command is not a comprehensive validator for per-plugin settings. Those files are loaded during plugin activation; consult the host's [settings warnings](../faq/troubleshooting.md#plugin-diagnostics-bitty-plugin-list-bitty-plugin-doctor-bitty-doctor) for ignored entries or rejected files.
 
 ## Values versus authority
 

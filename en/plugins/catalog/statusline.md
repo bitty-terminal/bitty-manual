@@ -1,37 +1,20 @@
-# statusline (Lua plugin)
+# statusline (retired)
 
-> **Retirement notice.** The standalone `bitty-terminal.statusline` plugin identity is retired: the [bar](bar.md) plugin supersedes it and owns the visible workspace bar and its presentation. `statusline` is not part of the v1 UI slot set — mounting it fails closed with `E_UI_COMPONENT_INVALID` — so the name is historical here. This page is kept for reference, not as a current install recommendation.
+> **Retirement notice.** The standalone `bitty-terminal.statusline` plugin is archived and was removed from the official plugin catalog. The [bar](bar.md) plugin supersedes it and owns the visible workspace bar and status presentation. `statusline` is not part of the v1 UI slot set — mounting it fails closed with `E_UI_COMPONENT_INVALID` — so this page is historical reference only. There is no installable statusline revision on 0.0.26, and `bitty plugin list` does not show it.
 
-Cwd, mode, git, and task presentation via status-component composition: recomposes declarative components whenever a reactive terminal event fires.
+Historical behavior: Cwd, mode, git, and task presentation via status-component composition, recomposing declarative components whenever a reactive terminal event fired.
 
-- Plugin id: `bitty-terminal.statusline` · manifest version `0.1.0`
-- Source: [github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · independent repo, **not yet in the official registry**
-- Requested capabilities: `terminal.semantic-read`, `ui.rich`
-- Revision: `3eab0f44b9bf76fc8c01a029176a9bd885f91d07`; requires Bitty **`>=0.1,<1.0`** and plugin API `^1.0`. This revision is **not compatible with Bitty 0.0.24**.
+- Historical plugin id: `bitty-terminal.statusline`, last declared manifest version `0.1.0`
+- Last revision: `3eab0f44b9bf76fc8c01a029176a9bd885f91d07`, which required Bitty **`>=0.1,<1.0`** and plugin API `^1.0`; it was never compatible with a `0.0.x` host.
+- Archived repository: [github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline)
 
-## Install
+## Replacement
 
-Lua plugins carry no CDN versions, and this one has no registry entry yet. Only use this revision with a host admitted by its compatibility range; do not lower the range to bypass rejection. On a compatible host, install from the repository, then enable:
+Use the bar plugin:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/statusline.git
-bitty plugin enable bitty-terminal.statusline
-bitty plugin list   # confirm state and grants
+bitty plugin install bitty-terminal.bar
+bitty plugin enable bitty-terminal.bar
 ```
 
-## Lua API surface
-
-Declared triggers: no commands. The manifest-declared observation events activate and drive recomposition: `terminal.cwd-changed` and `terminal.title-changed`.
-
-Calls used in `lua/statusline/`:
-
-- `bitty.events.subscribe` — subscribes the two observation events
-- `bitty.terminal.snapshot` — read-only committed-state observation
-- `bitty.ui.mount` / `bitty.ui.update` — mounts and refreshes the statusline slot
-- `bitty.settings.get` — attempts presentation reads through its internal `M.SETTINGS` map, catching errors and using built-in defaults
-
-If the host does not expose the UI bridge, the plugin observes snapshots without presenting a statusline block. Installation is not proof of headed presentation.
-
-## Settings
-
-This revision declares no manifest settings. Its internal names (`separator`, `show_cwd`, `show_title`, `show_exit`, `max_components`, `component_max_chars`) are not effective user-file settings. Adding them to a file does not declare them or bypass the host's undeclared-key check. See [per-plugin config files](../plugin-settings.md).
+See the [bar modules user guide](../bar-modules.md) for module groups, anchors, icons, and pointer actions. Do not re-add the archived repository, and do not lower a manifest compatibility range to bypass a refusal.

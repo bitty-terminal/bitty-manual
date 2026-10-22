@@ -26,16 +26,17 @@ local handle = bitty.ui.mount(slot, component)
 
 #### Supported Slots
 
-| Slot Name      | Placement Status | Description                                                                       |
-| :------------- | :--------------- | :-------------------------------------------------------------------------------- |
-| `"top"`        | **Painted**      | Top edge chrome band.                                                             |
-| `"bottom"`     | **Painted**      | Bottom edge chrome band.                                                          |
-| `"statusline"` | **Painted**      | Statusline band (shares bottom edge stacking order).                              |
-| `"left"`       | Stored           | Left edge band (stored in registry; painted when vertical bands activate).        |
-| `"right"`      | Stored           | Right edge band (stored in registry; painted when vertical bands activate).       |
-| `"tabline"`    | Reserved         | Exclusive-claim tab strip. Requires manifest claim `[lazy].claims = ["tabline"]`. |
-| `"overlay"`    | Interactive      | Focusable overlay surface. Requires `ui.overlay` capability.                      |
-| `"terminal"`   | Reserved         | Terminal block attached to scrollback.                                            |
+| Slot Name    | Placement Status | Description                                                                       |
+| :----------- | :--------------- | :-------------------------------------------------------------------------------- |
+| `"top"`      | **Painted**      | Top edge chrome band.                                                             |
+| `"bottom"`   | **Painted**      | Bottom edge chrome band.                                                          |
+| `"left"`     | Stored           | Left edge band (stored in registry; painted when vertical bands activate).        |
+| `"right"`    | Stored           | Right edge band (stored in registry; painted when vertical bands activate).       |
+| `"tabline"`  | Reserved         | Exclusive-claim tab strip. Requires manifest claim `[lazy].claims = ["tabline"]`. |
+| `"overlay"`  | Interactive      | Focusable overlay surface. Requires `ui.overlay` capability.                      |
+| `"terminal"` | Reserved         | Terminal block attached to scrollback.                                            |
+
+The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation is the bar plugin's `bottom` (or `top`) band.
 
 ### `bitty.ui.update(block_id, component)`
 
@@ -183,10 +184,10 @@ local status_tree = {
   },
 }
 
--- Mount into statusline slot
-local handle = bitty.ui.mount("statusline", status_tree)
+-- Mount into the bottom chrome band
+local handle = bitty.ui.mount("bottom", status_tree)
 
--- Update statusline dynamically upon event
+-- Update the band dynamically upon event
 bitty.events.subscribe("terminal.state_changed", function(ev)
   status_tree.children[2].text = " | " .. ev.state
   bitty.ui.update(handle, status_tree)

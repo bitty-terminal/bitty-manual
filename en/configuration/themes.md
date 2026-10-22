@@ -43,6 +43,19 @@ the catalog with categories and aliases.
 `one-light`, `ayu-light`, `kanagawa-lotus`, `rose-pine-dawn`,
 `everforest-light`, `github-light`.
 
+## Local theme files (not yet available)
+
+Bitty 0.0.26 does not load theme files. The `$XDG_CONFIG_HOME/bitty/themes/`
+directory is reserved but inert (OQ-047): a TOML file placed there changes
+nothing, and `bitty list themes` lists built-in presets only. Local theme files,
+hot reload of the active local theme, and a load-time contrast gate (normal text
+**4.5:1**, focused outline **3:1**) are **not shipped**; the work is proposed
+and tracked as [bitty#2465](https://github.com/bitty-terminal/bitty/issues/2465),
+so no file format, key names, or limits are documented here until it lands.
+
+Until then, use the inline `appearance.colors` palette below. It is live, and
+`bitty config check` already reports its measurements.
+
 ## Readability guarantees
 
 Every shipped preset is measured with WCAG 2.1 contrast, and a regression fails

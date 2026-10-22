@@ -39,7 +39,7 @@ version = ">=2.30"
 ### Core Capability Families
 
 1. **`ui` Family**:
-   - `ui.rich`: Grants permission to mount and update declarative UI scenes into host band slots (`top`, `bottom`, `statusline`).
+   - `ui.rich`: Grants permission to mount and update declarative UI scenes into host slots (`top`, `bottom`, `left`, `right`, `tabline`, `terminal`); the `overlay` surface additionally needs `ui.overlay`.
    - `ui.overlay`: Grants permission to mount into the `overlay` slot.
    - `ui.overlay.focus`: Grants permission to capture transient keyboard input focus via `bitty.ui.overlay.acquire`.
 2. **`platform` Family**:

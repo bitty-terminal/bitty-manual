@@ -8,10 +8,10 @@ Modal visual-selection policy over the public history snapshot API: one bounded 
 
 ## Install
 
-Lua plugins carry no CDN versions. Install from the repository, then enable:
+Lua plugins carry no CDN versions. Install from the official catalog, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/copy-mode.git
+bitty plugin install bitty-terminal.copy-mode
 bitty plugin enable bitty-terminal.copy-mode
 bitty plugin list   # confirm state and grants
 ```

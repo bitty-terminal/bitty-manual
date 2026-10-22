@@ -44,18 +44,12 @@ The host validates every plugin before activation and fails closed — a rejecte
 
 Two floors gate what runs where, and both fail closed with a diagnostic rather than a crash:
 
-- **Plugin-to-host floor**: each manifest declares its own `[compat] bitty` and `plugin-api` ranges. The approved revisions listed below for activity, bar, file-manager, git-panel, and palette require **`>=0.0.24,<0.1`**, with plugin API and registry SDK ranges **`^1.0`**. This does not apply to every plugin or prove release availability. Incompatible installation fails with exit code `4`.
+- **Plugin-to-host floor**: each manifest declares its own `[compat] bitty` and `plugin-api` ranges. The host evaluates them before install and again before activation, so an incompatible install exits `4` and an incompatible update leaves the plugin disabled with a diagnostic instead of partially activating. Official catalog entries carry the same declared range in their registry record; `bitty plugin list` marks an entry `incompatible` and `bitty plugin install <id>` refuses it with the exact range before fetching anything.
 - **Package-to-distro floor**: native Linux packages declare their runtime dependencies per format (fontconfig, freetype, libgcc family) and every package is install-smoked in a clean container of its distro before release. An unrelated distro is best-effort, not supported — use the install script or build from source there.
 
-| Plugin       | Approved revision                          |
-| :----------- | :----------------------------------------- |
-| activity     | `e1566380b9bddb92a5db8b9f1ba96c080995ef8a` |
-| bar          | `f007a03dfa6036ff67458095dc71169c0c6ee7e3` |
-| file-manager | `bf3a17ea6aa1ea0fcc3a45a13ceaa069e83b71d4` |
-| git-panel    | `862df1f90ad137eb1e92379ac0710c6cd22c7f21` |
-| palette      | `c17dc321c8c7d4c8a1b8c5e7853d33e943af7c3d` |
+Plugin authors should declare a **minimum-only** host requirement such as `bitty = ">=0.0.26"`. An upper bound is enforced when present, so a `<0.1` ceiling blocks a 0.1 host that would still run the plugin. The Plugin API range (`compat.plugin-api`, currently `^1.0`) is the breaking boundary; it is what changes when the Lua surface breaks.
 
-The [statusline](../plugins/catalog/statusline.md) revision documented here instead requires `>=0.1,<1.0`; it is incompatible with Bitty 0.0.24.
+The standalone [statusline](../plugins/catalog/statusline.md) plugin is archived and removed from the official set; the bar plugin supersedes it. Do not re-add it or lower a range to bypass a refusal.
 
 ---
 
@@ -74,27 +68,37 @@ Per-plugin settings are selected and loaded during activation. `config check` is
 
 ---
 
-## Plugin Diagnostics (`bitty plugin list` + `bitty doctor`)
+## Plugin Diagnostics (`bitty plugin list`, `bitty plugin doctor`, `bitty doctor`)
 
-When a plugin behaves unexpectedly, inspect its record and the host environment:
+When a plugin behaves unexpectedly, inspect its record, the store, and the host environment:
 
 ```bash
-# Recorded plugins, sources, states, and capability grants
+# Recorded + official-catalog plugins, sources, states, and capability grants
 bitty plugin list
 
-# One plugin's manifest plus recorded grants
+# One plugin's manifest plus recorded grants (an official id works before install)
 bitty plugin info <id>
+
+# Diagnose the on-disk package store and the bitty-plugins.toml ledger
+bitty plugin doctor
 
 # Host environment health (GPU, fonts, dependencies)
 bitty doctor
 ```
 
+`bitty plugin doctor` never creates a plugin VM and changes nothing; `bitty plugin doctor --repair` quarantines broken or extra package trees, removes stale staging, and rebuilds `current.json` with the index write last. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
+
 The host retains at most **four settings warning summaries per plugin activation**: an ambiguous short alias, canonical Lua shadowing an alias, the count of ignored entries, or a rejected file with fallback to lower value layers. Summaries may identify the short alias, but omit setting key names, values, and file error contents. See [per-plugin config files](../plugins/plugin-settings.md) for selection rules and limits.
 
 Settings warning summaries are host log messages, not a Lua diagnostics API or settings/grant dump in activation reports.
 
-> [!NOTE]
-> There is no `bitty plugin doctor` verb. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
+Common store findings and their fixes:
+
+- **`plugin list` shows `orphaned` or `broken`**: an install was interrupted or a package tree was edited by hand. Run `bitty plugin doctor` for the finding, then `bitty plugin doctor --repair` to re-index complete trees or quarantine partial ones. To discard one tree instead, run `bitty plugin remove <id> --force` and reinstall from its source.
+- **`plugin install` reports a conflicting existing version**: the same manifest version exists with different content, usually a rebuilt checkout. Re-run with `--force`, or approve the `Replace it? [y/N]` prompt. A declined prompt changes nothing.
+- **`plugin list` fails with an unreadable store index**: `current.json` is corrupt. Bitty fails closed rather than showing an empty store; `bitty plugin doctor --repair` quarantines the old file and rebuilds it from complete package directories.
+- **`plugin doctor --repair` cannot write the quarantine**: the store is read-only or owned by another user. Fix ownership/permissions on the path named in the error and re-run; repair does not delete packages when it cannot quarantine them.
+- **`install <id>` refuses with a compat range**: the catalog entry declares a host range that excludes this build. Upgrade Bitty; do not edit the catalog or lower a manifest range.
 
 ---
 
@@ -139,3 +143,13 @@ WGPU_BACKEND=gl bitty
 # Force low-power GPU adapter selection
 WGPU_POWER_PREF=low bitty
 ```
+
+---
+
+## Exit Behavior & Session Restore
+
+- **Closing the last panel down to an empty window** skips the exit save. The transient empty base cannot be encoded as a restorable session, so Bitty keeps your last good session file (previous workspace, scrollback, cwd) and logs `no tiled pane or pinned panel left — keeping last good session` at info level. That line is not corruption.
+- **A shell that exits in the last panel** ends Bitty promptly. Bitty bounds the window between the PTY reaching EOF and the child being reapable instead of waiting for another input event.
+- **A session that is not restored** means the exit save was skipped or the previous file was already the last good one. A populated workspace still saves on exit; a mixed layout reports its warning and leaves the last good file untouched.
+
+For image preview failures (yazi, chafa, `icat`), see [Inline image previews](../extensions/graphics.md#inline-image-previews).

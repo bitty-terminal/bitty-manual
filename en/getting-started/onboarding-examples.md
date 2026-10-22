@@ -1,6 +1,6 @@
 # Onboarding Examples
 
-Copy-pasteable starter flows verified against `bitty 0.0.23` (`bitty --help`, `bitty plugin --help`, `bitty extension --help`, `bitty config check`, `bitty inspect key`). Follows [bitty#2143](https://github.com/bitty-terminal/bitty/issues/2143).
+Copy-pasteable starter flows verified against `bitty 0.0.26` (`bitty --help`, `bitty plugin --help`, `bitty extension --help`, `bitty config check`, `bitty inspect key`). Follows [bitty#2143](https://github.com/bitty-terminal/bitty/issues/2143).
 
 ## 1. Minimal `init.lua` starter
 
@@ -38,32 +38,34 @@ bitty config check --config ~/.config/bitty/init.lua
 
 ## 2. Plugin flow end-to-end (bar example)
 
-`bitty 0.0.23` installs from a bundled id, a local directory, a git URL, or a local archive (see `bitty plugin --help`). The bar source below matches the `https://<host>/<path>.git` form, and its published manifest id is `bitty-terminal.bar` (`bitty-plugin.toml` in [`bitty-terminal/bar`](https://github.com/bitty-terminal/bar)):
+`bitty 0.0.26` installs from a bundled id, an official catalog id, a local directory, a git URL, or a local archive (see `bitty plugin --help`). The bar entry below uses its official catalog id, `bitty-terminal.bar`, which resolves the pinned, hash-verified registry revision:
 
 ```bash
-# Install the bar plugin from git (prompts for capability consent)
-bitty plugin install https://github.com/bitty-terminal/bar.git
+# Install the bar plugin from the official catalog (prompts for capability consent)
+bitty plugin install bitty-terminal.bar
 
 # Same install, non-interactive consent
-bitty plugin install https://github.com/bitty-terminal/bar.git --yes
+bitty plugin install bitty-terminal.bar --yes
 
 # Inspect what was recorded
 bitty plugin list
 bitty plugin info bitty-terminal.bar
 
-# Re-enable without dropping the record (idempotent after install)
+# A fresh install is staged disabled; enable it explicitly
 bitty plugin enable bitty-terminal.bar
 ```
 
 Consent is explicit: the installer prints `Grant these capabilities? [y/N]`; `--yes` approves non-interactively, a decline aborts with exit `1` and nothing changes. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
-Configure the bar with a per-plugin file at `~/.config/bitty/plugins/bitty-terminal.bar.toml` (flat TOML keys only — see [Plugin Configuration](../configuration/plugin-config.md) and [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see [Bar Modules User Guide](../plugins/bar-modules.md)):
+Configure the bar with the canonical Lua settings file at `$XDG_CONFIG_HOME/bitty/plugins/bitty-terminal.bar.lua` (see [Plugin Configuration](../configuration/plugin-config.md) and [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see [Bar Modules User Guide](../plugins/bar-modules.md)):
 
-```toml
-show = true
-modules_left = ["workspaces", "cpu", "memory", "battery"]
-modules_center = []
-modules_right = ["clock", "pulseaudio"]
+```lua
+return {
+  show = true,
+  modules_left = { "workspaces", "cpu", "memory", "battery" },
+  modules_center = {},
+  modules_right = { "clock", "pulseaudio" },
+}
 ```
 
 Re-validate after editing either file:
@@ -127,4 +129,4 @@ Press `alt+space`, then `w` (close view) or `v` (split right) inside the pending
 - [Configuration Reference](../configuration/overview.md) — Every key, type, and reload class.
 - [Bar Modules User Guide](../plugins/bar-modules.md) — What each bar module shows.
 - [Plugin Configuration](../configuration/plugin-config.md) — File locations, worked examples, and when changes apply.
-- [Per-Plugin Config Files](../plugins/plugin-settings.md) — TOML subset and fail-to-default rules.
+- [Per-Plugin Config Files](../plugins/plugin-settings.md) — File selection, the restricted Lua form, and fail-to-default rules.
