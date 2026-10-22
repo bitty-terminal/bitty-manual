@@ -191,20 +191,23 @@ Core-owned view decorations operate in logical pixels:
 
 ### Appearance, Themes & Animations
 
-| Field                                  | Type      | Reload Class | Description                                                                   |
-| :------------------------------------- | :-------- | :----------- | :---------------------------------------------------------------------------- |
-| `appearance.theme`                     | `string`  | **Live**     | Built-in theme name (e.g. `catppuccin-mocha`, `tokyo-night`, `gruvbox-dark`). |
-| `appearance.colors`                    | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).            |
-| `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.                    |
-| `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"system"`).        |
+| Field                                  | Type      | Reload Class | Description                                                            |
+| :------------------------------------- | :-------- | :----------- | :--------------------------------------------------------------------- |
+| `appearance.theme`                     | `string`  | **Live**     | Built-in theme name or explicit `local:<name>` file selection.         |
+| `appearance.colors`                    | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).     |
+| `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.             |
+| `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"system"`). |
 
 ### Themes and custom colors
 
-`appearance.theme` selects one of the 30 built-in presets
-(`bitty list themes` prints the catalog). A preset is shorthand over the
+`appearance.theme` selects one of the 30 built-in presets or a local theme
+file (`local:<name>`; see [Themes and readability](themes.md)). `bitty list
+themes` prints the catalog with a `PROVENANCE` column that reads `builtin` or
+`local`; it performs no network request. A preset is shorthand over the
 terminal color roles: background, foreground, cursor, selection background,
 and ANSI 0–15. See [Themes and readability](themes.md) for the catalog, the
-WCAG contrast guarantees, and the `bitty config check` diagnostics.
+local file schema, the WCAG contrast guarantees, and the `bitty config check`
+diagnostics.
 
 To skip presets and define your own colors, set the complete inline
 `appearance.colors` table. It replaces the terminal roles from the selected
