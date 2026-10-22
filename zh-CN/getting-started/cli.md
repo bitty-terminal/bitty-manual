@@ -183,7 +183,7 @@ bitty dev overlay <list|show <damage|cells|glyphs|images|layout|banner>>
 # 列出已记录与已安装插件、来源与能力授予
 bitty plugin list
 
-# 安装内置插件 id、本地目录包、git 来源或本地压缩包
+# 安装内置或官方目录 id、本地目录包、git 来源或本地压缩包
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
 bitty plugin install <git-url> [--yes]
@@ -204,9 +204,11 @@ bitty plugin info <id>
 ```
 
 > [!NOTE]
-> `install` 接受四种来源形式：内置插件 **id**、本地**路径/目录**包、**git URL**（精确为 `https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。git 与压缩包来源会经由同一套本地路径流水线完成暂存；不支持的方案（`file://`、`http://`、`ssh://` 等）会以具名诊断失败关闭。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
+> `install` 接受四种来源形式：内置或官方目录 **id**、本地**路径/目录**包、**git URL**（精确为 `https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。git 与压缩包来源会经由同一套本地路径流水线完成暂存；不支持的方案（`file://`、`http://`、`ssh://` 等）会以具名诊断失败关闭。见 [bitty#1901](https://github.com/bitty-terminal/bitty/issues/1901)。
 
 git 安装使用系统的 `git`；压缩包安装使用 `tar`（`.tar.zst` 需要 `unzstd`）或 `unzip`。所需工具必须在 `PATH` 上；工具缺失或拉取/解压失败会中止安装。git checkout 与解压出的目录会和本地目录包一样，经过同一套清单、兼容性、哈希与能力同意检查。安装期间不运行任何插件代码。
+
+`install <id>` 会解析两个本地目录：内置集合编译进 `bitty`（当前为 `bitty-terminal.shell-integration`），官方集合在构建时从 `bitty-plugins` 注册表生成并嵌入二进制。官方条目携带精确的仓库、固定提交、注册表中原始 `bitty-plugin.toml` 的 SHA-256 与声明的兼容范围。安装会拉取固定提交，在暂存前校验 `HEAD` 与原始清单哈希，并在存储中记录 `registry` 来源；运行时不会请求注册表元数据。`bitty plugin list` 会列出所有官方条目，`compat.bitty` 不包含当前宿主的条目会标记为 `incompatible`（例如 `bitty-terminal.statusline` 要求 `>=0.1,<1.0`，在 0.0.26 上会以该精确范围被拒绝）。git URL、本地路径、压缩包与 `bitty --version` 流程保持不变。
 
 能力安装时提示 `Grant these capabilities? [y/N]`；`--yes` 以非交互方式批准。授权绑定到精确的清单哈希，新增能力始终需要重新确认。
 

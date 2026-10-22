@@ -206,7 +206,7 @@ Local plugin record management (no plugin VM is ever loaded):
 # List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Install a bundled id, local directory, Git source, or local archive
+# Install a bundled or official-catalog id, local directory, Git source, or local archive
 bitty plugin install <id> [--yes]
 bitty plugin install <path> [--yes]
 bitty plugin install <git-url> [--yes]
@@ -236,6 +236,8 @@ bitty plugin config scaffold <id>
 > Git sources accept `https://<host>/<path>.git`, `git+https://<host>/<path>.git`, or `git@<host>:<path>`. Other URL schemes, including `http://`, `file://`, and `ssh://`, are rejected. Archives must be local `.tar.gz`, `.tgz`, `.tar.zst`, or `.zip` files; remote archive URLs are not supported.
 
 Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
+
+An `install <id>` operand resolves against two local catalogs. The bundled set is compiled into `bitty` (currently `bitty-terminal.shell-integration`); the official set is generated from the `bitty-plugins` registry at build time and embedded in the binary. Official entries carry an exact repository, pinned commit, the registry's raw `bitty-plugin.toml` SHA-256, and declared compatibility. Installation fetches the pinned commit, verifies `HEAD` and the raw manifest hash before staging, and records `registry` provenance in the store; no registry metadata is requested at runtime. `bitty plugin list` shows every official entry, marking entries whose `compat.bitty` excludes this host as `incompatible` (for example `bitty-terminal.statusline` requires `>=0.1,<1.0` and is refused on 0.0.26 with that exact range). Git URL, local path, archive, and `bitty --version` flows are unchanged.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 

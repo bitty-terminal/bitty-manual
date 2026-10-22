@@ -70,7 +70,9 @@ bitty plugin install ./my-plugin
 bitty plugin list
 ```
 
-`install` 接受四种来源形式：内置插件 **id**（例如 `bitty plugin install bitty-terminal.shell-integration`）、**本地路径/目录**、**git URL**（`https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。追加 `--yes` 可以非交互方式完成能力授权。
+`install` 接受四种来源形式：内置或官方目录 **id**（例如 `bitty plugin install bitty-terminal.shell-integration` 或 `bitty plugin install bitty-terminal.bar`）、**本地路径/目录**、**git URL**（`https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。追加 `--yes` 可以非交互方式完成能力授权。
+
+官方 id 解析自构建时从 `bitty-plugins` 注册表嵌入的目录：每个条目携带仓库、固定提交、注册表中原始 `bitty-plugin.toml` 的 SHA-256 及其声明的兼容范围。安装会拉取精确的固定提交，并在暂存前校验清单哈希，因此运行时不会请求任何注册表元数据。`bitty plugin list` 会列出所有官方条目；`compat.bitty` 不包含当前宿主的条目（例如 0.0.26 上的 `bitty-terminal.statusline`，它要求 `>=0.1,<1.0`）会显示为 `incompatible`，并以该精确范围拒绝安装。git URL、本地路径与压缩包安装方式保持不变。
 
 ## 下一步
 

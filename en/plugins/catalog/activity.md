@@ -11,7 +11,7 @@ Privacy-first local activity timeline: aggregates semantic terminal snapshots in
 Lua plugins carry no CDN versions. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/activity.git
+bitty plugin install bitty-featured.activity
 bitty plugin enable bitty-featured.activity
 bitty plugin list   # confirm state and grants
 ```

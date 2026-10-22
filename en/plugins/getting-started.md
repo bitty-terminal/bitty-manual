@@ -70,7 +70,9 @@ bitty plugin install ./my-plugin
 bitty plugin list
 ```
 
-`install` accepts four source shapes: a bundled plugin **id** (e.g. `bitty plugin install bitty-terminal.shell-integration`), a **local path/directory**, a **git URL** (`https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Add `--yes` for non-interactive capability consent.
+`install` accepts four source shapes: a **bundled or official catalog id** (e.g. `bitty plugin install bitty-terminal.shell-integration` or `bitty plugin install bitty-terminal.bar`), a **local path/directory**, a **git URL** (`https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Add `--yes` for non-interactive capability consent.
+
+Official ids resolve against a catalog embedded at build time from the `bitty-plugins` registry: each entry carries its repository, pinned commit, the registry's raw `bitty-plugin.toml` SHA-256, and its declared compatibility. Installation fetches exactly the pinned commit and verifies the manifest hash before anything is staged, so no registry metadata is fetched at runtime. `bitty plugin list` shows every official entry; an entry whose `compat.bitty` excludes the running host (for example `bitty-terminal.statusline` on 0.0.26, which requires `>=0.1,<1.0`) is listed as `incompatible` and refused with that exact range. Git URL, local path, and archive installs remain available unchanged.
 
 ## Next Steps
 

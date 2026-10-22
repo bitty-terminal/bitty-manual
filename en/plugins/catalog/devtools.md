@@ -3,7 +3,7 @@
 Read-only inspection and event tracing of the plugin runtime: lifecycle rows, command/event registrations, own grants, and bounded event traces surfaced as notification summaries.
 
 - Plugin id: `bitty-featured.devtools` · manifest version `0.1.0` (`bitty-plugin.toml:12-15`)
-- Source: [github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · independent repo, **not yet in the official registry**
+- Source: [github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · official registry entry
 - Capabilities (`bitty-plugin.toml:25-40`): `debug.inspect`, `debug.trace`, `platform.notify` (no `debug.control`, no `ui.*`: runtime state is never mutated)
 
 ## Install
@@ -11,7 +11,7 @@ Read-only inspection and event tracing of the plugin runtime: lifecycle rows, co
 Lua plugins carry no CDN versions, and this one has no registry entry yet. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/devtools.git
+bitty plugin install bitty-featured.devtools
 bitty plugin enable bitty-featured.devtools
 bitty plugin list   # confirm state and grants
 ```

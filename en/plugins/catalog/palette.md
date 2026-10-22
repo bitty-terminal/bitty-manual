@@ -12,7 +12,7 @@ Filtered-entry overlay: acquires a focusable overlay with `title` and `placehold
 Lua plugins carry no CDN versions. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/palette.git
+bitty plugin install bitty-terminal.palette
 bitty plugin enable bitty-terminal.palette
 bitty plugin list   # confirm state and grants
 ```

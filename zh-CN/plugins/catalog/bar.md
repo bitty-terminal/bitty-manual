@@ -11,7 +11,7 @@
 Lua 插件没有 CDN 版本。从仓库安装，再启用：
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/bar.git
+bitty plugin install bitty-terminal.bar
 bitty plugin enable bitty-terminal.bar
 bitty plugin list   # 确认状态与授权
 ```

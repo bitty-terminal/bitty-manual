@@ -5,16 +5,16 @@
 Cwd, mode, git, and task presentation via status-component composition: recomposes declarative components whenever a reactive terminal event fires.
 
 - Plugin id: `bitty-terminal.statusline` · manifest version `0.1.0`
-- Source: [github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · independent repo, **not yet in the official registry**
+- Source: [github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · official registry entry (listed; requires a `>=0.1` host)
 - Requested capabilities: `terminal.semantic-read`, `ui.rich`
 - Revision: `3eab0f44b9bf76fc8c01a029176a9bd885f91d07`; requires Bitty **`>=0.1,<1.0`** and plugin API `^1.0`. This revision is **not compatible with Bitty 0.0.24**.
 
 ## Install
 
-Lua plugins carry no CDN versions, and this one has no registry entry yet. Only use this revision with a host admitted by its compatibility range; do not lower the range to bypass rejection. On a compatible host, install from the repository, then enable:
+Lua plugins carry no CDN versions. The catalog lists this entry, but its `compat.bitty` is `>=0.1,<1.0`: on 0.0.26 `bitty plugin install bitty-terminal.statusline` is refused with that exact range, and on older hosts the URL form below fails the same compatibility gate. Only use this revision with a host admitted by its compatibility range; do not lower the range to bypass rejection. On a compatible host, install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/statusline.git
+bitty plugin install bitty-terminal.statusline
 bitty plugin enable bitty-terminal.statusline
 bitty plugin list   # confirm state and grants
 ```

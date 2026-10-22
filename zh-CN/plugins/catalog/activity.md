@@ -11,7 +11,7 @@
 Lua 插件没有 CDN 版本。从仓库安装，再启用：
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/activity.git
+bitty plugin install bitty-featured.activity
 bitty plugin enable bitty-featured.activity
 bitty plugin list   # 确认状态与授权
 ```

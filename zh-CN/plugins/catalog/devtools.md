@@ -3,7 +3,7 @@
 对插件运行时的只读检查与事件追踪：生命周期行、命令／事件注册、自身授权，以及以通知摘要呈现的有界事件追踪。
 
 - 插件 id：`bitty-featured.devtools` · manifest 版本 `0.1.0`（`bitty-plugin.toml:12-15`）
-- 源码：[github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · 独立仓库，**尚未进入官方注册表**
+- 源码：[github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · 官方注册表条目
 - 能力（`bitty-plugin.toml:25-40`）：`debug.inspect`、`debug.trace`、`platform.notify`（无 `debug.control`，无 `ui.*`：从不变更运行时状态）
 
 ## 安装
@@ -11,7 +11,7 @@
 Lua 插件没有 CDN 版本，且该插件暂无注册表条目。从仓库安装，再启用：
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/devtools.git
+bitty plugin install bitty-featured.devtools
 bitty plugin enable bitty-featured.devtools
 bitty plugin list   # 确认状态与授权
 ```

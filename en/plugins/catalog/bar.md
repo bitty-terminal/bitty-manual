@@ -11,7 +11,7 @@ Consolidated workspace-bar, tabs, and statusline presentation over generic chrom
 Lua plugins carry no CDN versions. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/bar.git
+bitty plugin install bitty-terminal.bar
 bitty plugin enable bitty-terminal.bar
 bitty plugin list   # confirm state and grants
 ```

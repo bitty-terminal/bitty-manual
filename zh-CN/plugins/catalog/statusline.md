@@ -5,15 +5,15 @@
 经状态组件组合呈现 cwd、模式、git 与任务：响应式终端事件到来即重组声明式组件。
 
 - 插件 id：`bitty-terminal.statusline` · manifest 版本 `0.0.1`（`bitty-plugin.toml:11-14`）
-- 源码：[github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · 独立仓库，**尚未进入官方注册表**
+- 源码：[github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · 官方注册表条目（已列出；需要 `>=0.1` 的宿主）
 - 能力（`bitty-plugin.toml:23-33`）：`terminal.semantic-read`、`ui.rich`
 
 ## 安装
 
-Lua 插件没有 CDN 版本，且该插件暂无注册表条目。从仓库安装，再启用：
+Lua 插件没有 CDN 版本。目录已列出该条目，但其 `compat.bitty` 为 `>=0.1,<1.0`：在 0.0.26 上 `bitty plugin install bitty-terminal.statusline` 会以该精确范围被拒绝；在更旧的宿主上，下面的 URL 形式也会被同一兼容性门禁拒绝。仅在兼容范围内的宿主上使用此修订，不要下调范围来绕过拒绝。
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/statusline.git
+bitty plugin install bitty-terminal.statusline
 bitty plugin enable bitty-terminal.statusline
 bitty plugin list   # 确认状态与授权
 ```

@@ -11,7 +11,7 @@ Opt-in history keeper over the public history-read host APIs: scoped, bounded sn
 Lua plugins carry no CDN versions. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/history.git
+bitty plugin install bitty-terminal.history
 bitty plugin enable bitty-terminal.history
 bitty plugin list   # confirm state and grants
 ```

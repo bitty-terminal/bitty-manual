@@ -11,7 +11,7 @@ Editable command-line policy over the public overlay, submit, and editor host AP
 Lua plugins carry no CDN versions. Install from the repository, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/composer.git
+bitty plugin install bitty-terminal.composer
 bitty plugin enable bitty-terminal.composer
 bitty plugin list   # confirm state and grants
 ```
