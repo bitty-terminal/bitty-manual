@@ -173,6 +173,7 @@ Core-owned view decorations operate in logical pixels:
 | `terminal.shell`                   | `string`  | **RestartRequired** | Preferred default shell executable path (`argv[0]`).                                                                                                      |
 | `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | Lines scrolled per wheel notch (`1..=32`, default `3`).                                                                                                   |
 | `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | Smooth-scroll pixels per wheel notch (`1..=256`, default `16`).                                                                                           |
+| `terminal.page_scroll_percent`     | `integer` | **RestartRequired** | Page-scroll distance (`alt+u` / `alt+i`) as a percentage of viewport rows (`10..=100`, default `75`).                                                     |
 | `terminal.cursor_style`            | `string`  | **RestartRequired** | Initial cursor shape (`"default"`, `"blinking_block"`, `"steady_block"`, `"blinking_underline"`, `"steady_underline"`, `"blinking_bar"`, `"steady_bar"`). |
 | `terminal.bell`                    | `string`  | **RestartRequired** | Bell alert behavior (`"off"`, `"visual"`, `"audible"`, `"both"`).                                                                                         |
 | `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).                                                                    |
@@ -318,6 +319,7 @@ return {
     scrollback = 10000,
     scroll_lines_per_notch = 3,
     scroll_pixels_per_notch = 16,
+    page_scroll_percent = 75,
     cursor_style = "steady_bar",
     bell = "visual",
   },
