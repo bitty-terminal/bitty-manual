@@ -64,7 +64,7 @@ $$\text{Installed} \longrightarrow \text{Loaded} \longrightarrow \text{Active}$$
 
 ## Install a plugin
 
-`bitty plugin install` accepts four source shapes: an official catalog **id**, a **local path/directory**, a **git URL** (`https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Add `--yes` to approve capability consent non-interactively.
+`bitty plugin install` accepts four source shapes: an **id** (a bundled id or an official catalog id), a **local path/directory**, a **git URL** (`https://<host>/<path>.git`, `git+https://…`, or `git@<host>:<path>`), or a local **archive** (`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`). Add `--yes` to approve capability consent non-interactively.
 
 ```bash
 # Official catalog id

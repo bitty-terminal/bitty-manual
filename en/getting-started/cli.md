@@ -247,7 +247,7 @@ Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.ta
 
 `--force` skips the repair prompt when the same manifest version already exists with different content (a rebuilt local checkout), and installs over an orphaned or incomplete tree. Capability consent stays separate; `--yes` approves both. An identical tree is adopted without a prompt.
 
-`bitty plugin doctor` reports store and ledger findings without changing anything; `--repair` quarantines broken or extra package trees under `<store>/quarantine/`, removes stale staging, and rebuilds `current.json` with the index write last. Rebuilt records keep grants only when the manifest hash still matches; otherwise they start disabled with no grants and need `bitty plugin install <source> --force`. Exit codes: `0` healthy, `1` findings (or aborted/io), `2` usage, `4` plugin error.
+`bitty plugin doctor` reports store and ledger findings without changing anything; `--repair` quarantines broken or extra package trees under `<store>/quarantine/`, removes stale staging, and rebuilds `current.json` with the index write last. Rebuilt records keep grants only when the manifest hash still matches; otherwise they start disabled with no grants and need `bitty plugin install <source> --force`. Exit codes: `0` success (or a healthy store for `doctor`), `1` aborted/io or doctor findings, `2` usage, `4` plugin error.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
