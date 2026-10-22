@@ -33,7 +33,7 @@ An unknown module name, a non-list group, or a plan that resolves to nothing nev
 
 Each non-empty group is one anchored row (`anchor = "left" | "center" | "right"`) resolved against the live band width, so the center group stays centered and the right group stays flush right when the terminal is resized. The plugin never simulates alignment with padding strings.
 
-When the three groups cannot all fit, the band clips deterministically in the order left, then right, then center. Clipped runs never overlap each other and keep their hit targets. On a host older than the anchor support, the `anchor` key is ignored and groups flow left-to-right in declaration order; the bar still paints.
+When the three groups cannot all fit, the band clips deterministically in the order left, then right, then center. Clipped runs never overlap each other and keep their hit targets. On a host before 0.0.26 (no band anchor support), the `anchor` key is ignored and groups flow left-to-right in declaration order; the bar still paints.
 
 ### Top or bottom edge
 

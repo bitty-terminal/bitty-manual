@@ -86,7 +86,7 @@ A fresh local, Git, archive, or registry install is staged **disabled**: review 
 
 Core embeds a catalog generated at build time from the [`bitty-plugins` registry](https://github.com/bitty-terminal/bitty-plugins). Each entry carries its repository, an exact 40-hex commit pin, the registry's raw `bitty-plugin.toml` SHA-256, declared compatibility, description, and license. Installing an id:
 
-1. resolves the exact official id before any path heuristic,
+1. resolves the exact official id before treating the operand as a local path,
 2. evaluates compatibility against the running host **before any fetch** and refuses an incompatible entry with its exact declared range,
 3. fetches exactly the pinned commit into an exclusive staging directory,
 4. re-reads `HEAD` and the raw manifest hash, failing closed on either mismatch,

@@ -68,7 +68,7 @@ Per-plugin settings are selected and loaded during activation. `config check` is
 
 ---
 
-## Plugin Diagnostics (`bitty plugin list` + `bitty doctor`)
+## Plugin Diagnostics (`bitty plugin list`, `bitty plugin doctor`, `bitty doctor`)
 
 When a plugin behaves unexpectedly, inspect its record, the store, and the host environment:
 

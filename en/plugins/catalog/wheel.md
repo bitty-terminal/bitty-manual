@@ -12,7 +12,7 @@ its own policy; a Bitty panel or terminal supplies presentation and input only.
 
 - Artifact version: `0.1.0` (root `VERSION`; archive `dist/wheel-0.1.0.tar.gz`)
 - Source: [github.com/bitty-terminal/wheel](https://github.com/bitty-terminal/wheel) · independent repo
-- Registry: official `bitty-terminal.wheel` entry describes only the transitional plugin scaffold
+- Registry: not in the official plugin catalog; the repository's transitional `bitty-terminal.wheel` manifest is a scaffold, not an installable plugin package
 - Authority and residual risk: [Wheel SECURITY-MODEL.md](https://github.com/bitty-terminal/wheel/blob/main/SECURITY-MODEL.md)
 - Context snapshots: [Wheel CONTEXT-SNAPSHOT.md](https://github.com/bitty-terminal/wheel/blob/main/CONTEXT-SNAPSHOT.md)
 
