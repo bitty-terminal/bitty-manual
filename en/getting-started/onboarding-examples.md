@@ -98,7 +98,7 @@ bitty extension remove net
 bitty extension show-source net
 ```
 
-Publication changes over time; the authoritative selector is the extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`). A bare `install` never guesses: when the catalog is unavailable (it was still `404` on 2026-10-21) or has no entry, the command fails closed and prints a concrete `--version` example. Confirm a pinned release by checking `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS`; `graphics/0.0.24` and `net/0.0.1` were live at that date.
+Publication changes over time; the authoritative selector is the extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`, published schema 1 on 2026-10-22). A bare `install` never guesses: when the catalog is unavailable or has no entry, the command fails closed and prints a concrete `--version` example. Confirm a pinned release by checking `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS`; `graphics/0.0.24` and `net/0.0.1` were live at that date.
 
 ## 4. Leader key (`alt+space` default)
 
