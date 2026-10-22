@@ -15,7 +15,7 @@ Bitty 面向主流操作系统提供自动化脚本、原生软件包、预编�
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash
 
 # 锁定版本、预览安装计划或更改安装位置
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.23
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.26
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -34,22 +34,129 @@ irm https://cdn.bitty.run/bitty/install/install.ps1 | iex
 
 每个 Linux 软件包在发布前都会在其发行版的干净容器中做安装冒烟测试（Ubuntu 24.04 deb、Fedora rpm、Arch 软件包、Alpine musl apk），无法安装或运行的包不会发布。
 
+#### Debian 与 Ubuntu (APT 静态源)
+
+自 `0.0.26` 起，Bitty 依托 Cloudflare R2 提供经 GPG 签名的原生 APT 静态软件源：
+
 ```bash
-# Windows (Scoop)
-scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
-scoop install bitty
-
-# macOS (Homebrew)
-brew tap bitty-terminal/homebrew-tap
-brew install bitty
-
-# Arch Linux (AUR)：预编译二进制包
-paru -S bitty-bin   # 或：yay -S bitty-bin
-# 源码包 `bitty` 同样存在；除非需要本地源码编译，否则优先 `bitty-bin`。
+# 自动化一键配置（安装公钥并配置 deb822 源文件）
+curl -fsSL https://cdn.bitty.run/apt/setup.sh | sudo bash
+sudo apt update && sudo apt install bitty
 ```
 
-> [!NOTE]
-> **PENDING —— 首次 tag 发布。**Scoop、Homebrew 与 AUR 清单在打 tag 时生成，且依赖所有者侧密钥。在 0.0.23 首次 tag 发布完成前，这些渠道可能返回 404：请改用安装脚本或原生软件包。Flatpak（`flatpak install run.bitty.Bitty`）及更多包管理器将在 0.1.0 之后陆续落地——**PENDING**。
+亦可手动配置 deb822 软件源格式与钥匙环：
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://cdn.bitty.run/apt/bitty-archive-keyring.gpg | sudo tee /etc/apt/keyrings/bitty-archive-keyring.gpg > /dev/null
+sudo curl -fsSL -o /etc/apt/sources.list.d/bitty.sources https://cdn.bitty.run/apt/bitty.sources
+sudo apt update && sudo apt install bitty
+```
+
+#### Fedora、RHEL 与 CentOS Stream (Copr 源)
+
+自 `0.0.26` 起，提供官方 Fedora Copr 持续交付构建：
+
+```bash
+sudo dnf copr enable xuepoo/bitty-terminal
+sudo dnf install bitty
+```
+
+#### Arch Linux (AUR)
+
+AUR 提供预编译二进制包与源码构建包：
+
+```bash
+# 预编译二进制包（推荐，开箱即用无需本地编译）
+paru -S bitty-bin   # 或：yay -S bitty-bin
+
+# 源码构建包（通过 cargo 在本地编译）
+paru -S bitty       # 或：yay -S bitty
+```
+
+#### macOS (Homebrew)
+
+官方 Homebrew Tap，同时支持 Intel (`x86_64`) 与 Apple Silicon (`arm64`)：
+
+```bash
+brew tap bitty-terminal/homebrew-tap
+brew install bitty
+```
+
+#### Windows (Scoop)
+
+官方 Scoop Bucket，支持 x64 与 ARM64：
+
+```powershell
+scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
+scoop install bitty
+```
+
+### 规划中的软件包渠道（v0.0.27 拓展）
+
+以下操作系统与发行版的包生态已列入 `v0.0.27` 里程碑（追踪 Issue：[bitty-terminal/bitty#2507](https://github.com/bitty-terminal/bitty/issues/2507)）：
+
+#### openSUSE 与 SUSE Linux Enterprise (OBS / Zypper)
+
+通过 openSUSE Build Service 托管原生 RPM：
+
+```bash
+sudo zypper addrepo https://download.opensuse.org/repositories/home:/xuepoo/openSUSE_Tumbleweed/home:xuepoo.repo
+sudo zypper refresh && sudo zypper install bitty
+```
+
+#### Alpine Linux (apk)
+
+官方 community / testing 仓库的 musl 轻量构建：
+
+```bash
+apk add bitty
+```
+
+#### NixOS 与 Nix Flakes
+
+提供官方 Flake 与 Nixpkgs derivation：
+
+```bash
+nix profile install github:bitty-terminal/bitty
+# 或直接运行无需全局安装：
+nix run github:bitty-terminal/bitty
+```
+
+#### Gentoo Linux (Portage)
+
+通过自定义 Overlay 提供 ebuild 构建支持：
+
+```bash
+emerge --ask app-misc/bitty
+```
+
+#### Void Linux (XBPS)
+
+支持 glibc 与 musl 架构的原生 xbps 软件包：
+
+```bash
+xbps-install -S bitty
+```
+
+#### FreeBSD (Ports 与 pkg)
+
+原生 BSD 端口与预编译二进制包：
+
+```bash
+pkg install bitty
+# 或通过 Ports 树编译：
+cd /usr/ports/x11/bitty && make install clean
+```
+
+#### Flatpak (Flathub)
+
+跨 Linux 发行版的隔离沙盒桌面应用：
+
+```bash
+flatpak install flathub run.bitty.Bitty
+flatpak run run.bitty.Bitty
+```
 
 ### Cargo（从 Git 仓库构建）
 
