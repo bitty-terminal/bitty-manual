@@ -87,7 +87,7 @@ bitty extension install graphics
 bitty extension install graphics --version 0.0.24
 bitty extension install net --version 0.0.1
 
-# 仓库风格名称是已存储组件名的别名
+# 仓库风格名称是已存储扩展名的别名
 bitty extension install bitty-graphics --version 0.0.24
 
 # 不下载，直接登记本地二进制（无网络）
@@ -98,7 +98,7 @@ bitty extension remove net
 bitty extension show-source net
 ```
 
-发布状态会变化；权威选择器是扩展目录（`https://cdn.bitty.run/extensions/catalog.v1`）。裸 `install` 绝不猜测：目录不可用（2026-10-21 时仍为 `404`）或没有对应条目时，命令会失败并关闭，并打印具体的 `--version` 示例。可用 `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS` 确认锁定的版本；该日 `graphics/0.0.24` 与 `net/0.0.1` 均已上线。
+发布状态会变化；权威选择器是扩展目录（`https://cdn.bitty.run/extensions/catalog.v1`，2026-10-22 已发布 schema 1）。裸 `install` 绝不猜测：目录不可用或没有对应条目时，命令会失败并关闭，并打印具体的 `--version` 示例。可用 `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS` 确认锁定的版本；该日 `graphics/0.0.24` 与 `net/0.0.1` 均已上线。
 
 ## 4. Leader 键（默认 `alt+space`）
 

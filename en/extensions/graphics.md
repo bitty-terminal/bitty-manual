@@ -4,24 +4,24 @@ Bounded PNG decode plus the raster mechanics subset for inline images. Placement
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-graphics` ([github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics))
 - Crate: `bitty-graphics` (library, `src/lib.rs`)
-- Maturity: the graphics host seam is merged and tested; the published `0.0.24` component carries the bounded decode/raster subset, while placement policy, rect helpers, and renderer upload validation stay in Core.
+- Maturity: the graphics host seam is merged and tested; the published `0.0.24` extension carries the bounded decode/raster subset, while placement policy, rect helpers, and renderer upload validation stay in Core.
 
 ## Install status
 
-> Published — `graphics 0.0.24` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-21). The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so `bitty extension install graphics` (bare latest) currently fails closed with a `--version` hint; pin the published release.
+> Published — `graphics 0.0.24` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-22), and `extensions/catalog.v1` lists it for `x86_64-unknown-linux-gnu`. A bare install resolves `0.0.24` as the latest release for the host target; `--version 0.0.24` pins the same artifact.
 
-Track the source checkout above. Install the published component exactly:
+Track the source checkout above. Install the published extension:
 
 ```bash
-# Recommended: pin the verified release (catalog latest needs the catalog)
+# Latest catalog release for this host (currently 0.0.24)
+bitty extension install graphics
+# Exact pin (reproducible automation; also works when the catalog is offline)
 bitty extension install graphics --version 0.0.24
-# Repo-style alias (same stored component name)
-bitty extension install bitty-graphics --version 0.0.24
 
-bitty extension list   # inspect the local component inventory
+bitty extension list   # inspect the local extension inventory
 ```
 
-Core retains protocol intake, placement, resource policy, and renderer upload validation; installing the component does not move those responsibilities.
+Repo-style aliases (`bitty-graphics`) resolve to the same stored extension name. Core retains protocol intake, placement, resource policy, and renderer upload validation; installing the extension does not move those responsibilities.
 
 ## Lua / host surface
 

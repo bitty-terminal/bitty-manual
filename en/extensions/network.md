@@ -1,25 +1,26 @@
 # network (native extension)
 
-The shared, optional network runtime: connection pooling, DNS, TLS, and the wire framing for the native component path. Core links the first-party wire codec and owns the component broker; the current user-facing Lua path still uses the embedded `bitty-network-lua` binding, while `bitty-net` is the separate component executable (`bitty-network` README).
+The shared, optional network runtime: connection pooling, DNS, TLS, and the wire framing for the native extension path. Core links the first-party wire codec and owns the internal component broker; the current user-facing Lua path still uses the embedded `bitty-network-lua` binding, while `bitty-net` is the separate extension executable (`bitty-network` README).
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-network` ([github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network))
 - Crates: `bitty-network-api`, `bitty-network-core`, `bitty-network-dns`, `bitty-network-tls`, `bitty-network-wire`, `bitty-network-lua`, `bitty-net`
-- Maturity: mainline source includes the `bitty-net` executable and `net 0.0.1` is published on the CDN; making the native component the user-facing Lua path remains a separate routing change.
+- Maturity: mainline source includes the `bitty-net` executable and `net 0.0.1` is published on the CDN; making the native extension the user-facing Lua path remains a separate routing change.
 
 ## Install status
 
-> Published — `net 0.0.1` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-21). The extension catalog (`extensions/catalog.v1`) is still unpublished (404), so bare `bitty extension install net` (latest) currently fails closed with a `--version` hint.
+> Published — `net 0.0.1` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-22), and `extensions/catalog.v1` lists it for `x86_64-unknown-linux-gnu`. A bare `bitty extension install net` resolves it as the latest release for the host target.
 
-Track the source checkout above. The component name is `net` and its executable is `bitty-net`. Install the published component exactly:
+Track the source checkout above. The extension name is `net` and its executable is `bitty-net`. Install the published extension:
 
 ```bash
-bitty extension install net --version 0.0.1
+bitty extension install net              # latest catalog release (0.0.1)
+bitty extension install net --version 0.0.1   # exact pin
 bitty extension install bitty-net --version 0.0.1   # repo-style alias
 
-bitty extension list   # inspect the local component inventory
+bitty extension list   # inspect the local extension inventory
 ```
 
-A locally available compatible executable may still be staged with `bitty extension add <path>`. Installing the component does not make the native component the user-facing Lua network path: that routing remains a separate change.
+A locally available compatible executable may still be staged with `bitty extension add <path>`. Installing the extension does not make it the user-facing Lua network path: that routing remains a separate change.
 
 ## Lua / host surface
 

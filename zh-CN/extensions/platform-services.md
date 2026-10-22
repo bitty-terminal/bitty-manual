@@ -4,7 +4,7 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-platform-services`（[github.com/bitty-terminal/bitty-platform-services](https://github.com/bitty-terminal/bitty-platform-services)）
 - 布局：多 crate 工作区（`crates/`）
-- 成熟度：活跃的 L1 Rust 核心扩展库；尚无打包好的组件二进制。
+- 成熟度：活跃的 L1 Rust 核心扩展库；尚无打包好的扩展二进制。
 
 ## 安装状态
 
