@@ -9,10 +9,10 @@ Builds bounded candidate-path metadata using read-only terminal cwd/title observ
 
 ## Install
 
-Lua plugins carry no CDN versions. Install from the repository, then enable:
+Lua plugins carry no CDN versions. Install from the official catalog, then enable:
 
 ```bash
-bitty plugin install https://github.com/bitty-terminal/file-manager.git
+bitty plugin install bitty-terminal.file-manager
 bitty plugin enable bitty-terminal.file-manager
 bitty plugin list   # confirm state and grants
 ```

@@ -53,6 +53,48 @@ local show = bitty.settings.get("show")
 
 ---
 
+## Runtime Inspection (`bitty.runtime`)
+
+The `bitty.runtime` module exposes one read-only snapshot of what the running terminal is actually configured with. It is the data source behind the dashboard plugin.
+
+### `bitty.runtime.inspect()`
+
+Takes no arguments and returns one bounded snapshot:
+
+```lua
+-- bitty-plugin.toml requires:
+-- [capabilities]
+-- runtime.inspect = true
+
+local snapshot = bitty.runtime.inspect()
+for _, row in ipairs(snapshot.plugins.rows or {}) do
+  bitty.notify.show({ title = row.id, body = row.version .. " (" .. row.source .. ")" })
+end
+```
+
+- **Parameters**: none. There is no path, command, URL, or host argument.
+- **Required Capability**: `runtime.inspect` (independent of `runtime.configure`; this read never implies a write or UI grant).
+- **Returns**: a table with five sections: `diagnostics`, `plugins`, `settings`, `extensions`, and `profiles`.
+
+Each of the four row sections is either `{ rows = { … }, truncated = <boolean> }` or `{ unavailable = "<reason>" }`. A failed source is never reported as an empty list. `diagnostics` is a single table of fields, or `{ unavailable = "<reason>" }` like the others. Row fields:
+
+| Section      | Row fields                                                                                      |
+| :----------- | :---------------------------------------------------------------------------------------------- |
+| `plugins`    | `id`, `name`, `version`, `source`, `enabled`, `recorded`                                        |
+| `settings`   | `plugin_id`, `key`, `current`, `default`, `source`                                              |
+| `extensions` | `name`, `version`, `tier`, `abi_compatible`, `sha256`, `executable_path`, `activation`, `trust` |
+| `profiles`   | `name`, `active`                                                                                |
+
+`diagnostics` is one table: `app_version`, `config_file`, `config_dir`, `plugin_ledger`, `plugin_store`, `extension_user_root`, `extension_system_root`, `extension_state_root`, `profile`, `profile_source`, `theme`, `theme_source`, `font_family`, `font_size`, and `decoration` (`gaps_in`, `gaps_out`, `border`, `radius`, `content_inset`).
+
+- **Budgets & Error Handling**:
+  - Row caps are 128 plugins, 256 settings, 64 extensions, and 64 profiles; paths are bounded at 240 bytes and other strings at 96 bytes. The aggregate payload is capped at **64 KiB**; tail rows are dropped and `truncated` becomes `true` rather than returning an oversized table.
+  - At most 16 calls per second per plugin generation, with a 10 ms call budget.
+  - A missing grant fails closed with `E_CAPABILITY_DENIED`; a granted generation whose snapshot backend is not wired fails with `E_NOT_IMPLEMENTED` without consuming the read allowance.
+- **Security boundary**: paths in the snapshot are display strings, not handles. The call reads no file, spawns nothing, and returns no terminal content, environment value, argv, URL, or host diagnostic beyond the listed fields. Safe mode returns the built-in configuration and reads no third-party store, settings, extension, or profile state.
+
+---
+
 ## Environment Variables (`bitty.env`)
 
 The `bitty.env` module provides controlled access to select host process environment variables.

@@ -56,7 +56,7 @@ Always match on `err.code` rather than parsing error message strings:
 
 ```lua
 local ok, err = pcall(function()
-  return bitty.ui.mount("statusline", {
+  return bitty.ui.mount("bottom", {
     kind = "Text",
     text = "Status text",
   })

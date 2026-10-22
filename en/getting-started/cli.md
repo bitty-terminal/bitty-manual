@@ -206,13 +206,19 @@ Local plugin record management (no plugin VM is ever loaded):
 # List recorded + installed plugins, sources, and capability grants
 bitty plugin list
 
-# Install a bundled id, local directory, Git source, or local archive
+# Install a bundled id, official catalog id, local directory, Git source, or archive
 bitty plugin install <id> [--yes]
-bitty plugin install <path> [--yes]
-bitty plugin install <git-url> [--yes]
-bitty plugin install <archive> [--yes]
+bitty plugin install <path> [--yes] [--force]
+bitty plugin install <git-url> [--yes] [--force]
+bitty plugin install <archive> [--yes] [--force]
 
-# Remove a record (bundled: drop entry; installed: delete tree)
+# Diagnose the package store and the bitty-plugins.toml ledger
+bitty plugin doctor
+
+# Quarantine broken trees and rebuild current.json from complete packages
+bitty plugin doctor --repair
+
+# Remove a record (bundled: drop entry; installed: delete tree; also an orphan dir)
 bitty plugin remove <id> --force
 
 # Re-enable / disable without dropping the record
@@ -236,6 +242,12 @@ bitty plugin config scaffold <id>
 > Git sources accept `https://<host>/<path>.git`, `git+https://<host>/<path>.git`, or `git@<host>:<path>`. Other URL schemes, including `http://`, `file://`, and `ssh://`, are rejected. Archives must be local `.tar.gz`, `.tgz`, `.tar.zst`, or `.zip` files; remote archive URLs are not supported.
 
 Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.tar.zst`) or `unzip` for `.zip`. Required helpers must be on `PATH`; missing helpers or failed fetch/extraction abort installation. Git checkouts and extracted archives enter the same manifest, compatibility, hash, and capability-consent checks as local directory packages. No plugin code runs during installation.
+
+`install <id>` resolves two local catalogs. The bundled set is compiled into `bitty` (currently `bitty-terminal.shell-integration`). The official set is generated from the `bitty-plugins` registry at build time and embedded in the binary: each entry carries an exact repository, commit pin, and raw `bitty-plugin.toml` SHA-256. An id install checks the declared compatibility before any fetch, fetches exactly the pinned commit, re-verifies `HEAD` and the manifest hash, and records `registry` provenance. No registry metadata is requested at runtime. `bitty plugin list` shows not-installed official entries as `available` or `incompatible`; an incompatible entry is refused with its exact declared range before any fetch. `bitty plugin info <id>` prints a catalog row without installing it.
+
+`--force` skips the repair prompt when the same manifest version already exists with different content (a rebuilt local checkout), and installs over an orphaned or incomplete tree. Capability consent stays separate; `--yes` approves both. An identical tree is adopted without a prompt.
+
+`bitty plugin doctor` reports store and ledger findings without changing anything; `--repair` quarantines broken or extra package trees under `<store>/quarantine/`, removes stale staging, and rebuilds `current.json` with the index write last. Rebuilt records keep grants only when the manifest hash still matches; otherwise they start disabled with no grants and need `bitty plugin install <source> --force`. Exit codes: `0` healthy, `1` findings (or aborted/io), `2` usage, `4` plugin error.
 
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 

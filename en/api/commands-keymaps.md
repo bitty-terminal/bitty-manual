@@ -63,6 +63,29 @@ bitty.keymaps.suggest({
 
 Using `"leader <key>"` automatically resolves against the user's configured `input.leader` (or `leader_key`) without hardcoding specific modifiers.
 
+### Reading the resolved bindings
+
+`bitty.keymaps.list(options)` returns one bounded page of the live resolved keymap — the shipped defaults plus the user's overrides, exactly as the host would dispatch them:
+
+```lua
+-- bitty-plugin.toml requires:
+-- [capabilities]
+-- runtime.keymaps.read = true
+
+local page = bitty.keymaps.list({ offset = 0, limit = 50 })
+for _, row in ipairs(page.entries) do
+  -- row.chord, row.action, row.source, row.context, row.title or row.command
+end
+```
+
+- **Parameters**: optional table with `offset` (`0..=1024`) and `limit` (`1..=256`). No other keys are accepted; the call carries no string pattern, path, command, URL, or environment input.
+- **Returns**: `{ entries = { … }, total, offset, truncated }`. Each entry carries `chord` (canonical spelling such as `alt+h`), `action` (canonical action such as `goto_split:left` or `command:owner:cmd`), `source` (`"default"` or `"user"`), `context` (`"global"` today), and either `title` (static Core description) or `command` (the validated qualified target, never arguments or argv).
+- **Required Capability**: `runtime.keymaps.read`. The read head implies no `runtime.inspect`, `runtime.configure`, or UI grant.
+- **Budgets & Error Handling**:
+  - At most 256 rows per call and 1024 addressable rows; later rows are reported by `truncated = true`. The serialized page is capped at 64 KiB, fields at 64/320/128/257 bytes or characters, and calls at 16 per second per plugin generation.
+  - A missing grant or safe mode fails with `E_CAPABILITY_DENIED`; an absent source fails with `E_NOT_IMPLEMENTED`; wrong argument types fail with `E_VALUE_TYPE` and out-of-range bounds with `E_DEF_LIMIT` before the host read.
+- **Security boundary**: rows contain only the listed fields — never a configuration path, argv, environment value, URL, terminal content, or host diagnostic. Plugin-suggested bindings that are not dispatched are omitted.
+
 ### User Keybinding Configuration (`init.lua`)
 
 Users bind or override key chords directly in `$XDG_CONFIG_HOME/bitty/init.lua`:

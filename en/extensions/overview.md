@@ -5,7 +5,7 @@ Bitty has two installable extension kinds. This catalog gives each one a page wi
 ## The two tracks
 
 - **Native extensions** (Rust binaries behind the [Native Component Boundary](upstream-components.md); "component" is the internal seam name, the installable artifact is an _extension_): installed with the seed installer `bitty extension install <name>` (latest release for this host from the bounded CDN catalog) or `bitty extension install <name> --version <X.Y.Z>` (exact pin), or staged locally with `bitty extension add <path>`. The catalog (`https://cdn.bitty.run/extensions/catalog.v1`) is published (schema 1, verified 2026-10-22) and lists `graphics 0.0.24` and `net 0.0.1`, so a bare install resolves the highest strict version for the host target. A pinned install never depends on the catalog: if the catalog is unreachable it falls back to the release `SHA256SUMS`, and it reuses an already-installed verified version without any download. Repo-style names (`bitty-graphics`) are accepted aliases for the stored extension name (`graphics`).
-- **Lua plugins** (sandboxed Lua over the Plugin API): installed with `bitty plugin install <git-url>` (or a local directory) and activated with `bitty plugin enable <id>`. Lua plugins carry no CDN versions; each page cites the version declared in its `bitty-plugin.toml`.
+- **Lua plugins** (sandboxed Lua over the Plugin API): installed by official catalog id with `bitty plugin install <id>` (or from a local directory, Git URL, or archive) and activated with `bitty plugin enable <id>`. Lua plugins carry no CDN versions; each page cites the version declared in its `bitty-plugin.toml`. The 0.0.26 official set has 11 entries, pinned and hash-verified at build time.
 
 ## Install-status legend
 
@@ -34,21 +34,19 @@ Current evidence: `graphics 0.0.24` and `net 0.0.1` tarballs and `SHA256SUMS` ar
 
 ## Lua plugins
 
-| Plugin                                       | Manifest version     | Registry            | Page                                               |
-| -------------------------------------------- | -------------------- | ------------------- | -------------------------------------------------- |
-| activity (`bitty-featured.activity`)         | 0.0.1                | official            | [activity](../plugins/catalog/activity.md)         |
-| bar (`bitty-terminal.bar`)                   | 0.0.1                | official            | [bar](../plugins/catalog/bar.md)                   |
-| composer (`bitty-terminal.composer`)         | 0.0.1                | official            | [composer](../plugins/catalog/composer.md)         |
-| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1                | official            | [copy-mode](../plugins/catalog/copy-mode.md)       |
-| file-manager (`bitty-terminal.file-manager`) | 0.1.0                | official            | [file-manager](../plugins/catalog/file-manager.md) |
-| git-panel (`bitty-terminal.git-panel`)       | 0.1.0                | official            | [git-panel](../plugins/catalog/git-panel.md)       |
-| history (`bitty-terminal.history`)           | 0.0.1                | official            | [history](../plugins/catalog/history.md)           |
-| palette (`bitty-terminal.palette`)           | 0.0.1                | official            | [palette](../plugins/catalog/palette.md)           |
-| search (`bitty-terminal.search`)             | 0.0.1                | official            | [search](../plugins/catalog/search.md)             |
-| statusline (`bitty-terminal.statusline`)     | 0.0.1                | not yet registered  | [statusline](../plugins/catalog/statusline.md)     |
-| wheel (agent harness; transitional manifest) | 0.0.1 (transitional) | official (scaffold) | [wheel](../plugins/catalog/wheel.md)               |
-| devtools (`bitty-featured.devtools`)         | 0.1.0                | not yet registered  | [devtools](../plugins/catalog/devtools.md)         |
+| Plugin                                       | Manifest version | Registry | Page                                                           |
+| :------------------------------------------- | :--------------- | :------- | :------------------------------------------------------------- |
+| activity (`bitty-featured.activity`)         | 0.0.1            | official | [activity](../plugins/catalog/activity.md)                     |
+| bar (`bitty-terminal.bar`)                   | 0.0.1            | official | [bar](../plugins/catalog/bar.md)                               |
+| composer (`bitty-terminal.composer`)         | 0.0.1            | official | [composer](../plugins/catalog/composer.md)                     |
+| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1            | official | [copy-mode](../plugins/catalog/copy-mode.md)                   |
+| dashboard (`bitty-terminal.dashboard`)       | 0.0.1            | official | [dashboard](../plugins/getting-started.md#the-dashboard-panel) |
+| devtools (`bitty-featured.devtools`)         | 0.1.0            | official | [devtools](../plugins/catalog/devtools.md)                     |
+| file-manager (`bitty-terminal.file-manager`) | 0.1.0            | official | [file-manager](../plugins/catalog/file-manager.md)             |
+| git-panel (`bitty-terminal.git-panel`)       | 0.1.0            | official | [git-panel](../plugins/catalog/git-panel.md)                   |
+| history (`bitty-terminal.history`)           | 0.0.1            | official | [history](../plugins/catalog/history.md)                       |
+| palette (`bitty-terminal.palette`)           | 0.0.1            | official | [palette](../plugins/catalog/palette.md)                       |
+| search (`bitty-terminal.search`)             | 0.0.1            | official | [search](../plugins/catalog/search.md)                         |
+| statusline (`bitty-terminal.statusline`)     | 0.1.0 (last)     | archived | [statusline](../plugins/catalog/statusline.md)                 |
 
-`beacon` (target-navigation candidate) is excluded: it is a metadata-only scaffold with no manifest or Lua implementation yet.
-
-`wheel` is listed here because its repository still contains a transitional plugin manifest. The 0.1.0 deliverable is the standalone harness artifact described on its page, not a plugin package.
+`beacon` (target-navigation candidate) is excluded: it is a metadata-only scaffold with no manifest or Lua implementation yet. `wheel` is also outside the plugin set: its repository carries a transitional manifest, but the 0.1.0 deliverable is the standalone harness artifact described on its [page](../plugins/catalog/wheel.md), not an installable plugin package.

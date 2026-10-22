@@ -151,7 +151,7 @@
         },
         {
           "slug": "catalog-statusline",
-          "title": "statusline (Lua plugin)",
+          "title": "statusline (retired)",
           "path": "plugins/catalog/statusline.md"
         },
         {
