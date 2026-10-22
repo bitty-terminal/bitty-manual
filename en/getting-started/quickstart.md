@@ -15,7 +15,7 @@ The scripts resolve the release through a single pointer (`latest.txt` holds the
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash
 
 # Pin a version, preview the plan, or change the install location
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.23
+curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.26
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -34,23 +34,129 @@ What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary
 
 Every Linux package is install-smoked in a clean container of its own distro (Ubuntu 24.04 deb, Fedora rpm, Arch package, Alpine musl apk) before a release can publish, so a package that installs or runs nowhere never ships.
 
+#### Debian & Ubuntu (APT Repository)
+
+Starting in `0.0.26`, Bitty hosts a cryptographic GPG-signed APT repository backed by Cloudflare R2:
+
 ```bash
-# Windows (Scoop)
-scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
-scoop install bitty
-
-# macOS (Homebrew)
-brew tap bitty-terminal/homebrew-tap
-brew install bitty
-
-# Arch Linux (AUR): prebuilt binary package
-paru -S bitty-bin   # or: yay -S bitty-bin
-# Source build package `bitty` also exists; prefer `bitty-bin` unless
-# you specifically need a local source compile.
+# Automated setup (fetches keyring and configures deb822 source)
+curl -fsSL https://cdn.bitty.run/apt/setup.sh | sudo bash
+sudo apt update && sudo apt install bitty
 ```
 
-> [!NOTE]
-> **PENDING — first tag publish.** Scoop, Homebrew, and AUR manifests are generated at tag time and gated on owner-side secrets. Until the first 0.0.23 tag publish completes, these channels may 404: use the install scripts or a native package instead. Flatpak (`flatpak install run.bitty.Bitty`) and further managers land progressively after 0.1.0 — **PENDING**.
+Alternatively, configure the deb822 repository manually:
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://cdn.bitty.run/apt/bitty-archive-keyring.gpg | sudo tee /etc/apt/keyrings/bitty-archive-keyring.gpg > /dev/null
+sudo curl -fsSL -o /etc/apt/sources.list.d/bitty.sources https://cdn.bitty.run/apt/bitty.sources
+sudo apt update && sudo apt install bitty
+```
+
+#### Fedora, RHEL & CentOS Stream (Copr Repository)
+
+Starting in `0.0.26`, continuous delivery packages are published to Fedora Copr:
+
+```bash
+sudo dnf copr enable xuepoo/bitty-terminal
+sudo dnf install bitty
+```
+
+#### Arch Linux (AUR)
+
+Prebuilt binary package and source package are published to AUR:
+
+```bash
+# Prebuilt binary package (recommended)
+paru -S bitty-bin   # or: yay -S bitty-bin
+
+# Source package (builds locally via cargo)
+paru -S bitty       # or: yay -S bitty
+```
+
+#### macOS (Homebrew)
+
+Official Homebrew tap with Intel (`x86_64`) and Apple Silicon (`arm64`) binary formulae:
+
+```bash
+brew tap bitty-terminal/homebrew-tap
+brew install bitty
+```
+
+#### Windows (Scoop)
+
+Official Scoop bucket supporting x64 and ARM64:
+
+```powershell
+scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
+scoop install bitty
+```
+
+### Planned Packaging Channels (v0.0.27 Expansion)
+
+The following package ecosystems are scheduled for official packaging support in milestone `v0.0.27` (tracked under [bitty-terminal/bitty#2507](https://github.com/bitty-terminal/bitty/issues/2507)):
+
+#### openSUSE & SUSE Linux Enterprise (OBS / Zypper)
+
+RPM packaging hosted via openSUSE Build Service:
+
+```bash
+sudo zypper addrepo https://download.opensuse.org/repositories/home:/xuepoo/openSUSE_Tumbleweed/home:xuepoo.repo
+sudo zypper refresh && sudo zypper install bitty
+```
+
+#### Alpine Linux (apk)
+
+Official community / testing package built against `musl`:
+
+```bash
+apk add bitty
+```
+
+#### NixOS & Nix Flakes
+
+Flake and Nixpkgs derivation:
+
+```bash
+nix profile install github:bitty-terminal/bitty
+# Or run directly without installing:
+nix run github:bitty-terminal/bitty
+```
+
+#### Gentoo Linux (Portage)
+
+Official ebuild via custom Gentoo overlay:
+
+```bash
+emerge --ask app-misc/bitty
+```
+
+#### Void Linux (XBPS)
+
+Native package for glibc and musl architectures:
+
+```bash
+xbps-install -S bitty
+```
+
+#### FreeBSD (Ports & pkg)
+
+Native BSD port and prebuilt binary package:
+
+```bash
+pkg install bitty
+# Or via Ports tree:
+cd /usr/ports/x11/bitty && make install clean
+```
+
+#### Flatpak (Flathub)
+
+Sandboxed universal desktop application:
+
+```bash
+flatpak install flathub run.bitty.Bitty
+flatpak run run.bitty.Bitty
+```
 
 ### Cargo (build from the Git repository)
 
