@@ -94,7 +94,7 @@ The host retains at most **four settings warning summaries per plugin activation
 Settings warning summaries are host log messages, not a Lua diagnostics API or settings/grant dump in activation reports.
 
 > [!NOTE]
-> There is no `bitty plugin doctor` verb. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
+> `bitty plugin doctor` diagnoses the on-disk package store and the `bitty-plugins.toml` ledger; it never creates a plugin VM. Use `--repair` to quarantine incomplete/extra package directories, remove stale staging, and rebuild `current.json`. Rebuilt records with a changed manifest hash start disabled with no grants until you re-run `bitty plugin install <source> --force`. Live per-VM memory, fuel, and queue-drop introspection is not exposed on the CLI.
 
 ---
 
@@ -106,6 +106,10 @@ Failures in this area are fail-closed by design: nothing half-installed is left 
 - **`show-source` prints nothing (exit code `4`)**: the install is missing or the executable no longer matches its pinned descriptor hash. Re-install the extension; Bitty refuses to print untrusted bytes.
 - **Tool spawn refused under confinement**: on Linux, admitted tool spawns run under Landlock execute confinement; a refusal naming confinement means setup failed (e.g. pre-5.13 kernel or a container policy forbidding unprivileged restriction) and the spawn was refused rather than run unconfined. On macOS and Windows, admitted tool spawns are refused fail-closed with a confinement diagnostic until platform mechanisms land.
 - **Capability denied after update**: grants bind to the exact manifest hash. Re-run `bitty plugin install` and approve the fresh consent prompt; use `bitty plugin revoke <id> --cap <capability>` to drop a single grant without removing the plugin.
+- **`plugin list` shows `orphaned` or `broken`**: an install was interrupted or a package tree was edited by hand. Run `bitty plugin doctor` for the finding and `bitty plugin doctor --repair` to re-index complete trees or quarantine partial ones. To discard one tree instead, run `bitty plugin remove <id> --force` and reinstall from its source.
+- **`plugin install` reports a conflicting existing version**: a rebuilt checkout kept the same manifest version but changed content. Re-run with `--force`, or approve the `Replace it? [y/N]` prompt. A declined prompt changes nothing.
+- **`plugin list` fails with an unreadable store index**: `current.json` is corrupt. Bitty fails closed rather than showing an empty store; run `bitty plugin doctor --repair` to quarantine the old file and rebuild it from complete package directories.
+- **`plugin doctor --repair` cannot write the quarantine**: the store is read-only or owned by another user. Fix ownership/permissions on the path named in the error and re-run; repair does not delete packages when it cannot quarantine them.
 
 ---
 

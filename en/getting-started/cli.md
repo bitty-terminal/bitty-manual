@@ -208,11 +208,18 @@ bitty plugin list
 
 # Install a bundled id, local directory, Git source, or local archive
 bitty plugin install <id> [--yes]
-bitty plugin install <path> [--yes]
-bitty plugin install <git-url> [--yes]
-bitty plugin install <archive> [--yes]
+bitty plugin install <path> [--yes] [--force]
+bitty plugin install <git-url> [--yes] [--force]
+bitty plugin install <archive> [--yes] [--force]
+
+# Diagnose orphaned/partial packages and a broken store index
+bitty plugin doctor
+
+# Quarantine broken trees and rebuild current.json from complete packages
+bitty plugin doctor --repair
 
 # Remove a record (bundled: drop entry; installed: delete tree)
+# Also removes an unindexed orphan package directory.
 bitty plugin remove <id> --force
 
 # Re-enable / disable without dropping the record
