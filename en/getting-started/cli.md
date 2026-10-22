@@ -203,7 +203,7 @@ bitty dev overlay <list|show <damage|cells|glyphs|images|layout|banner>>
 Local plugin record management (no plugin VM is ever loaded):
 
 ```bash
-# List recorded + installed plugins, sources, and capability grants
+# List recorded + installed plugins plus official catalog rows, sources, and grants
 bitty plugin list
 
 # Install a bundled id, official catalog id, local directory, Git source, or archive
