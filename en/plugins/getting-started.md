@@ -119,8 +119,9 @@ The standalone `bitty-terminal.statusline` identity is archived and was removed 
 ```bash
 bitty plugin install bitty-terminal.dashboard
 bitty plugin enable bitty-terminal.dashboard
-bitty cmd bitty-terminal.dashboard:toggle_dashboard
 ```
+
+Open it from the command palette (`bitty-terminal.dashboard:toggle_dashboard`) or bind the qualified command as described below. `bitty cmd` is not a plugin-command dispatcher.
 
 - **Sections**: Overview (app version, active profile and source, theme and source, font, decoration, counts), Plugins, Extensions, Settings, Profiles, and Diagnostics. A section either renders bounded rows or an explicit `unavailable: <reason>` marker — a failed source is never shown as "none installed".
 - **Keys while open**: `j`/`k` or arrows move rows, `h`/`l` or `Tab`/`Shift+Tab` change section, `1`…`6` jump to a section, `g`/`G` and `PageUp`/`PageDown` move within a section, the wheel scrolls, `r` re-reads the snapshot, and `q`/`Esc` closes.
