@@ -166,6 +166,11 @@
       "reload_class": "RestartRequired",
       "description": "Smooth-scroll pixels per wheel notch (1..=256, default 16)."
     },
+    "terminal.page_scroll_percent": {
+      "type": "integer",
+      "reload_class": "RestartRequired",
+      "description": "Page-scroll distance as a percentage of viewport rows (10..=100, default 75)."
+    },
     "terminal.cursor_style": {
       "type": "string",
       "reload_class": "RestartRequired",

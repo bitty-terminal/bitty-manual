@@ -113,6 +113,7 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 | `terminal.shell`                   | `string`  | **RestartRequired** | 首选默认 Shell 可执行程序路径（`argv[0]`）。                                                                                                        |
 | `terminal.scroll_lines_per_notch`  | `integer` | **RestartRequired** | 滚轮每刻度滚动的行数（`1..=32`，默认 `3`）。                                                                                                        |
 | `terminal.scroll_pixels_per_notch` | `integer` | **RestartRequired** | 滚轮每刻度平滑滚动的像素数（`1..=256`，默认 `16`）。                                                                                                |
+| `terminal.page_scroll_percent`     | `integer` | **RestartRequired** | 翻页滚动（`alt+u` / `alt+i`）距离占视口行数的百分比（`10..=100`，默认 `75`）。                                                                      |
 | `terminal.cursor_style`            | `string`  | **RestartRequired** | 初始光标形状（`"default"`、`"blinking_block"`、`"steady_block"`、`"blinking_underline"`、`"steady_underline"`、`"blinking_bar"`、`"steady_bar"`）。 |
 | `terminal.bell`                    | `string`  | **RestartRequired** | 终端响铃行为（`"off"`、`"visual"`、`"audible"`、`"both"`）。                                                                                        |
 | `selection.auto_copy`              | `boolean` | **RestartRequired** | 选中文本是否自动复制至系统剪贴板（默认 `false`）。                                                                                                  |
@@ -236,6 +237,7 @@ return {
     scrollback = 10000,
     scroll_lines_per_notch = 3,
     scroll_pixels_per_notch = 16,
+    page_scroll_percent = 75,
     cursor_style = "steady_bar",
     bell = "visual",
   },
