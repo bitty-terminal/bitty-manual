@@ -4,7 +4,7 @@ The read-only observation seam for the terminal runtime and plugin ecosystem: th
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-observability` ([github.com/bitty-terminal/bitty-observability](https://github.com/bitty-terminal/bitty-observability))
 - Crates: `bitty-observability-api`, `bitty-observability-core`, `bitty-observability`
-- Maturity: active L1 Rust Core Extension library; no packed component binary yet.
+- Maturity: active L1 Rust Core Extension library; no packed extension binary yet.
 
 ## Install status
 

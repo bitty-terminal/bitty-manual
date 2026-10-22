@@ -4,7 +4,7 @@ The platform notification bridge: Linux D-Bus, macOS notification center, and Wi
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-platform-services` ([github.com/bitty-terminal/bitty-platform-services](https://github.com/bitty-terminal/bitty-platform-services))
 - Layout: multi-crate workspace (`crates/`)
-- Maturity: active L1 Rust Core Extension library; no packed component binary yet.
+- Maturity: active L1 Rust Core Extension library; no packed extension binary yet.
 
 ## Install status
 

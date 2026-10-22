@@ -4,7 +4,7 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-observability`（[github.com/bitty-terminal/bitty-observability](https://github.com/bitty-terminal/bitty-observability)）
 - Crates：`bitty-observability-api`、`bitty-observability-core`、`bitty-observability`
-- 成熟度：活跃的 L1 Rust 核心扩展库；尚无打包好的组件二进制。
+- 成熟度：活跃的 L1 Rust 核心扩展库；尚无打包好的扩展二进制。
 
 ## 安装状态
 

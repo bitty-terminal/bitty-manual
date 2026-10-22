@@ -87,7 +87,7 @@ bitty extension install graphics
 bitty extension install graphics --version 0.0.24
 bitty extension install net --version 0.0.1
 
-# 仓库风格名称是已存储组件名的别名
+# 仓库风格名称是已存储扩展名的别名
 bitty extension install bitty-graphics --version 0.0.24
 
 # 不下载，直接登记本地二进制（无网络）

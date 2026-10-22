@@ -4,22 +4,23 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-network`（[github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network)）
 - Crates：`bitty-network-api`、`bitty-network-core`、`bitty-network-dns`、`bitty-network-tls`、`bitty-network-wire`、`bitty-network-lua`、`bitty-net`
-- 成熟度：活跃的 L1 Rust 核心扩展库；`net 0.0.1` 组件二进制已发布，尚待路由变更使其成为面向用户的 Lua 网络路径。
+- 成熟度：活跃的 L1 Rust 核心扩展库；`net 0.0.1` 扩展二进制已发布，尚待路由变更使其成为面向用户的 Lua 网络路径。
 
 ## 安装状态
 
-> 已发布——`net 0.0.1` 的 CDN tarball 与 `SHA256SUMS` 均已上线（2026-10-21 验证）。扩展目录（`extensions/catalog.v1`）仍未发布（404），因此裸 `bitty extension install net`（最新版）当前会失败并关闭并给出 `--version` 提示。
+> 已发布——`net 0.0.1` 的 CDN tarball 与 `SHA256SUMS` 均已上线（2026-10-22 验证），且 `extensions/catalog.v1` 已为 `x86_64-unknown-linux-gnu` 列出该版本。裸 `bitty extension install net` 会将其解析为本机最新版。
 
-跟踪上述源码 checkout。组件名为 `net`，可执行文件为 `bitty-net`。按精确版本安装已发布组件：
+跟踪上述源码 checkout。扩展名为 `net`，可执行文件为 `bitty-net`。安装已发布扩展：
 
 ```bash
-bitty extension install net --version 0.0.1
+bitty extension install net              # 本机最新目录版本（0.0.1）
+bitty extension install net --version 0.0.1   # 精确锁定
 bitty extension install bitty-net --version 0.0.1   # 仓库风格别名
 
-bitty extension list   # 确认当前已 staged 的内容
+bitty extension list   # 查看本地扩展清单
 ```
 
-本地若有兼容的可执行文件，仍可用 `bitty extension add <path>` 暂存。安装组件不会使原生组件成为面向用户的 Lua 网络路径：该路由仍是独立变更。
+本地若有兼容的可执行文件，仍可用 `bitty extension add <path>` 暂存。安装扩展不会使其成为面向用户的 Lua 网络路径：该路由仍是独立变更。
 
 ## Lua / 宿主界面
 

@@ -87,7 +87,7 @@ bitty extension install graphics
 bitty extension install graphics --version 0.0.24
 bitty extension install net --version 0.0.1
 
-# Repo-style names are aliases for the stored component name
+# Repo-style names are aliases for the stored extension name
 bitty extension install bitty-graphics --version 0.0.24
 
 # Stage a local binary instead of downloading (no network)
