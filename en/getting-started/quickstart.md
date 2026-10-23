@@ -229,6 +229,32 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 > [!NOTE]
 > `Ctrl+Shift+F` and `Ctrl+Shift+Space` are **not** search chords: they are shell input again. Scrollback search has no Core default chord; a plugin may rebind one (see [Configuration Reference](../configuration/overview.md)).
 
+## Selecting and Copying Text
+
+- The pointer becomes an I-beam over terminal text. It stays an arrow over
+  window padding, pane borders and gaps, the scrollbar, plugin bars, modal
+  overlays, and panes that are capturing the mouse. Hold `Shift` while dragging
+  in a mouse-reporting pane to select instead of sending the drag to the app.
+- A drag selects exactly the cells you point at: one column of pointer travel
+  selects one column, and a single character is a valid selection. Bitty
+  anchors at the nearest cell edge (kitty-style half-cell), not the cell
+  centre, so pressing in either half of a cell behaves predictably.
+- `Alt`+drag selects a rectangular block. A vertical `Alt`+drag keeps the
+  column where you pressed, so you get a one-column block rather than a
+  zigzag.
+- Selection ranges can span scrollback. Scroll during a drag (wheel or pager)
+  and the press endpoint stays pinned while the selection grows; a committed
+  selection keeps the same text when you scroll later. Detached floating panes
+  and pinned panes select in their own viewport.
+- A selection survives a font-size/DPI change or a window resize. Its buffer
+  anchors are clamped to the new geometry; if the anchored content is gone
+  (for example pruned scrollback or a respawned pane), the selection is
+  dropped rather than retargeted to different text.
+- `Ctrl+Shift+C` copies the selection and `Ctrl+Shift+V` pastes. Automatic
+  copy-on-select stays off unless `selection.auto_copy = true`.
+- Dragging past a pane edge clamps at that edge for now; pointer-edge
+  auto-scroll during a drag is not implemented.
+
 ## Uninstallation & Data Cleanup
 
 To cleanly remove Bitty and all associated user data:

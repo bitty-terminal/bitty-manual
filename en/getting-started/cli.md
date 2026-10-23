@@ -159,6 +159,24 @@ bitty doctor
 bitty doctor --format json
 ```
 
+### Resolved Font Probe (`bitty +show-font`)
+
+Print the font identity Bitty resolves from the merged configuration, without
+creating a window, PTY, runtime, or plugin VM:
+
+```bash
+bitty +show-font
+# font_family: JetBrainsMono Nerd Font
+# font_size: 12
+# font_fallback: Noto Sans Mono   (when configured)
+```
+
+`--config PATH`, `--profile NAME`, and `--safe` follow the normal configuration
+resolution rules. Tools such as fastfetch can parse the stable `font_family:`
+and `font_size:` prefixes. The probe reads the file/profile configuration; a
+running window answers the live font query instead, so a live zoom or reload
+can differ until the configuration is saved or Bitty is restarted.
+
 ### Resource Enumeration (`bitty list`)
 
 Alias: `bitty ls`
