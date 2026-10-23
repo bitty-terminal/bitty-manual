@@ -39,14 +39,29 @@ parents. Valid settings from lower-precedence layers and the compiled-in
 defaults then apply.
 
 Some failures remain fatal instead of being ignored: a missing explicit
-`--config` or `BITTY_CONFIG` path, a `--profile` / `BITTY_PROFILE` name that
-does not exist, command-line usage errors, and internal startup defects. Fix
-the path or profile name and launch again.
+`--config` or `BITTY_CONFIG` path, a missing `--profile` / `BITTY_PROFILE`
+name, command-line usage errors, and internal startup defects. Fix the path or
+profile name and launch again. A persisted `profile = "..."` selector that no
+longer resolves is external configuration, so startup ignores it with a
+diagnostic instead of exiting; the selector is not rewritten and the next
+launch retries.
 
-An ignored element never escalates a capability or trust setting. It resolves
-to the lower layers and to the deny-by-default built-ins (no plugins, no
-background-image roots); an invalid value is never turned into a more
-permissive one.
+An ignored element never escalates a capability or trust setting. When a
+security-sensitive setting is ignored — or when a whole file/profile layer is
+dropped, because it might have restricted one — Bitty applies a deny overlay
+after the merge and before the window opens:
+
+- **Plugins**: deny-all. No configured plugin is enabled or activated for that
+  launch, so it cannot request a grant.
+- **History capture**: transcript and command capture stay off.
+- **Mouse buttons**: middle and right button actions become `none`.
+- **Background images**: the decoration root allowlist is empty, so no image
+  file is approved.
+
+Lower layers cannot re-enable a denied setting for that launch. Every other
+valid setting from the same file and from the remaining layers still applies,
+and `keymaps` (which grants no capability) keeps the shipped defaults. The
+startup diagnostic summarizes which surfaces were denied.
 
 [`bitty config check`](../getting-started/cli.md#configuration-management-bitty-config) and
 `bitty doctor` stay strict: they report the same input as a non-zero failure
