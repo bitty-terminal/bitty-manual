@@ -37,7 +37,7 @@ When the three groups cannot all fit, the band clips deterministically in the or
 
 ### Top or bottom edge
 
-`edge = "top"` places the band on the top edge; the default is the bottom. The value is read at activation because the mount slot cannot move at runtime — change it, then restart Bitty. Hover tooltips follow the edge: they paint just below a top band and just above a bottom band, at the hovered item's column.
+`edge = "top"` places the band on the top edge; the default is the bottom. The value is read at activation because the mount slot cannot move at runtime — change it, then restart Bitty. Hover tooltips follow the edge: they paint just below a top band and just above a bottom band, centered on the hovered item and clamped to the window.
 
 ## Module catalog
 
@@ -48,6 +48,23 @@ One padded capsule per workspace, in stable workspace-id order, with single-spac
 ### clock (local, no grant needed)
 
 Renders `os.date` with a per-module `format` (default `"%H:%M"`). Refreshes on `tick_ms` (default `60000`, `200` ms floor).
+
+The restricted formatter resolves the common POSIX conversions deterministically in English, without a host locale database:
+
+| Conversions              | Result                                                      |
+| :----------------------- | :---------------------------------------------------------- |
+| `%a` `%A`                | Abbreviated and full weekday name                           |
+| `%b` `%h` `%B`           | Abbreviated and full month name                             |
+| `%C` `%d` `%e` `%y` `%Y` | Century, day, blank-padded day, 2-digit year, 4-digit year  |
+| `%H` `%I` `%M` `%S` `%j` | 24-hour and 12-hour time, minute, second, day of year       |
+| `%p`                     | `AM` or `PM`                                                |
+| `%u` `%w`                | Weekday number, Monday=1..Sunday=7 and Sunday=0..Saturday=6 |
+| `%c` `%D` `%F`           | Composite date-time, `mm/dd/yy`, `yyyy-mm-dd`               |
+| `%r` `%R` `%T`           | `hh:mm:ss AM/PM`, `hh:mm`, `hh:mm:ss`                       |
+| `%x` `%X`                | Composite date and time forms                               |
+| `%n` `%t` `%%`           | Newline, tab, literal percent                               |
+
+Zone- and week-number conversions (`%z`, `%Z`, `%U`, `%V`, `%W`, `%g`, `%G`) and the epoch conversion `%s` are left verbatim, as are unknown specifiers. `os.date("*t")`, the `!` UTC prefix, the local-time default, and the `isdst` field are unchanged.
 
 ### cpu (provider `system.cpu`)
 
@@ -133,7 +150,11 @@ Every item exposes a region derived from its painted span; the host injects `but
 
 ## Hover tooltips
 
-Every rendered item carries a hover region with a stable id (`bar:module:<name>`). On pointer enter the bar writes that module's detail text — CPU/memory/battery readings, the clock date-time, the workspace strip, the audio port, the bonded-device list, or a module's `tooltip` option — into its non-modal `overlay` block; on leave it clears. Core anchors the tooltip to the live item and paints it just below a top band or above a bottom band. Hover never captures input, never sets modal state, and never raises an OS notification. It disappears on leave, focus loss, bar hide, or when the item no longer exists after a re-render; an item with no detail text round-trips enter/leave and simply shows nothing.
+Every rendered item carries a hover region with a stable id (`bar:module:<name>`). On pointer enter the bar writes that module's detail text — CPU/memory/battery readings, the clock date-time, the workspace strip, the audio port, the bonded-device list, or a module's `tooltip` option — into its non-modal `overlay` block; on leave it clears. Core anchors the tooltip to the live item and paints it just below a top band or above a bottom band.
+
+Core centers the tooltip row stack on the hovered region's midpoint and clamps it so the whole stack stays inside the window. A multi-row stack centers on its widest non-empty row; a stack wider than the window starts at column 0 and clips. A bottom-anchored stack that would reach into its own band clips instead of covering it. Modal (unanchored) tooltips keep their centered placement.
+
+Hover never captures input, never sets modal state, and never raises an OS notification. It disappears on leave, focus loss, bar hide, or when the item no longer exists after a re-render; an item with no detail text round-trips enter/leave and simply shows nothing. The bar re-arms each module's next tick before rendering, so a failed or over-budget render no longer freezes the clock and module cadence for the generation.
 
 ## Icons
 
