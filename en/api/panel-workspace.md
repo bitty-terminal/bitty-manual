@@ -2,6 +2,11 @@
 
 The `bitty.panel` and `bitty.workspace` modules provide programmatic control over window layout, pane presentation modes, and multi-workspace organization.
 
+> [!NOTE]
+> New-panel placement is a Core runtime policy. `bitty.panel.create` accepts a
+> content `type` only; it has no layout-mode parameter, and no 0.0.27 TOML or
+> Lua setting selects `Balanced`, `Spiral`, `Dwindle`, or `BisectLargest`.
+
 ## Panel Management (`bitty.panel`)
 
 Panels host terminal shell views, rich documents, or custom plugin UI surfaces.
@@ -77,7 +82,7 @@ Workspaces act as independent virtual desktop tabs.
 
 #### `bitty.workspace.list()`
 
-Returns an array of all open workspaces with their layout descriptors.
+Returns an array of all open workspaces in workspace-ID order, with their layout descriptors.
 
 ```lua
 local list = bitty.workspace.list()
@@ -88,7 +93,7 @@ end
 
 #### `bitty.workspace.new()`
 
-Creates a new workspace tab.
+Creates a new workspace with the lowest free ID (`ws1`..`ws16`) and switches to it. Deleting `ws2` and creating again reuses `ws2`, keeping IDs and bar labels dense.
 
 ```lua
 bitty.workspace.new()

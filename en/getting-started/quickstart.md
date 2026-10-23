@@ -207,8 +207,8 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 | `Shift+Alt+h/j/k/l` (`Shift+Alt+arrows`)                                                      | Split                 | Create a split left / down / up / right             |
 | `Shift+Ctrl+h/j/k/l` (`Shift+Ctrl+arrows`, `Ctrl+Shift+Alt+h/j/k/l`, `Ctrl+Shift+Alt+arrows`) | Resize                | Resize the focused split                            |
 | `Ctrl+Shift+C` / `Ctrl+Shift+V`                                                               | Copy / Paste          | Copy selection / paste from the system clipboard    |
-| `Alt+n`                                                                                       | New panel             | Open a new panel (adaptive dwindle axis)            |
-| `Alt+t`                                                                                       | New workspace         | Open a fresh workspace                              |
+| `Alt+n`                                                                                       | New panel             | Open a new panel (Balanced largest-pane split)      |
+| `Alt+t`                                                                                       | New workspace         | Open a fresh workspace (lowest free ID)             |
 | `Alt+d` / `Alt+q`                                                                             | Close pane            | Close the focused pane/view (with confirm)          |
 | `Alt+w`                                                                                       | Close workspace       | Close the workspace (kill-confirm)                  |
 | `Alt+-` / `Alt+=`                                                                             | Workspace prev / next | Switch to the previous / next workspace             |
