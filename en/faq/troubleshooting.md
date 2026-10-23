@@ -22,6 +22,41 @@ Diagnostic commands such as `bitty doctor`, `bitty --safe config check`, and `bi
 
 ---
 
+## Configuration Was Ignored at Startup
+
+Startup is fail-soft for external configuration. If Bitty prints a line such as
+
+```text
+bitty: warning: ignoring 'window' in '/home/user/.config/bitty/profiles/default.lua':
+validation error at 'window.opacity': must be finite within [0.0, 1.0] (found 2);
+ignored; using defaults and remaining layers
+```
+
+then only the named table or scalar was invalid. Every other valid table from
+that file and from other layers still applies, and Bitty never edits or
+comments out your files.
+
+1. Run `bitty config check` to see the strict first error. Add the same
+   `--config` or `--profile` flag you launched with. The command exits `2` and
+   names the exact field path.
+2. Fix only the reported table or value. A partial `window` table is valid:
+   `window = { opacity = 0.9 }` uses the default `padding = 8`, and
+   `window = { padding = 4 }` uses the default `opacity = 1.0`.
+3. Restart Bitty. The startup diagnostic describes what was ignored for this
+   launch; a live reload never adopts an invalid edit, it keeps the last-good
+   configuration and reports a reload error.
+
+If the warning says `ignoring invalid config file` or `ignoring profile
+layers` instead of naming a table, the whole file or profile chain could not
+be salvaged — for example a Lua syntax error, an undeclared key, or an
+`extends` cycle. `bitty config check` names the reason.
+
+A missing explicit `--config` or `BITTY_CONFIG` path, or a `--profile` name
+that does not exist, is still fatal (exit `2`). Those are launch-input
+mistakes, not invalid file content, so fix the path or name and launch again.
+
+---
+
 ## Plugin Activation Errors (What They Mean)
 
 The host validates every plugin before activation and fails closed — a rejected plugin is disabled with a diagnostic, never partially activated. Match what you see against this table:
