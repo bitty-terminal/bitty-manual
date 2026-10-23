@@ -12,7 +12,47 @@ Bitty classifies all configuration changes into three categories:
 
 1. **`Live`**: Reconciled immediately on file save without restarting the process or interrupting active PTY sessions.
 2. **`RestartRequired`**: Accepted and persisted into effective configuration, but takes effect on the next process startup because it sets initial runtime structures.
-3. **`Rejected`**: Invalid types, out-of-range bounds, or undeclared fields fail closed, triggering a rollback to the previous active configuration with clear diagnostics.
+3. **`Rejected`**: Invalid types, out-of-range bounds, or undeclared fields fail closed. A live reload reports the error and keeps the previous active configuration; startup ignores only the invalid part and continues (see below).
+
+## Invalid Configuration at Startup
+
+Startup is fail-soft for external configuration files. If a top-level table or
+scalar in `init.lua` or a selected profile is invalid, Bitty drops only that
+element, keeps every other valid setting from the same file and from other
+layers, and prints one bounded diagnostic to stderr:
+
+```text
+bitty: warning: ignoring 'window' in '/home/user/.config/bitty/profiles/default.lua':
+validation error at 'window.opacity': must be finite within [0.0, 1.0] (found 2);
+ignored; using defaults and remaining layers
+```
+
+The message names the file path, the field path, the validation error, and the
+fallback. Bitty never edits, comments out, or rewrites the configuration file
+for you.
+
+Failures that cannot be narrowed to one top-level element drop the whole
+external file or profile layer, and startup continues with the remaining
+layers. This covers Lua syntax or runtime errors, Lua budget exhaustion,
+undeclared keys, unreadable files, and profile `extends` cycles or missing
+parents. Valid settings from lower-precedence layers and the compiled-in
+defaults then apply.
+
+Some failures remain fatal instead of being ignored: a missing explicit
+`--config` or `BITTY_CONFIG` path, a `--profile` / `BITTY_PROFILE` name that
+does not exist, command-line usage errors, and internal startup defects. Fix
+the path or profile name and launch again.
+
+An ignored element never escalates a capability or trust setting. It resolves
+to the lower layers and to the deny-by-default built-ins (no plugins, no
+background-image roots); an invalid value is never turned into a more
+permissive one.
+
+[`bitty config check`](../getting-started/cli.md#configuration-management-bitty-config) and
+`bitty doctor` stay strict: they report the same input as a non-zero failure
+with the exact field path and never apply salvage. Live reload is strict too:
+an invalid edit is rejected and keeps the last-good configuration instead of
+falling back to defaults.
 
 ## Named Profiles
 
@@ -93,6 +133,11 @@ Creating `profiles/default.lua` or any other profile never activates it. A bare 
 | `window.background_fit`      | `string`  | **Live**     | Fit mode: `"fill"` (cover, default), `"fit"` (contain), `"center"`, `"tile"`, `"stretch"`. See the fit semantics below.                                                                                                 |
 | `window.background_opacity`  | `float`   | **Live**     | Image dim factor (`0.0..=1.0`, default `1.0`); multiplies only the image alpha, before `window.opacity` scales the finished window.                                                                                     |
 | `window.background_position` | `string`  | **Live**     | One of `"center"` (default), `"top-left"`, `"top"`, `"top-right"`, `"left"`, `"right"`, `"bottom-left"`, `"bottom"`, `"bottom-right"`; only `fit`/`center` observe it.                                                  |
+
+`window.opacity` and `window.padding` are optional individually. A `window`
+table that declares only one of them defaults the other (`opacity` to `1.0`,
+`padding` to `8`), like the other optional `window` keys. Present values keep
+their type and range checks.
 
 #### Window background fit semantics
 

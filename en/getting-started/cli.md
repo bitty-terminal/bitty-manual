@@ -117,6 +117,10 @@ bitty config profile path work
 
 `config profile list` reads directory metadata only and evaluates no Lua. `show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
 
+`config check` is the strict diagnostic path: it evaluates the user file, the selected profile chain, and the merged result, and exits `2` with the exact first field error when anything is invalid. `bitty doctor` uses the same strict load. Neither command applies the startup salvage described next.
+
+Launching `bitty` is fail-soft for present external configuration. An invalid top-level table or scalar is ignored with one stderr diagnostic naming the file path, field path, error, and `ignored; using defaults and remaining layers`; every other valid table and layer stays in effect, and the file is never modified. Failures that cannot be narrowed to one element (Lua syntax or runtime errors, budget exhaustion, undeclared keys, unreadable files, profile `extends` problems) drop the whole external layer and startup continues on the remaining layers. A missing explicit `--config` or `BITTY_CONFIG` path, a requested-but-missing profile, and CLI usage errors still exit `2`. See [Invalid Configuration at Startup](../configuration/overview.md#invalid-configuration-at-startup) for the full contract.
+
 `config check` does not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
 
 ### Setup Wizard (`bitty init`)
