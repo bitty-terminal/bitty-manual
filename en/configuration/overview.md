@@ -179,6 +179,13 @@ Core-owned view decorations operate in logical pixels:
 | `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).                                                                    |
 | `close_confirm`                    | `string`  | **RestartRequired** | View close safety confirmation: `"always"`, `"when_busy"` (default), or `"never"`.                                                                        |
 
+`selection.auto_copy` only controls whether a finished selection is written to
+the system clipboard. Pointer selection itself is always available: the
+I-beam appears only over selectable grid text, `Alt`+drag selects a rectangular
+block, and ranges may span scrollback. A selection is presentation state, not
+terminal content: resizing or changing DPI re-clamps its buffer anchors, and
+losing the anchored content drops it instead of selecting different text.
+
 ### Layout & Workspaces
 
 | Field                | Type      | Reload Class        | Description                                                                                                     |

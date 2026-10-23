@@ -144,6 +144,34 @@ WGPU_BACKEND=gl bitty
 WGPU_POWER_PREF=low bitty
 ```
 
+### Blurry or stretched text at fractional scaling
+
+Bitty samples glyphs 1:1 at fractional DPI: the present plan spans the window
+surface, so a leftover pixel strip stays background instead of scaling every
+glyph. Font line metrics are measured at the resolved point size (configured
+point size times the monitor scale), which keeps the baseline and integer cell
+consistent.
+
+If text still looks blurred on a scaled display:
+
+1. Confirm the resolved size with `bitty +show-font`. It prints `font_family:`,
+   `font_size:`, and optional `font_fallback:` from the merged configuration,
+   without opening a window, starting a PTY, or loading a plugin VM.
+2. Compare `font.size` with what you expect. `Ctrl+=` / `Ctrl+-` zoom the live
+   window and can drift from the file until you save or restart.
+3. Prefer a size that lands on a consistent cell for the font. DejaVu Sans Mono
+   at 11pt is the reported case: at a 1.6 scale factor Bitty uses a 14x32
+   physical cell and measures the face at 17.6pt, so the rounded advance must
+   still fit that cell.
+4. Run `bitty doctor` to check for missing font packages or a broken fontconfig
+   installation.
+
+Bitty answers the kitty font query (`DCS +q`, also accepted in the APC
+spelling) from the live resolved configuration and provides `bitty +show-font`
+for tools that probe out of process. Font display in third-party detectors such
+as fastfetch is still limited by the upstream detector: Bitty's side is
+implemented, but upstream fastfetch support is not fixed by this release.
+
 ---
 
 ## Exit Behavior & Session Restore
