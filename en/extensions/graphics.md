@@ -46,7 +46,7 @@ Bitty renders inline images with the [Kitty graphics protocol](https://sw.kovidg
 
 - **Direct placements.** A program sends an image with a destination rectangle and Bitty paints it into that pane.
 - **Unicode placeholder images.** One image is placed once and referenced by placeholder cells (`U+10EEEE` with row/column diacritics), which is how yazi paints previews. A prototype without an explicit cell span derives its span from the decoded pixel size.
-- **Alternate-screen images.** Full-screen programs that switch to the alternate screen get their own image plane. Entering the alternate screen stashes the main-screen images, leaving restores them, and pane teardown drops both.
+- **Alternate-screen images.** Full-screen programs that switch to the alternate screen get their own image plane. Entering the alternate screen stashes the pane's main-screen images and placeholders, so the TUI's own images and screen clears stay on the alternate plane; leaving drops that plane and restores the stashed image at its original position, pixel content included. A TUI that clears the alternate screen on quit (as btop does before `?1049l`) therefore does not erase the image, and repeated enter/quit cycles restore it each time. Pane teardown drops both planes.
 - **Aspect-preserving fit.** When a program requests a cell rectangle, the image is scaled to fit inside it with its aspect ratio preserved and centered in the leftover space (letterbox or pillarbox). Images are never stretched to fill the rectangle.
 - **Pixel-size reporting.** Every pane's PTY reports both cell and pixel dimensions on spawn and on every resize, and the `CSI 14t` / `CSI 16t` queries answer for the pane that is actually painting, not whichever pane holds focus.
 
@@ -67,4 +67,5 @@ A tool that prefers SIXEL or iTerm2 inline images will not paint here: Bitty imp
 - A failed decode or a missing local file drops that image's previous placement; placeholder cells are blanked, so a pending or failed preview never appears as a black band or replacement glyphs.
 - Bitty never fetches remote images itself. The program that owns the image (yazi, chafa, `icat`) reads the file and sends the pixels.
 - yazi shows names but no preview, or `icat` says the terminal cannot report screen sizes in pixels: the build predates the placeholder and pixel-size fixes (bitty#2458). Upgrade Bitty; no tool setting change is needed.
+- An image in a pane disappears after you quit a full-screen app: the build predates the per-screen image planes that keep the main image while the alternate screen is active. Upgrade to Bitty 0.0.26 or later; the image returns at its original position and no tool setting change is needed.
 - A tool paints a solid block or replacement characters: it chose SIXEL or iTerm2 output. Force its Kitty mode; Bitty advertises `TERM_PROGRAM=bitty` and no SIXEL support.

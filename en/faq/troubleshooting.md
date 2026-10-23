@@ -172,6 +172,14 @@ for tools that probe out of process. Font display in third-party detectors such
 as fastfetch is still limited by the upstream detector: Bitty's side is
 implemented, but upstream fastfetch support is not fixed by this release.
 
+### Ghost or stale rows in a full-screen app
+
+If a selector or other full-screen program leaves an old highlighted row beside its replacement, or briefly shows a half-drawn repaint while you move quickly:
+
+- Bitty 0.0.27 waits for a burst of terminal output to finish before presenting the frame, so the committed frame is the complete repaint. The wait is short and internal: there is no configuration key for it. Upgrade to 0.0.27 or later.
+- A very short delay before the final frame appears during a burst is expected: the presenter is waiting for the repaint to finish arriving. The screen should settle on the complete frame once output stops.
+- If the screen stays wrong after the application stops writing, that is a different defect. Collect `bitty doctor --format json` and the application name, version, and key sequence that reproduces it.
+
 ---
 
 ## Exit Behavior & Session Restore
