@@ -151,6 +151,14 @@ bitty init --force
 
 `profiles/default.lua` holds the generated defaults; `init.lua` is a thin selector (`format = "bitty-profile-v1"`, `profile = "default"`) where user overrides belong. `--profile NAME` never changes the selector and never runs plugin, component, or shell-init follow-ups. `BITTY_PROFILE` is a one-launch input and is not an output target. An existing target profile or selector is a conflict: the run exits with status 2 and writes nothing without `--force`; with `--force`, the previous bytes go to a collision-free `<file>.bak[.N]` sibling before the atomic replacement. A legacy `init.lua` without the versioned selector envelope is never replaced implicitly, including with `--force`; `--migrate` copies its complete bytes to `profiles/default.lua`, verifies the effective values are unchanged, and keeps a recoverable backup of the legacy file.
 
+The plugin step is read-only and offline by default. It reports three groups:
+
+- **Bundled** — plugins compiled into the binary. These are the only selectable rows, and selecting one records it without fetching a payload.
+- **Installed** — plugin ids already staged in the local store (`$XDG_DATA_HOME/bitty/plugins`, or `~/.local/share/bitty/plugins`). They are informational and already available locally.
+- **Needs network** — the remaining official catalog entries. They are counted but not shown as rows and never fetched; install one explicitly with `bitty plugin install <id>` after reviewing its capabilities. `bitty plugin list` shows the full official catalog without installing anything.
+
+A bundled plugin that is also installed appears once under **Bundled**. An empty group prints `none`. Discovery reads only the local store index: a malformed index prints one bounded warning and the step continues with **Bundled** only, while a missing data directory simply reports no installed plugins. The configuration write is never blocked by discovery. `--yes`, `--plugins`, `--no-plugins`, and `--profile NAME` bypass the plugin step entirely, keep their existing behavior, and never read the store. Selecting a bundled id still goes through the usual install and capability confirmation before anything is granted or enabled.
+
 ### Installation Diagnostics (`bitty doctor`)
 
 Diagnose GPU support, fonts, dependencies, and environment health:
