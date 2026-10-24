@@ -100,6 +100,11 @@
           "path": "plugins/capabilities-and-sandbox.md"
         },
         {
+          "slug": "permissions-decision",
+          "title": "How Permissions Are Decided",
+          "path": "plugins/permissions-decision.md"
+        },
+        {
           "slug": "catalog-activity",
           "title": "activity (Lua plugin)",
           "path": "plugins/catalog/activity.md"
