@@ -45,7 +45,7 @@ Bitty 有两种可安装的扩展。本目录为每一种扩展提供一页文�
 | history (`bitty-terminal.history`)           | 0.0.1         | official           | [history](../plugins/catalog/history.md)           |
 | palette (`bitty-terminal.palette`)           | 0.0.1         | official           | [palette](../plugins/catalog/palette.md)           |
 | search (`bitty-terminal.search`)             | 0.0.1         | official           | [search](../plugins/catalog/search.md)             |
-| statusline (`bitty-terminal.statusline`)     | 0.0.1         | 尚未注册           | [statusline](../plugins/catalog/statusline.md)     |
+| statusline (`bitty-terminal.statusline`)     | 0.1.0（最后） | 已归档             | [statusline](../plugins/catalog/statusline.md)     |
 | wheel（Agent Harness；过渡清单）             | 0.0.1（过渡） | official（脚手架） | [wheel](../plugins/catalog/wheel.md)               |
 | devtools (`bitty-featured.devtools`)         | 0.1.0         | 尚未注册           | [devtools](../plugins/catalog/devtools.md)         |
 
