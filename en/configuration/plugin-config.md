@@ -57,6 +57,61 @@ overwrite path. A plugin without declared settings gets no file. See
 [Per-Plugin Config Files](../plugins/plugin-settings.md#generated-defaults)
 for the exact shape and failure behavior.
 
+## Execution budget tightening
+
+Plugins run under compiled host ceilings (RC-1 fuel, wall, and warning; RC-2
+memory). Two optional layers can **only tighten** those ceilings:
+
+1. The plugin manifest's `[limits]` declarations.
+2. Your local file `<config-dir>/plugin-budgets.lua`.
+
+No file can raise a host ceiling. The effective value for each dimension is
+the minimum across the host ceiling, the manifest, the global user default, and
+the per-plugin user override. A user value larger than the manifest is simply
+inert: it can never widen what the manifest already narrowed.
+
+```lua
+-- $XDG_CONFIG_HOME/bitty/plugin-budgets.lua
+return {
+  -- Applies to every plugin; every dimension is optional.
+  default = {
+    fuel_instructions = 8000000,
+    wall_ms = 40,
+  },
+  -- Per-plugin tightening, keyed by the validated plugin id.
+  plugins = {
+    ["xuepoo.hello"] = {
+      wall_ms = 10,
+      memory_bytes = 8388608,
+    },
+  },
+}
+```
+
+| Key                 | Host ceiling | Meaning                                             |
+| :------------------ | :----------- | :-------------------------------------------------- |
+| `fuel_instructions` | 10,000,000   | VM instructions per VM                              |
+| `wall_ms`           | 50           | Charged wall time per callback, in milliseconds     |
+| `memory_bytes`      | 33,554,432   | Accounted VM heap per VM, in bytes                  |
+| `warning_ms`        | 8            | Advisory warning threshold; never suspends anything |
+
+Values outside `1..=ceiling`, negative or non-integer values, duplicate keys,
+unknown keys, and a `warning_ms` that is not below `wall_ms` in the same table
+fail the whole file closed. A `wall_ms` below `8` caps the advisory warning at
+`wall_ms - 1`. The file is data-only (parsed without a Lua VM or host access),
+bounded to 16 KiB, 256 lines, and 256 plugin entries, and symlinks or special
+files are refused. Scope follows the file: a `default` entry applies to every
+plugin, and a `plugins` entry applies only to that plugin.
+
+A rejected file is **not** silently ignored: plugin activation fails closed
+with a typed budget error and `bitty plugin config show <id>` reports the
+error. `bitty --safe` is the exception — it ignores both the manifest
+declaration and this file and always runs the host defaults, so a bad local
+file cannot block the recovery path. The file is read at startup; a running
+generation keeps the budgets it was built with. `bitty plugin config show <id>`
+prints each dimension's host ceiling, manifest value, user layers, effective
+value, and the layer that determined it.
+
 ## Formats
 
 ### Restricted Lua (canonical)
