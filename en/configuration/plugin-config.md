@@ -153,7 +153,9 @@ Two different files live under the configuration root:
 The managed ledger is not a settings file and never grants authority by
 itself: grants stay bound to the plugin manifest hash recorded beside them.
 An existing `bitty-plugins.toml` ledger is migrated once to
-`bitty-plugins.lua`, with the old bytes kept at `bitty-plugins.toml.bak`.
+`bitty-plugins.lua` by the next plugin command that loads ledger state, with
+the old bytes kept at `bitty-plugins.toml.bak`. Read-only `bitty plugin
+doctor` writes nothing; `bitty plugin doctor --repair` performs the migration.
 Do not copy settings into the ledger or the ledger into a plugin file.
 
 ## When changes take effect

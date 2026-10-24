@@ -52,9 +52,9 @@ Rules:
   active (uncommented) template instead.
 - A plugin that declares no `[settings]` gets no file; an empty file is never
   created.
-- A legacy `<owner>.<name>.toml` file is never replaced. While it exists the
-  host does not create the Lua file, because a Lua file would shadow the TOML
-  values.
+- An existing short-name `<name>.lua` alias or legacy `<owner>.<name>.toml`
+  file is never replaced or shadowed: while either is the accepted settings
+  source, the host does not create the canonical Lua file.
 - The file is written atomically with owner-only permissions; symlinked
   targets and a symlinked `plugins/` directory are refused.
 - `bitty plugin info <id>` prints the canonical path and whether it is
@@ -77,13 +77,16 @@ code; it has no host access, and malformed bytes, duplicate entries, unknown
 fields, non-UTF-8 input, or over-limit content fail closed. The file is
 written atomically with owner-only permissions.
 
-An older `bitty-plugins.toml` ledger is migrated once, automatically: the
-host writes the Lua ledger and keeps the previous TOML bytes at
-`bitty-plugins.toml.bak`. The migration preserves `source`, `manifest_hash`,
-`enabled`, `granted`, and `denied`, never overwrites an existing Lua ledger,
-and is idempotent. A symlinked or non-regular legacy file is refused rather
-than followed. `bitty plugin doctor` reports the ledger state and
-`bitty plugin doctor --repair` retains an obsolete legacy file as a backup.
+An older `bitty-plugins.toml` ledger is migrated once, automatically, by the
+next plugin command that loads ledger state. Read-only `bitty plugin doctor`
+only reports it; `bitty plugin doctor --repair` migrates it. The host writes
+the Lua ledger and keeps the previous TOML bytes at `bitty-plugins.toml.bak`.
+The migration preserves `source`, `manifest_hash`, `enabled`, `granted`, and
+`denied`, validates the rendered Lua before committing, never overwrites an
+existing Lua ledger, and is idempotent. A symlinked or non-regular legacy file
+is refused rather than followed. The backup is a byte-for-byte move of the
+old ledger, so it keeps the old file's permissions where a rename is
+possible; a copy fallback writes it owner-only.
 
 Do not hand-edit the ledger. Authority cannot be widened by editing it: a
 grant is honoured only when the plugin's manifest declares that capability
