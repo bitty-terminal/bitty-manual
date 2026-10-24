@@ -201,22 +201,22 @@ supported (OQ-038): only 0 is accepted`) until a bounded blur contract is
 
 Core-owned view decorations operate in logical pixels:
 
-| Field                               | Type      | Reload Class | Description                                                                      |
-| :---------------------------------- | :-------- | :----------- | :------------------------------------------------------------------------------- |
-| `decoration.border`                 | `integer` | **Live**     | View frame border width in logical pixels (`0..=32`, default `1`).               |
-| `decoration.radius`                 | `integer` | **Live**     | View frame corner radius in logical pixels (`0..=64`, default `6`).              |
-| `decoration.gaps_in`                | `integer` | **Live**     | Inner gap between sibling panels in logical pixels (`0..=128`, default `6`).     |
-| `decoration.gaps_out`               | `integer` | **Live**     | Outer gap around workspace container in logical pixels (`0..=128`, default `6`). |
-| `decoration.content_inset`          | `integer` | **Live**     | Inner padding between border and painted content in logical pixels (`0..=128`).  |
-| `decoration.border_color`           | `string`  | **Live**     | Base outline border color (`#RRGGBB` or `#RRGGBBAA`).                            |
-| `decoration.border_color_focused`   | `string`  | **Live**     | Explicit outline border color for the focused view.                              |
-| `decoration.border_color_idle`      | `string`  | **Live**     | Explicit outline border color for unfocused/idle views.                          |
-| `decoration.border_width`           | `integer` | **Live**     | Base outline border width in logical pixels (`0..=32`, default `1`).             |
-| `decoration.border_width_focused`   | `integer` | **Live**     | Explicit outline width for focused view in logical pixels.                       |
-| `decoration.border_width_idle`      | `integer` | **Live**     | Explicit outline width for idle views in logical pixels.                         |
-| `decoration.background_image`       | `string`  | **Live**     | Path to global background image under approved roots.                            |
-| `decoration.background_fit`         | `string`  | **Live**     | Background fit mode: `"fill"`, `"fit"`, `"center"`, `"tile"`, or `"stretch"`.    |
-| `decoration.background_image_roots` | `array`   | **Live**     | Approved directory roots for background image resolution.                        |
+| Field                               | Type      | Reload Class | Description                                                                     |
+| :---------------------------------- | :-------- | :----------- | :------------------------------------------------------------------------------ |
+| `decoration.border`                 | `integer` | **Live**     | View frame border width in logical pixels (`0..=8`, default `1`).               |
+| `decoration.radius`                 | `integer` | **Live**     | View frame corner radius in logical pixels (`0..=16`, default `6`).             |
+| `decoration.gaps_in`                | `integer` | **Live**     | Inner gap between sibling panels in logical pixels (`0..=32`, default `6`).     |
+| `decoration.gaps_out`               | `integer` | **Live**     | Outer gap around workspace container in logical pixels (`0..=32`, default `6`). |
+| `decoration.content_inset`          | `integer` | **Live**     | Inner padding between border and painted content in logical pixels (`0..=32`).  |
+| `decoration.border_color`           | `string`  | **Live**     | Base outline border color (`#RRGGBB` or `#RRGGBBAA`).                           |
+| `decoration.border_color_focused`   | `string`  | **Live**     | Explicit outline border color for the focused view.                             |
+| `decoration.border_color_idle`      | `string`  | **Live**     | Explicit outline border color for unfocused/idle views.                         |
+| `decoration.border_width`           | `integer` | **Live**     | Base outline border width in logical pixels (`0..=16`, default `1`).            |
+| `decoration.border_width_focused`   | `integer` | **Live**     | Explicit outline width for focused view in logical pixels.                      |
+| `decoration.border_width_idle`      | `integer` | **Live**     | Explicit outline width for idle views in logical pixels.                        |
+| `decoration.background_image`       | `string`  | **Live**     | Path to global background image under approved roots.                           |
+| `decoration.background_fit`         | `string`  | **Live**     | Background fit mode: `"fill"`, `"fit"`, `"center"`, `"tile"`, or `"stretch"`.   |
+| `decoration.background_image_roots` | `array`   | **Live**     | Approved directory roots for background image resolution.                       |
 
 ### Font & Shaping
 
@@ -257,19 +257,19 @@ losing the anchored content drops it instead of selecting different text.
 | :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------------------------------- |
 | `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                        |
 | `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                 |
-| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.5`, default `0.05`).                                     |
+| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.20`, default `0.05`).                                    |
 | `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).                                         |
 | `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (reserved Core input consumed by extensions).                     |
 | `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by extensions). |
 
 ### Appearance, Themes & Animations
 
-| Field                                  | Type      | Reload Class | Description                                                            |
-| :------------------------------------- | :-------- | :----------- | :--------------------------------------------------------------------- |
-| `appearance.theme`                     | `string`  | **Live**     | Built-in theme name or explicit `local:<name>` file selection.         |
-| `appearance.colors`                    | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).     |
-| `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.             |
-| `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"system"`). |
+| Field                                  | Type      | Reload Class | Description                                                          |
+| :------------------------------------- | :-------- | :----------- | :------------------------------------------------------------------- |
+| `appearance.theme`                     | `string`  | **Live**     | Built-in theme name or explicit `local:<name>` file selection.       |
+| `appearance.colors`                    | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).   |
+| `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.           |
+| `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"auto"`). |
 
 ### Themes and custom colors
 
@@ -436,7 +436,7 @@ return {
   keymaps = {
     {
       chord = "ctrl+p",
-      action = "palette:toggle",
+      action = "toggle_palette",
       context = "global",
     },
   },
