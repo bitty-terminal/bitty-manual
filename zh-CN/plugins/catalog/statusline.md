@@ -1,46 +1,20 @@
-# statusline（Lua 插件）
+# statusline（已退役）
 
-> **退役说明。** 独立的 `bitty-terminal.statusline` 插件身份已退役：由 [bar](bar.md) 插件取代，可见的工作区状态栏及其呈现归 `bar` 负责。`statusline` 不属于 v1 UI 槽位集合——挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭——因此这里只把它当作历史名称。本页仅作参考保留，不再作为当前安装建议。
+> **退役说明。** 独立的 `bitty-terminal.statusline` 插件已归档，并已从官方插件目录中移除。[bar](bar.md) 插件取代了它，负责可见的工作区状态栏与状态呈现。`statusline` 不属于 v1 UI 插槽集合——挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭——因此本页仅作历史参考。0.0.26 上不存在可安装的 statusline 版本，`bitty plugin list` 也不会显示它。
 
-经状态组件组合呈现 cwd、模式、git 与任务：响应式终端事件到来即重组声明式组件。
+历史行为：通过状态组件组合呈现 cwd、模式、git 与任务；只要响应式终端事件触发，就重新组合声明式组件。
 
-- 插件 id：`bitty-terminal.statusline` · manifest 版本 `0.0.1`（`bitty-plugin.toml:11-14`）
-- 源码：[github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline) · 独立仓库，**尚未进入官方注册表**
-- 能力（`bitty-plugin.toml:23-33`）：`terminal.semantic-read`、`ui.rich`
+- 历史插件 id：`bitty-terminal.statusline`，最后声明的 manifest 版本 `0.1.0`
+- 最后修订：`3eab0f44b9bf76fc8c01a029176a9bd885f91d07`，要求 Bitty **`>=0.1,<1.0`** 与插件 API `^1.0`；它从未兼容 `0.0.x` 宿主。
+- 已归档仓库：[github.com/bitty-terminal/statusline](https://github.com/bitty-terminal/statusline)
 
-## 安装
+## 替代方案
 
-Lua 插件没有 CDN 版本，且该插件暂无注册表条目。从仓库安装，再启用：
-
-```bash
-bitty plugin install https://github.com/bitty-terminal/statusline.git
-bitty plugin enable bitty-terminal.statusline
-bitty plugin list   # 确认状态与授权
-```
-
-## Lua API 界面
-
-声明的触发器（`bitty-plugin.toml:34-43`）：无命令——manifest 声明的观测事件激活并驱动重组：`terminal.cwd-changed`、`terminal.title-changed`、`focus.changed`、`terminal.opened`。
-
-`lua/statusline/` 中使用的调用：
-
-- `bitty.events.subscribe` —— 订阅响应式事件集（`init.lua:76-94`）
-- `bitty.terminal.snapshot` —— 只读已提交状态观测
-- `bitty.ui.mount`／`bitty.ui.update` —— 挂载并刷新状态行槽
-- `bitty.settings.get` —— 经 `M.SETTINGS` 映射读取呈现设置（`init.lua:32-39,42-68`）：`separator`、`show_cwd`、`show_title`、`show_exit`、`max_components`、`component_max_chars`
-
-设置键（文件 `~/.config/bitty/plugins/bitty-terminal.statusline.toml`）：`separator`、`show_cwd`、`show_title`、`show_exit`、`max_components`、`component_max_chars`。缺失的键回落到内置默认值；见[按插件配置文件](../plugin-settings.md)。
-
-## 最小配置
-
-```toml
-# ~/.config/bitty/plugins/bitty-terminal.statusline.toml
-separator = " | "
-show_cwd = true
-show_title = true
-```
+改用 bar 插件：
 
 ```bash
-bitty plugin enable bitty-terminal.statusline
-bitty config check   # 不启动 GUI 即可校验
+bitty plugin install bitty-terminal.bar
+bitty plugin enable bitty-terminal.bar
 ```
+
+模块分组、锚点、图标与指针操作见 [bar 模块用户指南](../bar-modules.md)。不要重新添加已归档仓库，也不要为了让安装通过而降低 manifest 的兼容范围。

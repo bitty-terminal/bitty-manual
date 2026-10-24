@@ -39,7 +39,7 @@ version = ">=2.30"
 ### 核心能力家族
 
 1. **`ui` 家族**：
-   - `ui.rich`：允许将声明式 UI 场景挂载并更新到宿主插槽中（`top`, `bottom`, `statusline`）。
+   - `ui.rich`：允许将声明式 UI 场景挂载并更新到宿主插槽中（`top`、`bottom`、`left`、`right`、`tabline`、`terminal`）；`overlay` 覆层另需 `ui.overlay` 能力。
    - `ui.overlay`：允许挂载到 `overlay` 覆层插槽中。
    - `ui.overlay.focus`：允许通过 `bitty.ui.overlay.acquire` 捕获瞬态键盘输入焦点。
 2. **`platform` 家族**：

@@ -36,7 +36,7 @@ local handle = bitty.ui.mount(slot, component)
 | `"overlay"`  | Interactive      | Focusable overlay surface. Requires `ui.overlay` capability.                      |
 | `"terminal"` | Reserved         | Terminal block attached to scrollback.                                            |
 
-The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation is the bar plugin's `bottom` (or `top`) band.
+The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](../plugins/catalog/bar.md) plugin's `bottom` (or `top`) band.
 
 ### `bitty.ui.update(block_id, component)`
 

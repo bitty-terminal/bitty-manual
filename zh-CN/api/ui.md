@@ -26,16 +26,17 @@ local handle = bitty.ui.mount(slot, component)
 
 #### 支持的插槽类型 (Supported Slots)
 
-| 插槽名称       | 布局状态   | 说明                                                             |
-| :------------- | :--------- | :--------------------------------------------------------------- |
-| `"top"`        | **已绘制** | 顶部窗口修饰边缘栏。                                             |
-| `"bottom"`     | **已绘制** | 底部窗口修饰边缘栏。                                             |
-| `"statusline"` | **已绘制** | 状态栏（与底部边缘共享层叠堆叠顺序）。                           |
-| `"left"`       | 已存储     | 左侧边缘栏（保存在注册表中；当垂直边缘栏激活时绘制）。           |
-| `"right"`      | 已存储     | 右侧边缘栏（保存在注册表中；当垂直边缘栏激活时绘制）。           |
-| `"tabline"`    | 独占保留   | 独占认领的标签条。需在清单中声明 `[lazy].claims = ["tabline"]`。 |
-| `"overlay"`    | 交互式     | 可聚焦的覆层界面。需要 `ui.overlay` 能力。                       |
-| `"terminal"`   | 独占保留   | 附加到回滚缓冲区的终端块。                                       |
+| 插槽名称     | 布局状态   | 说明                                                             |
+| :----------- | :--------- | :--------------------------------------------------------------- |
+| `"top"`      | **已绘制** | 顶部窗口修饰边缘栏。                                             |
+| `"bottom"`   | **已绘制** | 底部窗口修饰边缘栏。                                             |
+| `"left"`     | 已存储     | 左侧边缘栏（保存在注册表中；当垂直边缘栏激活时绘制）。           |
+| `"right"`    | 已存储     | 右侧边缘栏（保存在注册表中；当垂直边缘栏激活时绘制）。           |
+| `"tabline"`  | 独占保留   | 独占认领的标签条。需在清单中声明 `[lazy].claims = ["tabline"]`。 |
+| `"overlay"`  | 交互式     | 可聚焦的覆层界面。需要 `ui.overlay` 能力。                       |
+| `"terminal"` | 独占保留   | 附加到回滚缓冲区的终端块。                                       |
+
+v1 的封闭插槽集合恰好是以上七个名称。已退役的 `"statusline"` 不是插槽：挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭，与任何其他未知插槽完全一致。状态呈现归 [bar](../plugins/catalog/bar.md) 插件的 `bottom`（或 `top`）边缘栏负责。
 
 ### `bitty.ui.update(block_id, component)`
 
@@ -183,8 +184,8 @@ local status_tree = {
   },
 }
 
--- 挂载到 statusline 插槽
-local handle = bitty.ui.mount("statusline", status_tree)
+-- 挂载到底部边缘栏
+local handle = bitty.ui.mount("bottom", status_tree)
 
 -- 当接收到事件时动态更新状态栏
 bitty.events.subscribe("terminal.state_changed", function(ev)
