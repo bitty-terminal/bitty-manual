@@ -329,6 +329,22 @@ bitty completion zsh > ~/.zfunc/_bitty
 bitty completion fish > ~/.config/fish/completions/bitty.fish
 ```
 
+The script completes the parser-owned CLI grammar: first-level commands, nested verbs, aliases, and flags. In Bash, Zsh, Fish, and PowerShell it also completes local values:
+
+| Context                           | Candidates                                  |
+| :-------------------------------- | :------------------------------------------ |
+| `bitty --profile <TAB>`           | Profile names in `profiles/`                |
+| `bitty --profile=<TAB>`           | Same names, keeping the `--profile=` prefix |
+| `bitty plugin enable <TAB>`       | Installed plugin ids                        |
+| `bitty plugin disable <TAB>`      | Installed plugin ids                        |
+| `bitty config profile show <TAB>` | Profile names                               |
+| `bitty config profile use <TAB>`  | Profile names                               |
+| `bitty config profile path <TAB>` | Profile names                               |
+
+Candidates are read at Tab time from local state only: profile file names under `$XDG_CONFIG_HOME/bitty/profiles/`, and installed plugin ids from the managed plugin ledger plus the installed plugin store. Completion never starts a terminal runtime or plugin VM, never runs plugin code, and performs no network I/O. Missing or malformed local state produces no candidates and does not break the shell. Candidate lists are sorted and bounded to 256 entries.
+
+Nushell is a documented exception: its extern signatures are static, so the Nushell script completes the grammar but not dynamic profile or plugin values. Run the hidden `bitty +list-profiles` or `bitty +list-plugins --installed` helpers manually to see the same local data; these helpers are internal completion plumbing, not supported user commands.
+
 ### Shell Integration (`bitty shell-init`)
 
 `bitty shell-init <shell>` prints a static shell-integration script to stdout (local: no instance, no config load, no plugin VM). The script installs prompt hooks and inlines Tab completion for the full CLI grammar — first-level commands, nested verbs, and flags. Supported shells are the same as `completion`: `bash`, `zsh`, `fish`, `powershell`, and `nushell` (`pwsh` and `nu` are accepted aliases; names are case-insensitive).
@@ -347,7 +363,7 @@ For zsh, source the line after `compinit` so `compdef` can register Tab completi
 
 What the script does:
 
-- **Inline completion.** Tab completion is part of the same script, generated from the parser-owned CLI grammar (nested subcommands included). Sourcing never invokes `bitty`, so an absent or older binary still sources cleanly; a separate `bitty completion` file is not required.
+- **Inline completion.** Tab completion is part of the same script, generated from the parser-owned CLI grammar (nested subcommands included). Sourcing never invokes `bitty`, so an absent or older binary still sources cleanly; a separate `bitty completion` file is not required. In Bash, Zsh, Fish, and PowerShell, pressing Tab for `--profile`, `plugin enable|disable`, or `config profile show|use|path` asks the bounded local candidate helpers described under [Shell Completions](#shell-completions-bitty-completion); Nushell keeps static values.
 - **Registers once.** Hooks and completion register once per session; re-sourcing the startup file is a no-op.
 - **Prompt marks on every prompt path.** Prompt hooks emit OSC 133 `A` (prompt start), `B` (command start), and `D;status` (command done plus exit status), plus OSC 7 with a percent-encoded cwd. Bitty uses these for semantic prompt zones and cwd tracking; terminals without support ignore them. PowerShell marks command start through PSReadLine, and Nushell through `pre_execution` when the session supports it.
 - **Strict-mode safe.** The generated code is safe under `set -euo pipefail` (bash), `setopt no_unset` (zsh), and `Set-StrictMode -Version Latest` (PowerShell), and stays silent in non-interactive fish.
