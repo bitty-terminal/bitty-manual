@@ -90,3 +90,5 @@ version = ">=2.30"
 bitty plugin list
 bitty plugin info <id>
 ```
+
+这些标记来自[权限是如何判定的](permissions-decision.md)所述的判定路径：来源信任等级、六层交集、显式授权与运行时预算。

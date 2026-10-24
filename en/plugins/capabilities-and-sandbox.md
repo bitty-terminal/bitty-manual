@@ -90,3 +90,5 @@ Inspect recorded sources, states, and capability grants at any time:
 bitty plugin list
 bitty plugin info <id>
 ```
+
+Those markers come from the decision path described in [How Permissions Are Decided](permissions-decision.md): source trust level, six-layer intersection, explicit grant, and runtime budgets.

@@ -200,5 +200,6 @@ RUST_LOG=bitty=debug bitty
 ## Next Steps
 
 - [Capabilities & Sandboxing](capabilities-and-sandbox.md) — Learn about security boundaries, resource quotas, and capability families.
+- [How Permissions Are Decided](permissions-decision.md) — The four gates behind a capability grant or denial.
 - [Native Component Boundary](../extensions/upstream-components.md) — Understand how upstream prebuilt extensions share native infrastructure across plugins.
 - [Lua API Reference](../api/overview.md) — Explore the sandboxed `bitty.*` API surface.
