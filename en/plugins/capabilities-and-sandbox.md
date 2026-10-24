@@ -67,6 +67,7 @@ To ensure that poorly written or malicious plugins cannot stall the terminal or 
 
 - **VM Memory Ceiling**: Default 32 MiB per plugin VM. Exceeding memory allocation terminates the plugin generation safely.
 - **Instruction Fuel Metering**: The stackless VM meters bytecodes per execution slice. Infinite loops run out of fuel and fail closed without freezing the UI or terminal rendering hot path.
+- **Tighten-only overrides**: a plugin manifest's optional `[limits]` table and a local `plugin-budgets.lua` may lower the fuel, wall, and memory bounds below these ceilings; they can never raise them. `bitty --safe` ignores both and runs the host defaults. See [Plugin Configuration](../configuration/plugin-config.md#execution-budget-tightening).
 - **Scene Tree Depth & Size**:
   - Maximum UI tree depth: 16 levels.
   - Maximum nodes per block: 2,048 nodes.
