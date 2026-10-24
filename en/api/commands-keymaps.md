@@ -100,7 +100,7 @@ return {
     },
     {
       chord = "ctrl+p",
-      action = "palette:toggle",
+      action = "toggle_palette",
       context = "global",
     },
   },
