@@ -26,6 +26,71 @@ A selected Lua file that fails reading, evaluation, or result validation falls b
 
 Successful `bitty plugin install` and `bitty plugin enable` runs point at this canonical Lua path and at both `config` commands. The CLI hint never advertises the legacy TOML fallback.
 
+## Generated defaults
+
+A successful `bitty plugin install` and the first `bitty plugin enable` also
+create the canonical Lua file for you when the plugin declares at least one
+setting. The generated file contains the declared keys and their shipped
+defaults as **comments** and returns an empty table, so the plugin keeps
+running on its manifest defaults until you uncomment and edit a line:
+
+```lua
+-- bitty-plugin-defaults: bitty-terminal.bar <manifest hash>
+-- ...
+return {
+    -- show = true,
+    -- name_max_chars = 32,
+    -- modules_left = { "workspaces" },
+}
+```
+
+Rules:
+
+- The file is created only when absent. Installing again, enabling again, or
+  editing the file never overwrites it. Use
+  `bitty plugin config scaffold <id> --force` when you explicitly want the
+  active (uncommented) template instead.
+- A plugin that declares no `[settings]` gets no file; an empty file is never
+  created.
+- A legacy `<owner>.<name>.toml` file is never replaced. While it exists the
+  host does not create the Lua file, because a Lua file would shadow the TOML
+  values.
+- The file is written atomically with owner-only permissions; symlinked
+  targets and a symlinked `plugins/` directory are refused.
+- `bitty plugin info <id>` prints the canonical path and whether it is
+  present.
+
+The file remains data only. Every key is checked against the current manifest
+when the plugin activates; undeclared keys change nothing and never grant a
+capability.
+
+## Managed plugin ledger
+
+The host keeps one machine-managed ledger beside your configuration:
+`$XDG_CONFIG_HOME/bitty/bitty-plugins.lua` (fallback
+`~/.config/bitty/bitty-plugins.lua`). It records each managed plugin's source,
+pinned manifest hash, enabled state, granted capabilities, and explicit
+denials. It is **not** a settings file.
+
+The ledger is data-only Lua. It is parsed without running Lua or any plugin
+code; it has no host access, and malformed bytes, duplicate entries, unknown
+fields, non-UTF-8 input, or over-limit content fail closed. The file is
+written atomically with owner-only permissions.
+
+An older `bitty-plugins.toml` ledger is migrated once, automatically: the
+host writes the Lua ledger and keeps the previous TOML bytes at
+`bitty-plugins.toml.bak`. The migration preserves `source`, `manifest_hash`,
+`enabled`, `granted`, and `denied`, never overwrites an existing Lua ledger,
+and is idempotent. A symlinked or non-regular legacy file is refused rather
+than followed. `bitty plugin doctor` reports the ledger state and
+`bitty plugin doctor --repair` retains an obsolete legacy file as a backup.
+
+Do not hand-edit the ledger. Authority cannot be widened by editing it: a
+grant is honoured only when the plugin's manifest declares that capability
+for the recorded `manifest_hash`. Undeclared grants are dropped with a
+diagnostic, and a hand-edited `enabled` flag still goes through the normal pin
+and grant checks on enable.
+
 ## Restricted Lua settings
 
 Return a table of declared settings. For example, `bitty-terminal.bar.lua`:
