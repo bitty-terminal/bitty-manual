@@ -153,6 +153,14 @@ bitty init --force
 
 The interactive theme step previews the highlighted preset before anything is committed. When both stdin and stdout are terminals and color is enabled (`NO_COLOR` and `TERM=dumb` disable it), moving the cursor with `j`/`k` or the arrow keys installs the candidate in the wizard's in-memory preview session through the same palette pipeline a running Bitty uses, and repaints a themed chrome strip — theme background and foreground, the 16 ANSI colors, and the cursor, selection, and border swatches — so the palettes can be compared before committing. The preview never persists anything: it writes no configuration, profile, session, or plugin-state file, and it does not record an answered step. `Enter` commits the highlighted theme to the generated profile (the file write still happens once, at the end of the wizard); `Esc` or end-of-input cancels the wizard and restores the theme that was in effect before the preview. `--yes`, preset `--profile` seeds, a non-TTY stdin, and a piped stdout never preview and keep their existing non-interactive output.
 
+The plugin step is read-only and offline by default. It reports three groups:
+
+- **Bundled** — plugins compiled into the binary. These are the only selectable rows, and selecting one records it without fetching a payload.
+- **Installed** — plugin ids already staged in the local store (`$XDG_DATA_HOME/bitty/plugins`, or `~/.local/share/bitty/plugins`). They are informational and already available locally.
+- **Needs network** — the remaining official catalog entries. They are counted but not shown as rows and never fetched; install one explicitly with `bitty plugin install <id>` after reviewing its capabilities. `bitty plugin list` shows the full official catalog without installing anything.
+
+A bundled plugin that is also installed appears once under **Bundled**. An empty group prints `none`. Discovery reads only the local store index: a malformed index prints one bounded warning and the step continues with **Bundled** only, while a missing data directory simply reports no installed plugins. The configuration write is never blocked by discovery. `--yes`, `--plugins`, `--no-plugins`, and `--profile NAME` bypass the plugin step entirely, keep their existing behavior, and never read the store. Selecting a bundled id still goes through the usual install and capability confirmation before anything is granted or enabled.
+
 ### Installation Diagnostics (`bitty doctor`)
 
 Diagnose GPU support, fonts, dependencies, and environment health:
