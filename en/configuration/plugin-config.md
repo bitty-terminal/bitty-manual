@@ -44,6 +44,19 @@ digits, `-`, and `_` (up to 64 bytes per segment). Because the id cannot contain
 a path separator, `plugins/` cannot be escaped. An invalid id never produces a
 file path.
 
+### Generated defaults
+
+When a plugin declares settings, a successful `bitty plugin install` or the
+first `bitty plugin enable` creates the canonical Lua file if it is absent.
+The generated file lists each declared key and its shipped default in
+comments and returns an empty table, so the plugin runs on its manifest
+defaults until you uncomment and edit a line. The host never overwrites an
+existing canonical file, a short-name alias, or a legacy
+`<owner>.<name>.toml`; `bitty plugin config scaffold --force` is the explicit
+overwrite path. A plugin without declared settings gets no file. See
+[Per-Plugin Config Files](../plugins/plugin-settings.md#generated-defaults)
+for the exact shape and failure behavior.
+
 ## Formats
 
 ### Restricted Lua (canonical)
@@ -127,6 +140,21 @@ Whole-file failures and per-key failures are different:
 > capability. At worst it hides a module or leaves that key on its shipped
 > default. A structural error makes the whole file inert for that activation,
 > so the plugin keeps running on lower layers.
+
+## Your files versus the managed ledger
+
+Two different files live under the configuration root:
+
+| File                         | Owner | Purpose                                                |
+| :--------------------------- | :---- | :----------------------------------------------------- |
+| `bitty-plugins.lua`          | Host  | Managed ledger: source, manifest hash, enabled, grants |
+| `plugins/<owner>.<name>.lua` | You   | Per-plugin settings values                             |
+
+The managed ledger is not a settings file and never grants authority by
+itself: grants stay bound to the plugin manifest hash recorded beside them.
+An existing `bitty-plugins.toml` ledger is migrated once to
+`bitty-plugins.lua`, with the old bytes kept at `bitty-plugins.toml.bak`.
+Do not copy settings into the ledger or the ledger into a plugin file.
 
 ## When changes take effect
 
@@ -228,14 +256,17 @@ return {
 ## Checking your file
 
 ```bash
-bitty plugin list          # states and capability grants
-bitty plugin info <id>     # manifest plus recorded grants
-bitty doctor               # host environment health
+bitty plugin list              # states and capability grants
+bitty plugin info <id>         # manifest, grants, and canonical settings path
+bitty plugin config show <id>  # declared schema and effective values
+bitty plugin doctor            # package store and managed-ledger health
 ```
 
-There is no `bitty plugin doctor` verb. A successful `bitty config check` does
-not validate per-plugin files, because those are read during plugin activation.
-If a value seems ignored, check the selected file name, the key spelling, its
+`bitty plugin doctor --repair` quarantines broken package trees and malformed
+ledgers without deleting evidence. It does not create, edit, or validate
+per-plugin settings values; those are read during plugin activation. A
+successful `bitty config check` does not validate per-plugin files either. If
+a value seems ignored, check the selected file name, the key spelling, its
 type, and the plugin's grants, in that order.
 
 ## Next steps

@@ -125,7 +125,7 @@ bitty plugin list
 # One plugin's manifest plus recorded grants (an official id works before install)
 bitty plugin info <id>
 
-# Diagnose the on-disk package store and the bitty-plugins.toml ledger
+# Diagnose the on-disk package store and the bitty-plugins.lua ledger
 bitty plugin doctor
 
 # Host environment health (GPU, fonts, dependencies)

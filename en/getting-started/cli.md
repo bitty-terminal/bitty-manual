@@ -234,7 +234,7 @@ bitty plugin install <path> [--yes] [--force]
 bitty plugin install <git-url> [--yes] [--force]
 bitty plugin install <archive> [--yes] [--force]
 
-# Diagnose the package store and the bitty-plugins.toml ledger
+# Diagnose the package store and the bitty-plugins.lua ledger
 bitty plugin doctor
 
 # Quarantine broken trees and rebuild current.json from complete packages
@@ -271,9 +271,11 @@ Git installs use the system `git`; archive installs use `tar` (`unzstd` for `.ta
 
 `bitty plugin doctor` reports store and ledger findings without changing anything; `--repair` quarantines broken or extra package trees under `<store>/quarantine/`, removes stale staging, and rebuilds `current.json` with the index write last. Rebuilt records keep grants only when the manifest hash still matches; otherwise they start disabled with no grants and need `bitty plugin install <source> --force`. Exit codes: `0` success (or a healthy store for `doctor`), `1` aborted/io or doctor findings, `2` usage, `4` plugin error.
 
+The managed ledger is data-only Lua at `<config-root>/bitty-plugins.lua`. A pre-Lua `bitty-plugins.toml` is migrated once by any plugin command, with the old bytes kept at `bitty-plugins.toml.bak`; a hand-edited ledger cannot grant a capability the installed manifest does not declare for the recorded hash. See [Per-Plugin Config Files](../plugins/plugin-settings.md#managed-plugin-ledger).
+
 Capability installs prompt `Grant these capabilities? [y/N]`; `--yes` approves non-interactively. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
-Successful `install` and `enable` runs print next steps: the plugin's store location, the canonical Lua settings path (`<config-root>/plugins/<owner>.<name>.lua`), and the `config show`/`config scaffold` commands. The hint never advertises the legacy TOML fallback.
+Successful `install` and `enable` runs print next steps: the plugin's store location, the canonical Lua settings path (`<config-root>/plugins/<owner>.<name>.lua`), and the `config show`/`config scaffold` commands. When the plugin declares settings, the same run creates that canonical file once with its defaults commented out; existing files, user edits, and a legacy `<owner>.<name>.toml` are never overwritten. The hint never advertises the legacy TOML fallback.
 
 ### Native Extension Management (`bitty extension`)
 
