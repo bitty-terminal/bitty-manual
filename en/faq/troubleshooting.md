@@ -55,8 +55,9 @@ When salvage touches a security-sensitive setting, or drops a whole layer,
 Bitty also prints `configuration salvage disabled security-sensitive settings
 for this launch` and lists the affected surfaces. For that launch plugins are
 deny-all, history capture is off, middle/right mouse buttons are `none`, and
-the decoration background-image root allowlist is empty. Lower layers cannot
-re-enable them; every unrelated setting still applies.
+the decoration background-image root allowlist is empty with every configured
+image cleared (decoration, window, and per-view); no image is loaded. Lower
+layers cannot re-enable them; every unrelated setting still applies.
 
 A missing explicit `--config` or `BITTY_CONFIG` path, or a missing `--profile`
 / `BITTY_PROFILE` name, is still fatal (exit `2`). Those are launch-input
