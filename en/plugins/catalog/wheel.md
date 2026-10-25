@@ -12,7 +12,7 @@ its own policy; a Bitty panel or terminal supplies presentation and input only.
 
 - Artifact version: `0.1.0` (root `VERSION`; archive `dist/wheel-0.1.0.tar.gz`)
 - Source: [github.com/bitty-terminal/wheel](https://github.com/bitty-terminal/wheel) · independent repo
-- Registry: not in the official plugin catalog; the repository's transitional `bitty-terminal.wheel` manifest is a scaffold, not an installable plugin package
+- Registry: `bitty-terminal.wheel` is not in the current official registry/catalog; the repository's transitional manifest is repository material, a scaffold rather than an installable plugin package
 - Authority and residual risk: [Wheel SECURITY-MODEL.md](https://github.com/bitty-terminal/wheel/blob/main/SECURITY-MODEL.md)
 - Context snapshots: [Wheel CONTEXT-SNAPSHOT.md](https://github.com/bitty-terminal/wheel/blob/main/CONTEXT-SNAPSHOT.md)
 
@@ -59,11 +59,10 @@ Bitty plugin manager as a supported way to install or invoke Wheel 0.1.0.
 
 ## Transitional plugin manifest
 
-The repository still carries `bitty-plugin.toml` at manifest version `0.0.1`.
+The repository still carries the transitional `bitty-plugin.toml` at manifest version `0.0.1` as repository material.
 It is the unchanged template scaffold: it declares the same 14 command triggers
 and requests only the `platform.notify` capability. The official plugin registry
-still lists the `bitty-terminal.wheel` identity from this manifest, but that
-entry describes the scaffold, not the 0.1.0 harness artifact. The manifest is
+does not list the `bitty-terminal.wheel` identity. The manifest is
 **not** the 0.1.0 distribution path — the built artifact excludes it, it is not
 a supported installation route, and Wheel does not run inside the plugin VM or
 receive a plugin capability grant. The 0.1.0 delivery also makes no `plugin-api`

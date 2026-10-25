@@ -1,6 +1,6 @@
 # network (native extension)
 
-The shared, optional network runtime: connection pooling, DNS, TLS, and the wire framing for the native extension path. Core links the first-party wire codec and owns the internal component broker; the current user-facing Lua path still uses the embedded `bitty-network-lua` binding, while `bitty-net` is the separate extension executable (`bitty-network` README).
+The shared, optional network runtime: connection pooling, DNS, TLS, and the wire framing for the native extension path. Core links the first-party wire codec and owns the internal component broker. The `bitty-network-lua` binding is source/repository material only; `bitty-net` is the separate extension executable (`bitty-network` README).
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-network` ([github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network))
 - Crates: `bitty-network-api`, `bitty-network-core`, `bitty-network-dns`, `bitty-network-tls`, `bitty-network-wire`, `bitty-network-lua`, `bitty-net`
@@ -24,12 +24,12 @@ A locally available compatible executable may still be staged with `bitty extens
 
 ## Lua / host surface
 
-`bitty-network-lua` registers a `bitty.network` table in the plugin VM (`crates/bitty-network-lua/src/lib.rs:159`, `register_network_module`):
+The `bitty-network-lua` source defines a `bitty.network` table (`crates/bitty-network-lua/src/lib.rs:159`, `register_network_module`), but current Core does not link or register that binding in the plugin VM. It is repository source material, not an active user-facing Lua API:
 
-- `bitty.network.echo` — round-trip probe used by the crate's own tests (`src/callback.rs:16`)
-- `bitty.network.info` — runtime metadata query (`src/callback.rs:48`)
+- `bitty.network.echo` — source-level round-trip probe used by the crate's own tests (`src/callback.rs:16`)
+- `bitty.network.info` — source-level runtime metadata query (`src/callback.rs:48`)
 
-Callers need the corresponding network capability grant; without it the host denies the call fail-closed.
+The binding's callers need the corresponding network capability grant; without it the host denies the call fail-closed. Routing the separate native `net` component to a user-facing Lua API remains a design-gated change.
 
 ## Minimal config
 

@@ -3,7 +3,7 @@
 Read-only inspection and event tracing of the plugin runtime: lifecycle rows, command/event registrations, own grants, and bounded event traces surfaced as notification summaries.
 
 - Plugin id: `bitty-featured.devtools` · manifest version `0.1.0` (`bitty-plugin.toml:12-15`)
-- Source: [github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · official registry entry (`>=0.0.21,<1.0`)
+- Source: [github.com/bitty-terminal/devtools](https://github.com/bitty-terminal/devtools) · official registry entry (host compatibility `>=0.0.21`; Plugin API compatibility `^1.0`)
 - Capabilities (`bitty-plugin.toml:25-40`): `debug.inspect`, `debug.trace`, `platform.notify` (no `debug.control`, no `ui.*`: runtime state is never mutated)
 
 ## Install
