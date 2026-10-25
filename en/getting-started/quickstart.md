@@ -166,7 +166,7 @@ bitty
 On first startup, Bitty probes for your configuration file according to platform standards:
 
 - **Linux / BSD**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`)
-- **macOS**: `~/Library/Application Support/bitty/init.lua` (or `$XDG_CONFIG_HOME/bitty/init.lua`, fallback `~/.config/bitty/init.lua`)
+- **macOS**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`; there is no `~/Library` config branch)
 - **Windows**: `%APPDATA%\bitty\init.lua` (fallback `%LOCALAPPDATA%\bitty\init.lua`)
 
 > [!NOTE]
@@ -183,7 +183,7 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 | `Shift+Alt+h/j/k/l` (`Shift+Alt+arrows`)                                                      | Split                 | Create a split left / down / up / right             |
 | `Shift+Ctrl+h/j/k/l` (`Shift+Ctrl+arrows`, `Ctrl+Shift+Alt+h/j/k/l`, `Ctrl+Shift+Alt+arrows`) | Resize                | Resize the focused split                            |
 | `Ctrl+Shift+C` / `Ctrl+Shift+V`                                                               | Copy / Paste          | Copy selection / paste from the system clipboard    |
-| `Alt+n`                                                                                       | New panel             | Open a new panel (Balanced largest-pane split)      |
+| `Alt+n`                                                                                       | New panel             | Open a panel (Spiral clockwise, Balanced fallback)  |
 | `Alt+t`                                                                                       | New workspace         | Open a fresh workspace (lowest free ID)             |
 | `Alt+d` / `Alt+q`                                                                             | Close pane            | Close the focused pane/view (with confirm)          |
 | `Alt+w`                                                                                       | Close workspace       | Close the workspace (kill-confirm)                  |
@@ -258,14 +258,12 @@ sudo rm /usr/local/bin/bitty
 
 ### 2. Remove Configuration Files
 
-- **Linux / BSD**: `rm -rf ~/.config/bitty` (or `$XDG_CONFIG_HOME/bitty`)
-- **macOS**: `rm -rf ~/Library/Application\ Support/bitty ~/.config/bitty`
+- **Linux / BSD / macOS**: `rm -rf ~/.config/bitty` (or `$XDG_CONFIG_HOME/bitty`)
 - **Windows (PowerShell)**: `Remove-Item -Recurse -Force $env:APPDATA\bitty`
 
-### 3. Clean Logs, State & Cache
+### 3. Remove State & Data
 
-- **Linux / BSD**: `rm -rf ~/.local/state/bitty ~/.cache/bitty`
-- **macOS**: `rm -rf ~/Library/Logs/bitty ~/Library/Caches/bitty`
+- **Linux / BSD / macOS**: `rm -rf ~/.local/state/bitty ~/.local/share/bitty`
 - **Windows (PowerShell)**: `Remove-Item -Recurse -Force $env:LOCALAPPDATA\bitty`
 
 ## Next Steps
