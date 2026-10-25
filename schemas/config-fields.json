@@ -124,12 +124,12 @@
     "decoration.border_width_focused": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Explicit outline width for focused view in logical pixels (0..=32)."
+      "description": "Explicit outline width for focused view in logical pixels (0..=16)."
     },
     "decoration.border_width_idle": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Explicit outline width for idle views in logical pixels (0..=32)."
+      "description": "Explicit outline width for idle views in logical pixels (0..=16)."
     },
     "decoration.background_image": {
       "type": "string",
@@ -204,7 +204,7 @@
     "layout.resize_step": {
       "type": "float",
       "reload_class": "Live",
-      "description": "Tiled split-ratio delta per resize keypress (0.01..=0.5, default 0.05)."
+      "description": "Tiled split-ratio delta per resize keypress (0.01..=0.20, default 0.05)."
     },
     "appearance.theme": {
       "type": "string",
