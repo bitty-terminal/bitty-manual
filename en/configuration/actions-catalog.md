@@ -282,11 +282,12 @@ Both commands succeed without a running instance. `list actions` reports the chr
 
 ### Current action catalog delta
 
-The current action catalog still has **38 action variants**. The only documented behavior delta from the protected 0.0.22 action table is `new_panel`:
+The current action catalog has **39 action variants**. The documented behavior deltas from the protected 0.0.22 action table are `new_panel` and `paste_from_primary`:
 
-| Current action | Current behavior                                                                                                                                           | Current default chord |
-| :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------- |
-| `new_panel`    | Default `Spiral`: place the new panel clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes. | `alt+n`               |
+| Current action       | Current behavior                                                                                                                                                                                            | Current default chord                                     |
+| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------- |
+| `new_panel`          | Default `Spiral`: place the new panel clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes.                                                  | `alt+n`                                                   |
+| `paste_from_primary` | Read the platform primary selection (Linux middle-click / `wl-paste --primary`) and submit it through the suspicious-paste inspection gate; empty or unreadable sources fail soft without delivering bytes. | No keyboard chord; `mouse.middle` defaults to this action |
 
 The current `new_panel` default is also documented in [workspace and panel placement](workspaces-panels.md): `Spiral` follows the focused pane's creation chain while feasible, then falls back to the largest feasible `Balanced` leaf (allocation-order ties) and refuses without mutation when no gap-aware 10x4 split fits.
 
