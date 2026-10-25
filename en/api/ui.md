@@ -126,7 +126,10 @@ A sequential list container.
 Malformed node tables, wrong field types, invalid token names, and out-of-range
 values fail closed with the typed `E_UI_COMPONENT_INVALID` validation error.
 Unknown slot names fail with the same typed validation error; accepted slots
-without a host fail with `E_UI_UNAVAILABLE` instead.
+without a host fail with `E_UI_UNAVAILABLE` instead. The `"tabline"` slot is
+the exception to this general rule: without the canonical
+`[lazy].claims = ["workspaceline"]` claim it fails with `E_UI_CLAIM_REQUIRED`;
+with that claim but no host surface it fails with `E_UI_UNAVAILABLE`.
 
 ## Interactive Band Commands (`on_click`)
 
@@ -168,6 +171,9 @@ keyboard input, use the separate focus/capture operations. They require the
 -- Mount the presentation first (requires ui.rich and ui.overlay)
 local handle = bitty.ui.mount("overlay", content_tree)
 
+-- Present the mounted overlay without capturing input
+bitty.ui.overlay.show(handle)
+
 -- Separately acquire keyboard capture for that mounted overlay
 -- (requires ui.overlay.focus capability)
 local session = bitty.ui.overlay.acquire(handle)
@@ -194,9 +200,10 @@ local session = bitty.ui.overlay.acquire({
 
 `bitty.ui.overlay.show(handle)` and `bitty.ui.overlay.hide(handle)` are the
 presentation-only operations when a mounted overlay should be shown or hidden
-without keyboard capture. They require `ui.rich` and `ui.overlay`, not
-`ui.overlay.focus`. Safe Mode or a missing grant/host surface fails closed; it
-does not grant an overlay or capture implicitly.
+without keyboard capture. `show` requires `ui.rich` and `ui.overlay`, not
+`ui.overlay.focus`, and fails closed in Safe Mode or when the host surface is
+unavailable. `hide` is an ungated, idempotent cleanup operation, so it remains
+available after capability revocation and in Safe Mode.
 
 ## Example: Building a Live Statusline Component
 
