@@ -131,11 +131,11 @@ the exception to this general rule: without the canonical
 `[lazy].claims = ["workspaceline"]` claim it fails with `E_UI_CLAIM_REQUIRED`;
 with that claim but no host surface it fails with `E_UI_UNAVAILABLE`.
 
-## Interactive Band Commands (`on_click`)
+## Interactive Band Commands (`on_click` and `on_scroll`)
 
-Nodes mounted in a painted `top` or `bottom` band can bind interactive clicks.
-When clicked, Core dispatches the event through the Command Bus rather than
-invoking an arbitrary Lua closure on the rendering thread.
+Nodes mounted in a painted `top` or `bottom` band can bind interactive clicks
+and scrolls. When clicked, Core dispatches the event through the Command Bus
+rather than invoking an arbitrary Lua closure on the rendering thread.
 
 ```lua
 on_click = {
@@ -147,14 +147,56 @@ on_click = {
 - `command`: Command identifier string (max 64 bytes).
 - `args`: Key-value scalar map (max 16 arguments, max 256 bytes per string).
 
+A scroll binding (`on_scroll`) reuses the same binding shape as `on_click`: a
+wheel tick over a bound node invokes the declared command with the declared
+args plus a host-computed
+`delta` number (signed lines, positive for wheel-up), merged last so it
+overwrites a declared `delta` entry.
+
+For per-item routing, a binding may declare one optional region identity:
+
+```lua
+on_click = {
+  command = "custom.my-plugin:open",
+  region = { id = "battery", kind = "item" }, -- default kind is "module"
+}
+```
+
+`id` is up to 64 bytes of `[a-z0-9._:-]`. The host derives the region
+rectangle from the painted span geometry (a plugin never supplies
+coordinates), clips it to the window, and merges `region` and `button` (or
+`delta`) into the payload for that item; a binding without a region keeps the
+primary-button-only payload. Declaring different regions on a binding pair
+fails validation with `E_UI_COMPONENT_INVALID`.
+
+Band interaction dispatches from painted band surfaces only. The `overlay`
+slot accepts and validates the same binding fields, but overlay surfaces do
+not route clicks or scrolls in the current build — there is no accepted
+overlay hit-test contract yet — and overlay input uses the separate
+`bitty.ui.overlay.*` capture path instead. Band clicks and scrolls also keep
+terminal authority: they move no keyboard focus, change no layout, and start
+no selection.
+
 ## Hardware Safety Budgets
 
-The bridge enforces deterministic ceilings before passing nodes to Rust:
+The bridge enforces deterministic ceilings before passing nodes to Rust. They
+apply to each plugin's own scene generation:
 
-- **Maximum Tree Depth**: 16 levels (`UI_MAX_DEPTH`).
+- **Maximum Tree Depth**: 16 levels (`UI_MAX_DEPTH`; deliberately stricter
+  than the accepted scene-tree limit of 32).
 - **Maximum Nodes per Block**: 2,048 nodes (`UI_MAX_NODES`).
 - **Maximum Text Bytes per Block**: 256 KiB (`UI_MAX_TEXT_BYTES`).
 - **Maximum Retained Blocks per Plugin**: 64 blocks (`UI_MAX_BLOCKS`).
+- **Maximum Aggregated Retained Strings per Plugin**: 2 MiB
+  (`UI_MAX_AGGREGATED_TEXT_BYTES`), charged for every string the host retains
+  from a mounted subtree: node text, `fg`/`bg` token names, `on_click`/
+  `on_scroll` command ids, and argument keys and values.
+
+Exceeding any of these fails closed with `E_UI_COMPONENT_INVALID` (shape,
+depth, node, or text bounds) or `E_UI_BLOCK_BUDGET` (block or aggregate
+registry bounds). These are per-plugin ceilings: the accepted scene contracts
+also define terminal-wide totals, but that aggregation across plugins is not
+implemented in the current build and stays deferred.
 
 ## Overlay Presentation and Transient Input (`bitty.ui.overlay`)
 
@@ -162,6 +204,17 @@ Mounting a component into the `"overlay"` slot creates a Core-hosted overlay
 block. Mounting alone does **not** present it or capture keyboard input;
 `bitty.ui.overlay.show(handle)` presents the mounted block without capture. The
 presentation surface is separate from transient keyboard capture.
+
+Overlay surfaces paint the same declarative node kinds and style vocabulary as
+bands: `fg`/`bg`/`bold` on a mounted overlay row resolve through the same host
+token table as a band row (`foreground`, `background`, `cursor`, `selection`,
+`accent`; any other well-formed token name falls back to the default colour),
+so a palette or composer looks the same either way. A row that declares no
+style keeps the single-pill default paint, and an empty styled row still keeps
+its one-cell default pill rather than painting nothing. Declared
+`on_click`/`on_scroll` bindings on overlay content are validated but
+not dispatched in the current build; band surfaces are the only routed targets
+(see [Interactive Band Commands](#interactive-band-commands-on_click-and-on_scroll)).
 
 For a command palette, modal dialog, or picker that also needs transient
 keyboard input, use the separate focus/capture operations. They require the
@@ -239,3 +292,21 @@ bitty.events.subscribe("terminal.state_changed", function(ev)
   bitty.ui.update(handle, status_tree)
 end)
 ```
+
+## Lua UI Parity Status
+
+The behavior on this page is reconciled against the merged `bitty`
+implementation ([PR #2385](https://github.com/bitty-terminal/bitty/pull/2385)
+and [PR #2392](https://github.com/bitty-terminal/bitty/pull/2392), tracked in
+issue [#2191](https://github.com/bitty-terminal/bitty/issues/2191);
+implementation task CTX-1419, while the API-design task CTX-1299 and the
+release-scope task CTX-1305 remain open). Still
+deferred (candidate work, not shipped): the unresolved statusline vocabulary
+outside the `bottom`-band composition, overlay pointer routing, one surface
+per plugin per band edge, terminal-wide budget aggregation, a wider theme
+token namespace, and headed capsule evidence for plugin-composed surfaces.
+Wording changes to the accepted
+[Plugin API v1 Lua Surface RFC](https://github.com/bitty-terminal/bitty-plugins-docs/blob/main/sdk/plugin-api-v1-lua-surface-rfc.md)
+go through the owner contract amendment process
+(issue [#2676](https://github.com/bitty-terminal/bitty/issues/2676)); this
+manual records current behavior without rewriting that accepted contract.
