@@ -2,6 +2,8 @@
 
 Every keyboard-triggerable chrome action, every shipped default chord, and every `core.*` registry command in one place. This page is generated from the Bitty implementation, not from memory: the ground truth is `crates/bitty-config/src/keymap.rs` (`ChromeAction`, `DEFAULT_KEYMAPS`) and `crates/bitty-terminal/src/inspect.rs` (`CORE_COMMANDS`) at bitty `0.0.22`.
 
+## Historical 0.0.22 snapshot (protected)
+
 ## Ground truth and verification
 
 Bitty `0.0.22` does not ship `bitty list actions` or `bitty list keymaps`: both fail closed as unknown kinds (exit 2, `want themes|plugins|instances`). This was confirmed against a local build (`cargo build -p bitty-terminal` with `CARGO_TARGET_DIR` under `.targets/manual-catalog`, binary reports `bitty 0.0.22`):
@@ -25,11 +27,12 @@ The tables below are therefore extracted 1:1 from source and cross-checked mecha
 
 One row per `ChromeAction` variant. "Manual-bind-only" means the action never appears in `DEFAULT_KEYMAPS`: it stays parseable and user-bindable but has no shipped chord.
 
+<!-- prettier-ignore-start -->
 | Action                                 | Behavior                                                                                                                                                                                       | Default chord(s)                                                                                                                                                                                                                                                                                                     | Manual-bind-only           |
 | :------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- |
 | `goto_split:<left\|right\|up\|down>`   | Move focus spatially beyond the facing edge; rank by nearest facing edge, then dwindle adjacency, then widest shared edge, then perpendicular center.                                          | `alt+h`, `alt+j`, `alt+k`, `alt+l`, `alt+left`, `alt+down`, `alt+up`, `alt+right`, `ctrl+alt+left`, `ctrl+alt+down`, `ctrl+alt+up`, `ctrl+alt+right`                                                                                                                                                                 | No                         |
 | `new_split:<left\|right\|up\|down>`    | Split the focused pane in a fixed direction.                                                                                                                                                   | `shift+alt+h`, `shift+alt+j`, `shift+alt+k`, `shift+alt+l`, `shift+alt+left`, `shift+alt+down`, `shift+alt+up`, `shift+alt+right`                                                                                                                                                                                    | No                         |
-| `new_panel`                            | Open a new panel with the adaptive `Balanced` policy: split the largest pane on the cell-aspect axis, place the new panel after it, and refuse a target with no axis that fits two 10x4 panes. | `alt+n`                                                                                                                                                                                                                                                                                                              | No                         |
+| `new_panel`                            | Default `Spiral`; clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes.                                                         | `alt+n`                                                                                                                                                                                                                                                                                                              | No                         |
 | `resize_split:<left\|right\|up\|down>` | Nudge the enclosing split ratio by one `layout.resize_step` step.                                                                                                                              | `shift+ctrl+h`, `shift+ctrl+j`, `shift+ctrl+k`, `shift+ctrl+l`, `shift+ctrl+left`, `shift+ctrl+down`, `shift+ctrl+up`, `shift+ctrl+right`, `ctrl+shift+alt+h`, `ctrl+shift+alt+j`, `ctrl+shift+alt+k`, `ctrl+shift+alt+l`, `ctrl+shift+alt+left`, `ctrl+shift+alt+down`, `ctrl+shift+alt+up`, `ctrl+shift+alt+right` | No                         |
 | `close_view`                           | Close focused pane; see [close behavior](workspaces-panels.md#managing-workspaces-and-panels) for focus, workspace pruning, and confirmation.                                                  | `alt+d`, `alt+q`                                                                                                                                                                                                                                                                                                     | No                         |
 | `toggle_zoom`                          | Toggle single-pane zoom (aliases `toggle_split_zoom`, `suspend_panel`, `detach_panel`).                                                                                                        | `alt+m`, `alt+f`, `alt+z`                                                                                                                                                                                                                                                                                            | No                         |
@@ -65,6 +68,7 @@ One row per `ChromeAction` variant. "Manual-bind-only" means the action never ap
 | `toggle_floating`                      | Toggle the focused panel between tiled and floating (alias `floating_toggle`).                                                                                                                 | `alt+a`                                                                                                                                                                                                                                                                                                              | No                         |
 | `toggle_pinned`                        | Toggle the focused panel's pinned (sticky-float) state (alias `pinned_toggle`).                                                                                                                | —                                                                                                                                                                                                                                                                                                                    | Yes (intentional)          |
 | `command:<owner:command>`              | Invoke one registered plugin command with empty args (aliases `invoke_command`, `run_command`). Commands with required args refuse the chord loudly.                                           | —                                                                                                                                                                                                                                                                                                                    | Yes (intentional)          |
+<!-- prettier-ignore-end -->
 
 `close_view` also accepts `close_surface`, `close_panel`, and `exit_panel`. Tiled focus moves to the sibling subtree that expands into the vacated slot: the sibling's first pane when the closed pane was left/top, its last pane when it was right/bottom. A last-tile workspace is pruned only with another workspace and no local floats. Busy-session confirmation and hidden zoomed siblings still apply: repeat the close chord to confirm, or press `Esc` to cancel.
 
@@ -262,3 +266,53 @@ Every unbound action below is intentional per the implementation (each is docume
 | `toggle_pinned`                                                               | Intentional: same byte-identical discipline (suggested chord `alt+p`).                                                            |
 | `command:<owner:command>`                                                     | Intentional: invocation targets are user- and plugin-specific (example chord `ctrl+alt+p`).                                       |
 | `workspace_focus:10..=16`, `workspace_move:10..=16`, `workspace_swap:10..=16` | Intentional: single-chord digits only cover `1..=9`; higher indices are user-bindable (e.g. `alt+g` for `workspace_focus:10`).    |
+
+## Current Core revision `7d98f53a`
+
+The following sections describe current behavior separately from the protected 0.0.22 snapshot above. They are current deltas and current catalog counts; no historical row is relabeled as current.
+
+### Current local catalog commands
+
+Core revision `7d98f53a`, used for current v0.0.29 preparation, adds local catalog commands that were absent from 0.0.22:
+
+```bash
+bitty list actions --format json
+bitty list keymaps --format json
+```
+
+Both commands succeed without a running instance. `list actions` reports the chrome-action catalog together with the `core.*` registry commands. `list keymaps` reports the resolved chord-to-action table, including the effective `mod_key` and whether each row comes from shipped defaults or user configuration.
+
+### Current action catalog delta
+
+The current action catalog still has **38 action variants**. The only documented behavior delta from the protected 0.0.22 action table is `new_panel`:
+
+| Current action | Current behavior                                                                                                                                           | Current default chord |
+| :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------- |
+| `new_panel`    | Default `Spiral`: place the new panel clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes. | `alt+n`               |
+
+### Current core command catalog
+
+Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command historical catalog plus the two current local catalog commands below. This table is current-only and is not part of the historical snapshot.
+
+| Current command           | Class     | Summary                                                           |
+| :------------------------ | :-------- | :---------------------------------------------------------------- |
+| **`core.instance.list`**  | `local`   | List live instances via socket discovery (no content fetch).      |
+| **`core.window.list`**    | `runtime` | List windows of the selected instance.                            |
+| **`core.view.list`**      | `runtime` | List views of the selected instance.                              |
+| **`core.terminal.list`**  | `runtime` | List terminals of the selected instance.                          |
+| **`core.terminal.spawn`** | `runtime` | Spawn a terminal (explicit elevation).                            |
+| **`core.terminal.close`** | `runtime` | Close a terminal by id (explicit elevation).                      |
+| **`core.terminal.send`**  | `runtime` | Send input text to the focused terminal (untrusted bytes).        |
+| **`core.terminal.text`**  | `runtime` | Read terminal text (untrusted observation data).                  |
+| **`core.view.split`**     | `runtime` | Split the focused view in a direction.                            |
+| **`core.view.focus`**     | `runtime` | Focus a view by id.                                               |
+| **`core.config.reload`**  | `runtime` | Reload configuration in the live instance (explicit elevation).   |
+| **`core.list.themes`**    | `local`   | Enumerate built-in theme presets (local).                         |
+| **`core.list.plugins`**   | `local`   | Enumerate the static bundled plugin catalog (local, no VM).       |
+| **`core.list.instances`** | `runtime` | Enumerate live instances via socket discovery (no content fetch). |
+| **`core.list.actions`**   | `local`   | Enumerate chrome actions and core commands (local catalog).       |
+| **`core.list.keymaps`**   | `local`   | Enumerate resolved chord/action keymaps (local defaults).         |
+
+### Current default keymap count
+
+The current shipped default keymap still has **97 default chords**, in the same Alt-as-Mod vocabulary and source order as the protected snapshot. The current `list keymaps` command exposes those resolved defaults plus any user configuration; the 0.0.22 table above remains the historical 97-row snapshot and is not a current table.
