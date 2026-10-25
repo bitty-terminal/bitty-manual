@@ -52,7 +52,7 @@ warning_ms = 4
 - **`[lazy]`**: Triggers that instruct Bitty when to create the plugin's Lua VM:
   - `commands`: Commands registered directly into the Command Palette without loading Lua code.
   - `events`: System lifecycle events that awaken the plugin.
-  - `claims`: Exclusive claims to reserved slots (e.g. `claims = ["tabline"]`).
+  - `claims`: Exclusive claims to reserved slots (for example, the `tabline` slot uses `claims = ["workspaceline"]`).
 - **`[limits]`** (optional): Tighten-only execution budgets. Every key is
   optional; an absent key keeps the host ceiling. A present value must be
   `1..=ceiling` — zero, a negative or non-integer value, or anything above the
@@ -150,7 +150,7 @@ Open it from the command palette (`bitty-terminal.dashboard:toggle_dashboard`) o
 - **Sections**: Overview (app version, active profile and source, theme and source, font, decoration, counts), Plugins, Extensions, Settings, Profiles, and Diagnostics. A section either renders bounded rows or an explicit `unavailable: <reason>` marker — a failed source is never shown as "none installed".
 - **Keys while open**: `j`/`k` or arrows move rows, `h`/`l` or `Tab`/`Shift+Tab` change section, `1`…`6` jump to a section, `g`/`G` and `PageUp`/`PageDown` move within a section, the wheel scrolls, `r` re-reads the snapshot, and `q`/`Esc` closes.
 - **Read-only by design**: settings writes, plugin toggles, and profile switches are deferred until the typed `config.manage` API lands (bitty#2393). Only `runtime.inspect` and `ui.overlay.focus` are requested.
-- **Limits**: only one plugin may own the overlay capture; the host releases an idle capture after 30 seconds, and the panel's session cap is ten minutes. Captured pointer presses carry no coordinates, so panel tabs are not clickable.
+- **Limits**: only one plugin may own the transient overlay capture at a time; Core bounds its event queue and revokes an expired capture. The dashboard uses keyboard capture for its controls; mounted presentation and transient capture remain separate operations.
 - **No keybinding is installed.** Bind `command:bitty-terminal.dashboard:toggle_dashboard` yourself, for example `alt+g` in `init.lua`.
 
 The plugin requires Bitty `>=0.0.26`, so an older host rejects the manifest instead of opening an empty panel.

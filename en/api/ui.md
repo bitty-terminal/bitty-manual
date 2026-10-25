@@ -26,17 +26,17 @@ local handle = bitty.ui.mount(slot, component)
 
 #### Supported Slots
 
-| Slot Name    | Placement Status | Description                                                                       |
-| :----------- | :--------------- | :-------------------------------------------------------------------------------- |
-| `"top"`      | **Painted**      | Top edge chrome band.                                                             |
-| `"bottom"`   | **Painted**      | Bottom edge chrome band.                                                          |
-| `"left"`     | Stored           | Left edge band (stored in registry; painted when vertical bands activate).        |
-| `"right"`    | Stored           | Right edge band (stored in registry; painted when vertical bands activate).       |
-| `"tabline"`  | Reserved         | Exclusive-claim tab strip. Requires manifest claim `[lazy].claims = ["tabline"]`. |
-| `"overlay"`  | Interactive      | Focusable overlay surface. Requires `ui.overlay` capability.                      |
-| `"terminal"` | Reserved         | Terminal block attached to scrollback.                                            |
+| Slot Name    | Placement Status | Description                                                                                                                             |
+| :----------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| `"top"`      | **Painted**      | Top edge chrome band.                                                                                                                   |
+| `"bottom"`   | **Painted**      | Bottom edge chrome band.                                                                                                                |
+| `"left"`     | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                      |
+| `"right"`    | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                      |
+| `"tabline"`  | **Unavailable**  | Reserved for panel tabs; requires the `[lazy].claims = ["workspaceline"]` claim, and no host surface is available (`E_UI_UNAVAILABLE`). |
+| `"overlay"`  | **Mounted**      | Core-hosted overlay block; call `bitty.ui.overlay.show` to present it without capture. Requires `ui.rich` and `ui.overlay`.             |
+| `"terminal"` | **Unavailable**  | Accepted slot name, but no terminal-attached block host is available (`E_UI_UNAVAILABLE`).                                              |
 
-The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](../plugins/catalog/bar.md) plugin's `bottom` (or `top`) band.
+The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](../plugins/catalog/bar.md) plugin's `bottom` (or `top`) band. Unsupported names in the closed set fail closed with `E_UI_UNAVAILABLE`; they are not silently stored for a future host.
 
 ### `bitty.ui.update(block_id, component)`
 
@@ -63,8 +63,8 @@ A leaf node displaying styled text content.
 {
   kind = "Text",
   text = "  bitty ",
-  fg = "accent",          -- Theme token or hex color
-  bg = "surface.2",       -- Theme background token
+  fg = "accent",          -- Current host token
+  bg = "background",      -- Current host token
   bold = true,            -- Optional boolean
   on_click = {            -- Optional command trigger
     command = "my-plugin:toggle",
@@ -72,6 +72,14 @@ A leaf node displaying styled text content.
   },
 }
 ```
+
+`fg` and `bg` accept bounded, lowercase theme-token names (a token must start
+with a lowercase letter and use only `[a-z0-9._-]`). The current host resolves
+only `foreground`, `background`, `cursor`, `selection`, and `accent`;
+unknown tokens fall back to the span default and are counted in host
+diagnostics. Raw hexadecimal colour strings are not accepted by the bridge and
+should not be used in these fields. A wider token namespace is not part of the
+current manual contract.
 
 ### 2. `Row`
 
@@ -115,9 +123,19 @@ A sequential list container.
 > [!NOTE]
 > Heavy nodes such as `Block`, `Image`, `CodeBlock`, `Table`, and `Rule` are excluded from v1. Passing them returns error `E_UI_COMPONENT_INVALID`.
 
-## Interactive Click Commands (`on_click`)
+Malformed node tables, wrong field types, invalid token names, and out-of-range
+values fail closed with the typed `E_UI_COMPONENT_INVALID` validation error.
+Unknown slot names fail with the same typed validation error; accepted slots
+without a host fail with `E_UI_UNAVAILABLE` instead. The `"tabline"` slot is
+the exception to this general rule: without the canonical
+`[lazy].claims = ["workspaceline"]` claim it fails with `E_UI_CLAIM_REQUIRED`;
+with that claim but no host surface it fails with `E_UI_UNAVAILABLE`.
 
-Nodes can bind interactive clicks. When clicked, the host dispatches the event through the Command Bus rather than invoking an arbitrary Lua closure on the rendering thread:
+## Interactive Band Commands (`on_click`)
+
+Nodes mounted in a painted `top` or `bottom` band can bind interactive clicks.
+When clicked, Core dispatches the event through the Command Bus rather than
+invoking an arbitrary Lua closure on the rendering thread.
 
 ```lua
 on_click = {
@@ -138,26 +156,54 @@ The bridge enforces deterministic ceilings before passing nodes to Rust:
 - **Maximum Text Bytes per Block**: 256 KiB (`UI_MAX_TEXT_BYTES`).
 - **Maximum Retained Blocks per Plugin**: 64 blocks (`UI_MAX_BLOCKS`).
 
-## Overlay & Transient Input (`bitty.ui.overlay`)
+## Overlay Presentation and Transient Input (`bitty.ui.overlay`)
 
-For command palettes, modal dialogs, or picker interfaces that require transient keyboard input:
+Mounting a component into the `"overlay"` slot creates a Core-hosted overlay
+block. Mounting alone does **not** present it or capture keyboard input;
+`bitty.ui.overlay.show(handle)` presents the mounted block without capture. The
+presentation surface is separate from transient keyboard capture.
+
+For a command palette, modal dialog, or picker that also needs transient
+keyboard input, use the separate focus/capture operations. They require the
+`ui.overlay.focus` capability:
 
 ```lua
--- Acquire input capture (requires ui.overlay.focus capability)
+-- Mount the presentation first (requires ui.rich and ui.overlay)
+local handle = bitty.ui.mount("overlay", content_tree)
+
+-- Present the mounted overlay without capturing input
+bitty.ui.overlay.show(handle)
+
+-- Separately acquire keyboard capture for that mounted overlay
+-- (requires ui.overlay.focus capability)
+local session = bitty.ui.overlay.acquire(handle)
+
+-- Replace the mounted overlay content while the session is active
+bitty.ui.overlay.update(session, content_tree)
+
+-- Poll captured keyboard/input events asynchronously
+local events = bitty.ui.overlay.poll(session, 16)
+
+-- Release capture when done; this does not mean that mount is a click target
+bitty.ui.overlay.release(session, "submitted") -- or "cancelled"
+```
+
+The convenience form accepts presentation hints and creates the mounted
+focusable surface and capture session together:
+
+```lua
 local session = bitty.ui.overlay.acquire({
   title = "Quick File Switcher",
   placeholder = "Type to search...",
 })
-
--- Update overlay content
-bitty.ui.overlay.update(session, content_tree)
-
--- Poll for captured input events asynchronously
-local events = bitty.ui.overlay.poll(session, 16)
-
--- Release overlay when done
-bitty.ui.overlay.release(session, "submitted") -- or "cancelled"
 ```
+
+`bitty.ui.overlay.show(handle)` and `bitty.ui.overlay.hide(handle)` are the
+presentation-only operations when a mounted overlay should be shown or hidden
+without keyboard capture. `show` requires `ui.rich` and `ui.overlay`, not
+`ui.overlay.focus`, and fails closed in Safe Mode or when the host surface is
+unavailable. `hide` is an ungated, idempotent cleanup operation, so it remains
+available after capability revocation and in Safe Mode.
 
 ## Example: Building a Live Statusline Component
 
@@ -179,7 +225,7 @@ local status_tree = {
     {
       kind = "Text",
       text = " | Ready",
-      fg = "surface.1",
+      fg = "foreground",
     },
   },
 }

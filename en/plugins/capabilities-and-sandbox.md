@@ -39,9 +39,9 @@ version = ">=2.30"
 ### Core Capability Families
 
 1. **`ui` Family**:
-   - `ui.rich`: Grants permission to mount and update declarative UI scenes into host slots (`top`, `bottom`, `left`, `right`, `tabline`, `terminal`); the `overlay` surface additionally needs `ui.overlay`.
-   - `ui.overlay`: Grants permission to mount into the `overlay` slot.
-   - `ui.overlay.focus`: Grants permission to capture transient keyboard input focus via `bitty.ui.overlay.acquire`.
+   - `ui.rich`: Grants permission to mount and update declarative UI scenes. In the current host, `top` and `bottom` are painted bands; the other accepted slot names either fail closed as unavailable or, for `overlay`, require the additional `ui.overlay` grant.
+   - `ui.overlay`: Grants permission to mount and present a component in the `overlay` slot. Presentation does not capture keyboard input.
+   - `ui.overlay.focus`: Grants permission to acquire transient keyboard/input capture via `bitty.ui.overlay.acquire`. It is separate from the `ui.overlay` presentation grant; safe mode denies the focusable surface.
 2. **`platform` Family**:
    - `platform.notify`: Grants permission to post desktop notifications via `bitty.notify.show`.
 3. **`workspace` Family**:
