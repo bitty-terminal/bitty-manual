@@ -52,7 +52,7 @@ warning_ms = 4
 - **`[lazy]`**: Triggers that instruct Bitty when to create the plugin's Lua VM:
   - `commands`: Commands registered directly into the Command Palette without loading Lua code.
   - `events`: System lifecycle events that awaken the plugin.
-  - `claims`: Exclusive claims to reserved slots (e.g. `claims = ["tabline"]`).
+  - `claims`: Exclusive claims to reserved slots (for example, the `tabline` slot uses `claims = ["workspaceline"]`).
 - **`[limits]`** (optional): Tighten-only execution budgets. Every key is
   optional; an absent key keeps the host ceiling. A present value must be
   `1..=ceiling` — zero, a negative or non-integer value, or anything above the
