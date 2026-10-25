@@ -82,7 +82,7 @@ Every installed extension is auditable byte-for-byte:
 ```bash
 # Print the exact pinned executable bytes (version defaults to active)
 bitty extension show-source net
-bitty extension show-source net 0.0.23
+bitty extension show-source net 0.0.1
 ```
 
 The executable hash is re-verified against the installed descriptor before anything is printed; a missing install or hash mismatch fails closed (exit code `4`) with nothing on standard output. Provenance (name, version, source tier, path, SHA-256) goes to standard error so standard output stays byte-identical for piping and hashing. Nothing is executed.

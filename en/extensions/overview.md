@@ -18,7 +18,7 @@ Publication status below is based on the current release-readiness evidence: onl
 
 | Extension                                 | Status           | Page                                      |
 | ----------------------------------------- | ---------------- | ----------------------------------------- |
-| network (shared network runtime)          | Published 0.0.1  | [network](network.md)                     |
+| net (shared network runtime)              | Published 0.0.1  | [network](network.md)                     |
 | ipc (out-of-process IPC bridge)           | Unpublished      | [ipc](ipc.md)                             |
 | agent (agent protocol vocabulary)         | Unpublished      | [agent](agent.md)                         |
 | ai (AI host and Lua capability surface)   | Unpublished      | [ai](ai.md)                               |
