@@ -36,6 +36,12 @@ ui = ["ui.rich"]
 [lazy]
 commands = ["my-plugin:open"]
 events = ["terminal.opened"]
+
+[limits]
+fuel_instructions = 4000000
+wall_ms = 25
+memory_bytes = 8388608
+warning_ms = 4
 ```
 
 ### Manifest Tables Explained
@@ -47,6 +53,24 @@ events = ["terminal.opened"]
   - `commands`: Commands registered directly into the Command Palette without loading Lua code.
   - `events`: System lifecycle events that awaken the plugin.
   - `claims`: Exclusive claims to reserved slots (e.g. `claims = ["tabline"]`).
+- **`[limits]`** (optional): Tighten-only execution budgets. Every key is
+  optional; an absent key keeps the host ceiling. A present value must be
+  `1..=ceiling` — zero, a negative or non-integer value, or anything above the
+  host ceiling fails manifest validation. The keys are:
+
+  | Key                 | Host ceiling | Meaning                                         |
+  | :------------------ | :----------- | :---------------------------------------------- |
+  | `fuel_instructions` | 10,000,000   | VM instructions per VM                          |
+  | `wall_ms`           | 50           | Charged wall time per callback, in milliseconds |
+  | `memory_bytes`      | 33,554,432   | Accounted VM heap per VM, in bytes              |
+  | `warning_ms`        | 8            | Advisory warning threshold; never suspends      |
+
+  Declarations can only tighten: they never raise the host ceiling, and the
+  user's local budget file can tighten them further (never widen them).
+  `warning_ms` must be below `wall_ms` when both are present; a tighter wall
+  automatically caps the advisory threshold at `wall_ms - 1`. Under `--safe`
+  the manifest declaration is ignored and host defaults apply. See
+  [Plugin Configuration](../configuration/plugin-config.md#execution-budget-tightening).
 
 ### Declare a compatibility floor, not a ceiling
 
