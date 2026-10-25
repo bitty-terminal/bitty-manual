@@ -83,11 +83,12 @@ brew install bitty
 #### Windows (Scoop)
 
 Published Scoop bucket for x64 and ARM64; the v0.0.28 artifact and hash are
-published, but the bucket's executable alias still needs its follow-up fix:
+published, but the manifest does not yet provide a usable `bitty` executable
+alias. Register the bucket if needed, but wait for the alias fix before using
+Scoop to install Bitty:
 
 ```powershell
 scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
-scoop install bitty
 ```
 
 ### Additional packaging status
