@@ -6,11 +6,13 @@ Bitty organizes your window environment through a composable container hierarchy
 
 ```text
 Window
-└── Workspaces (Virtual Desktops / Tabs)
-    ├── Chrome Insets / Slot (visual bar rendered by an extension, never by Core)
-    └── Panels (Containers)
-        ├── Presentation Mode: Tiled, Floating, or Overlay
-        └── View: Shell process / PTY session or native UI widget
+├── Workspaces (Virtual Desktops / Tabs)
+│   ├── Chrome Insets / Slot (visual bar rendered by an extension, never by Core)
+│   └── Panels (Containers)
+│       ├── Presentation Mode: Tiled, Floating, or Overlay
+│       └── View: Shell process / PTY session or native UI widget
+└── Pinned Panels (window-global sticky floats, outside every workspace)
+    └── Panel / View
 ```
 
 ### Workspaces
@@ -36,6 +38,7 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 - **Resize Granularity**: Interactive split resizing applies `layout.resize_step` (split-ratio delta, default `0.05`).
 - **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
 - **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
+- **Pinned Panels**: Pinning moves a tiled or floating panel into the window-global pinned store, so it remains visible across workspace switches. Unpinning restores it to the active workspace in floating mode; pinned state is separate from the workspace's tiled/floating/overlay hierarchy.
 
 ## Managing Workspaces and Panels
 

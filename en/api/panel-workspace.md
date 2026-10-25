@@ -50,6 +50,29 @@ Toggles a panel between tiled binary-tree layout and floating window mode.
 local is_floating = bitty.panel.toggle_floating(panel_id)
 ```
 
+#### `bitty.panel.set_pinned(panel_id, pinned)`
+
+Sets whether a panel is pinned as a window-global sticky float. This method
+requires the `panel.focus` capability.
+
+```lua
+local applied = bitty.panel.set_pinned(panel_id, true)
+-- `true` means the panel is now pinned; this is also returned when it was
+-- already pinned.
+```
+
+Pinned panels live outside every workspace and remain visible when the active
+workspace changes. Setting `pinned` to `false` restores the panel to the
+currently active workspace, focuses it, and leaves it in floating mode.
+
+The return value is `true` when the requested state holds, including an
+idempotent call that makes no change. It is `false` for an unknown or
+unpinnable target, and those failures leave state unchanged. Only tiled or
+floating panels can be pinned; fullscreen and scratchpad panels cannot be
+pinned, and pinning the last live panel in a layout is refused. An unpinned
+panel can be passed with `pinned = false` and still returns `true` as an
+idempotent no-op.
+
 #### `bitty.panel.get_state(panel_id)`
 
 Fetches geometric dimensions, focus status, and view properties of a panel.
