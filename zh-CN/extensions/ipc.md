@@ -3,7 +3,7 @@
 通用的跨进程 IPC 桥边界：有界 framing、对端凭证认证、基于作用域的同意机制，承载 DevTools 与 MCP 协议。为 DevTools、无头、沙盒、面板扩展及 AI 插件提供通用基础设施（`bitty-ipc` README）。
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-ipc`（[github.com/bitty-terminal/bitty-ipc](https://github.com/bitty-terminal/bitty-ipc)）
-- Crates：`bitty-ipc-api`、`bitty-ipc-core`、`bitty-ipc-auth`、`bitty-ipc-devtools`、`bitty-ipc-mcp`
+- Crates：`bitty-ipc`、`bitty-ipc-api`、`bitty-ipc-auth`、`bitty-ipc-core`、`bitty-ipc-devtools`、`bitty-ipc-winpipe`
 - 成熟度：已从 Bitty Core 抽出，pre-1.0（`0.0.1`）；未发布到 crates.io。
 
 ## 安装状态
