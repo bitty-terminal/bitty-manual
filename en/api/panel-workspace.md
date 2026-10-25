@@ -160,12 +160,12 @@ closed without applying their state change.
 
 #### `bitty.workspace.list()`
 
-Returns an array of all open workspaces in workspace-ID order, with their layout descriptors.
+Returns an array of all open workspaces in current display order, with their layout descriptors. The array position is a 1-based display position; each row's `id` is the stable numeric workspace ID and is not a position.
 
 ```lua
 local list = bitty.workspace.list()
-for _, ws in ipairs(list) do
-  print(string.format("Workspace [%s]: %s (Active: %s)", ws.id, ws.name, tostring(ws.active)))
+for position, ws in ipairs(list) do
+  print(string.format("Workspace %d [%s]: %s (Active: %s)", position, ws.id, ws.name, tostring(ws.active)))
 end
 ```
 
@@ -252,6 +252,8 @@ These are the current move behavior, not a new plugin layout API.
 ```lua
 bitty.workspace.move_panel(target_workspace_id)
 ```
+
+The keyboard position actions `workspace_focus:<n>`, `workspace_move:<n>`, and `workspace_swap:<n>` also address the current 1-based display position. They are separate from Lua arguments that take a stable workspace ID.
 
 ---
 
