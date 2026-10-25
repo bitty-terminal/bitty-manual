@@ -72,8 +72,6 @@ One row per `ChromeAction` variant. "Manual-bind-only" means the action never ap
 
 `close_view` also accepts `close_surface`, `close_panel`, and `exit_panel`. Tiled focus moves to the sibling subtree that expands into the vacated slot: the sibling's first pane when the closed pane was left/top, its last pane when it was right/bottom. A last-tile workspace is pruned only with another workspace and no local floats. Busy-session confirmation and hidden zoomed siblings still apply: repeat the close chord to confirm, or press `Esc` to cancel.
 
-**Current behavior:** The current `new_panel` default is documented in [workspace and panel placement](workspaces-panels.md): `Spiral` follows the focused pane's creation chain while feasible, then falls back to the largest feasible `Balanced` leaf (allocation-order ties) and refuses without mutation when no gap-aware 10x4 split fits. This note is separate from the generated 0.0.22 snapshot above.
-
 ## `core.*` registry commands
 
 The static core command surface (`CORE_COMMANDS` in `inspect.rs`): 11 `ctl` executables plus 3 `list` executables. Inspect any entry with `bitty inspect command <id>` (dot and colon forms are equivalent, e.g. `bitty inspect command core.terminal.text`); invoke the escape hatch with `bitty cmd <qualified-id> [-- <args-json>]` (well-formed ids without a live dispatch target fail closed naming the `bitty ctl ...` sugar form where one exists).
@@ -289,6 +287,8 @@ The current action catalog still has **38 action variants**. The only documented
 | Current action | Current behavior                                                                                                                                           | Current default chord |
 | :------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------- |
 | `new_panel`    | Default `Spiral`: place the new panel clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes. | `alt+n`               |
+
+The current `new_panel` default is also documented in [workspace and panel placement](workspaces-panels.md): `Spiral` follows the focused pane's creation chain while feasible, then falls back to the largest feasible `Balanced` leaf (allocation-order ties) and refuses without mutation when no gap-aware 10x4 split fits.
 
 ### Current core command catalog
 
