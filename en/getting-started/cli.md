@@ -64,7 +64,7 @@ These modes do not exercise the headed event loop or validate native clipboard b
 
 ## Subcommands
 
-Bitty ships 16 subcommands (including `help`). Local verbs need no running instance; runtime verbs (`ctl`, `cmd`) target one live instance over IPC (Unix only).
+Bitty ships 16 subcommands (including `help`). Local verbs need no running instance. `bitty ctl` targets one live instance over a local IPC transport: the instance socket on Unix, or the instance-derived named pipe `\\.\pipe\bitty-<instance>` on Windows. Windows serves the same bounded protocol under a current-user ACL plus a client SID check. `bitty cmd` is a local invocation escape hatch and carries no target selection.
 
 ### Explicit Child Launch (`bitty run`)
 
@@ -75,24 +75,30 @@ bitty run -- COMMAND [ARGS...]
 
 ### Runtime Control (`bitty ctl`)
 
-Control a running instance (needs one live instance; Unix IPC only):
+Control a running instance (needs one live instance; local IPC over a Unix socket or a Windows named pipe):
 
 ```bash
 bitty ctl instance list
 bitty ctl window list
-bitty ctl "view list" | view split [--left|--right|--up|--down] | view focus v:N
+bitty ctl view list | view split [--left|--right|--up|--down] | view focus v:N
+bitty ctl panel list
 bitty ctl terminal list | terminal spawn [--cwd PATH] | terminal close t:N
 bitty ctl terminal send t:N TEXT | terminal text t:N
 bitty ctl workspace list | workspace new | workspace close ws:N
 bitty ctl workspace focus ws:N | workspace move ws:N
 bitty ctl workspace rename ws:N NAME | workspace move-panel POSITION
 bitty ctl config reload
+bitty ctl consent grant --scope SCOPE [--terminal T --family F]
+bitty ctl consent revoke --scope SCOPE
+bitty ctl consent revoke-session
 ```
 
 Output shapes: `--format table|json|jsonl`. Targeting precedence: `--socket`, `--instance`, `BITTY_SOCKET`/`BITTY_INSTANCE_ID`, exactly-one-live fallback.
 
 > [!NOTE]
-> There is no panel resource in `ctl`: the current panel id is not queryable yet. `view list` reports views (`v:N` plus a `focused` marker). See [bitty#1900](https://github.com/bitty-terminal/bitty/issues/1900).
+> `bitty ctl panel list` (registry `core.panel.list`, wire method `bitty.debug/listPanels`, scope `view.inspect`) reports each tiled panel's `p:N` id, `v:N` view id, bounds, role, and `focused` marker. Pinned and scratchpad leaves outside the live layout are not listed. `view list` still reports views (`v:N` plus a `focused` marker) and remains the view-level inventory.
+
+`bitty ctl consent` manages session consent for the debug and terminal-automation lane (`debug.inspect`, `debug.trace`, `debug.control`, `terminal.inspect`, `terminal.input`). `consent grant --scope S` prompts on the local terminal and requires the exact `ALLOW <what>` phrase; any other answer, EOF, or a non-terminal stdin aborts without granting. The phrase is never accepted from a flag, environment variable, configuration file, or inherited descriptor. `--terminal T --family F` additionally binds an automation bearer to one terminal (`synthesize` uses `debug.control`, `capture` uses `debug.trace`, each with its terminal half); the bearer is returned once in the receipt. `consent revoke --scope S` and `consent revoke-session` return a receipt and deny queued and future requests of the session at the next dispatch boundary. These three verbs do not use `BITTY_CTL_ELEVATE`; only `terminal spawn`, `terminal close`, `workspace close`, and `config reload` need elevation.
 
 ### Configuration Management (`bitty config`)
 
@@ -105,6 +111,12 @@ bitty config path
 # Validate main configuration syntax and schema without launching a GUI
 bitty config check
 
+# Print effective values with per-key layer attribution
+bitty config show
+
+# Validate only: no rows on success, exit 2 when invalid
+bitty config validate
+
 # Open current configuration (the selector, or a legacy file) in $VISUAL or $EDITOR
 bitty config edit
 
@@ -115,13 +127,13 @@ bitty config profile use work
 bitty config profile path work
 ```
 
-`config profile list` reads directory metadata only and evaluates no Lua. `show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
+`config profile list` reads directory metadata only and evaluates no Lua. `config profile show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
 
-`config check` is the strict diagnostic path: it evaluates the user file, the selected profile chain, and the merged result, and exits `2` with the exact first field error when anything is invalid. `bitty doctor` uses the same strict load. Neither command applies the startup salvage described next.
+`config check` is the strict diagnostic path: it evaluates the user file, the selected profile chain, and the merged result, prints effective rows with their source, and exits `2` with the exact first field error when anything is invalid. `config show` evaluates the same layers and prints the same effective rows, with `--format json|jsonl` emitting the versioned envelope with per-key `layer` and `source` attribution. `config validate` is validation-only: table mode prints nothing on success, and an invalid configuration exits `2` with the validation error (`--format json|jsonl` emits the validation envelope). None of these verbs applies the startup salvage described next, and `bitty doctor` uses the same strict load.
 
 Launching `bitty` is fail-soft for present external configuration. An invalid top-level table or scalar is ignored with one stderr diagnostic naming the file path, field path, error, and `ignored; using defaults and remaining layers`; every other valid table and layer stays in effect, and the file is never modified. Failures that cannot be narrowed to one element (Lua syntax or runtime errors, budget exhaustion, undeclared keys, unreadable files, profile `extends` problems) drop the whole external layer and startup continues on the remaining layers. Security-sensitive settings touched by salvage (plugins, history capture, mouse buttons, background-image roots and configured images) are denied for that launch so a lower layer cannot re-enable them. A missing explicit `--config` or `BITTY_CONFIG` path, a missing `--profile` or `BITTY_PROFILE` name, and CLI usage errors still exit `2`; a persisted selector that no longer resolves is ignored at startup with a diagnostic. See [Invalid Configuration at Startup](../configuration/overview.md#invalid-configuration-at-startup) for the full contract.
 
-`config check` does not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
+`config check`, `config show`, and `config validate` do not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
 
 ### Setup Wizard (`bitty init`)
 
@@ -196,15 +208,34 @@ can differ until the configuration is saved or Bitty is restarted.
 Alias: `bitty ls`
 
 ```bash
-# List available built-in and user themes
+# Built-in presets plus local theme files
 bitty list themes
 
-# List installed plugins and activation states
+# Effective 16 ANSI and UI tokens with measured contrast
+bitty list colors
+
+# Discovered system font faces (family, style, source)
+bitty list fonts
+
+# Static bundled plugin catalog (manifest metadata only, no VM)
 bitty list plugins
 
-# List running Bitty instances
+# Live instance discovery (runtime; no terminal content)
 bitty list instances
+
+# Chrome actions plus core commands, with effective bindings
+bitty list actions
+
+# Resolved chord-to-action table (config overrides plus defaults)
+bitty list keymaps
+
+# Registered extension interfaces (from validated manifests, no VM)
+bitty list services
 ```
+
+`list` accepts eight kinds: `themes`, `colors`, `fonts`, `plugins`, `instances`, `actions`, `keymaps`, and `services`. Singular spellings and `colours` are accepted; an unknown kind exits `2` naming the valid set. `--format table|json|jsonl` selects the output shape, and `--socket`/`--instance` apply only to `instances`.
+
+`actions` and `keymaps` print the local catalogs: both read the user configuration best-effort and resolve it against the shipped defaults through the same resolver, so they report the effective local bindings without a running instance or a plugin VM. `plugins` is the compiled-in bundled catalog, not the installed-plugin view (`bitty plugin list`); `services` derives one row per registered extension interface from validated manifests and install records, also without loading a VM.
 
 ### State Inspection (`bitty inspect`)
 
