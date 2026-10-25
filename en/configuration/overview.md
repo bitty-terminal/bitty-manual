@@ -212,8 +212,8 @@ Core-owned view decorations operate in logical pixels:
 | `decoration.border_color_focused`   | `string`  | **Live**     | Explicit outline border color for the focused view.                             |
 | `decoration.border_color_idle`      | `string`  | **Live**     | Explicit outline border color for unfocused/idle views.                         |
 | `decoration.border_width`           | `integer` | **Live**     | Base outline border width in logical pixels (`0..=16`, default `1`).            |
-| `decoration.border_width_focused`   | `integer` | **Live**     | Explicit outline width for focused view in logical pixels.                      |
-| `decoration.border_width_idle`      | `integer` | **Live**     | Explicit outline width for idle views in logical pixels.                        |
+| `decoration.border_width_focused`   | `integer` | **Live**     | Explicit outline width for focused view in logical pixels (`0..=16`).           |
+| `decoration.border_width_idle`      | `integer` | **Live**     | Explicit outline width for idle views in logical pixels (`0..=16`).             |
 | `decoration.background_image`       | `string`  | **Live**     | Path to global background image under approved roots.                           |
 | `decoration.background_fit`         | `string`  | **Live**     | Background fit mode: `"fill"`, `"fit"`, `"center"`, `"tile"`, or `"stretch"`.   |
 | `decoration.background_image_roots` | `array`   | **Live**     | Approved directory roots for background image resolution.                       |

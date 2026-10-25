@@ -33,7 +33,7 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 - **Minimum pane size**: 10 columns by 4 rows, checked after the configured cell gap (`layout.gaps_in`). Adaptive insertion and drag edge/corner insertion prefer the cell-aspect axis, fall back to the perpendicular one, and refuse a target only when neither axis can host two usable children; Bitty warns and leaves the layout unchanged instead of creating a border-only sliver. A 20-column pane at a 1-cell gap cannot split horizontally (9-column children) and stacks vertically when its height allows; a 21-column pane can split horizontally. Center swaps do not change geometry and remain allowed.
 - **Drag to move**: Mod+drag a tiled pane. Dropping in the target's middle half swaps the two panes. An edge drop inserts beside the target; a drop inside the corner 25% of both target axes splits inside the target's column or row. Self, background, and overlay drops are no-ops; `Esc`, pointer leave, or focus loss cancels without committing.
 - **Cell Gaps**: Tiled pane spacing in character cells is controlled by `layout.gaps_in` (inner gap between sibling panes) and `layout.gaps_out` (outer container margin).
-- **Resize Granularity**: Interactive split resizing applies `layout.resize_step` (split-ratio delta, default `0.05`).
+- **Resize Granularity**: Interactive split resizing applies `layout.resize_step` (split-ratio delta `0.01..=0.20`, default `0.05`).
 - **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
 - **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
 
