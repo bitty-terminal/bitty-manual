@@ -201,22 +201,24 @@ supported (OQ-038): only 0 is accepted`) until a bounded blur contract is
 
 Core-owned view decorations operate in logical pixels:
 
-| Field                               | Type      | Reload Class | Description                                                                     |
-| :---------------------------------- | :-------- | :----------- | :------------------------------------------------------------------------------ |
-| `decoration.border`                 | `integer` | **Live**     | View frame border width in logical pixels (`0..=8`, default `1`).               |
-| `decoration.radius`                 | `integer` | **Live**     | View frame corner radius in logical pixels (`0..=16`, default `6`).             |
-| `decoration.gaps_in`                | `integer` | **Live**     | Inner gap between sibling panels in logical pixels (`0..=32`, default `6`).     |
-| `decoration.gaps_out`               | `integer` | **Live**     | Outer gap around workspace container in logical pixels (`0..=32`, default `6`). |
-| `decoration.content_inset`          | `integer` | **Live**     | Inner padding between border and painted content in logical pixels (`0..=32`).  |
-| `decoration.border_color`           | `string`  | **Live**     | Base outline border color (`#RRGGBB` or `#RRGGBBAA`).                           |
-| `decoration.border_color_focused`   | `string`  | **Live**     | Explicit outline border color for the focused view.                             |
-| `decoration.border_color_idle`      | `string`  | **Live**     | Explicit outline border color for unfocused/idle views.                         |
-| `decoration.border_width`           | `integer` | **Live**     | Base outline border width in logical pixels (`0..=16`, default `1`).            |
-| `decoration.border_width_focused`   | `integer` | **Live**     | Explicit outline width for focused view in logical pixels (`0..=16`).           |
-| `decoration.border_width_idle`      | `integer` | **Live**     | Explicit outline width for idle views in logical pixels (`0..=16`).             |
-| `decoration.background_image`       | `string`  | **Live**     | Path to global background image under approved roots.                           |
-| `decoration.background_fit`         | `string`  | **Live**     | Background fit mode: `"fill"`, `"fit"`, `"center"`, `"tile"`, or `"stretch"`.   |
-| `decoration.background_image_roots` | `array`   | **Live**     | Approved directory roots for background image resolution.                       |
+| Field                                 | Type      | Reload Class | Description                                                                                                                        |
+| :------------------------------------ | :-------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| `decoration.border`                   | `integer` | **Live**     | View frame border width in logical pixels (`0..=8`, default `1`).                                                                  |
+| `decoration.radius`                   | `integer` | **Live**     | View frame corner radius in logical pixels (`0..=16`, default `6`).                                                                |
+| `decoration.gaps_in`                  | `integer` | **Live**     | Inner gap between sibling panels in logical pixels (`0..=32`, default `6`).                                                        |
+| `decoration.gaps_out`                 | `integer` | **Live**     | Outer gap around workspace container in logical pixels (`0..=32`, default `6`).                                                    |
+| `decoration.content_inset`            | `integer` | **Live**     | Inner padding between border and painted content in logical pixels (`0..=32`).                                                     |
+| `decoration.border_color`             | `string`  | **Live**     | Base outline border color (`#RRGGBB` or `#RRGGBBAA`).                                                                              |
+| `decoration.border_color_focused`     | `string`  | **Live**     | Explicit outline border color for the focused view.                                                                                |
+| `decoration.border_color_idle`        | `string`  | **Live**     | Explicit outline border color for unfocused/idle views.                                                                            |
+| `decoration.border_width`             | `integer` | **Live**     | Base outline border width in logical pixels (`0..=16`, default `1`).                                                               |
+| `decoration.border_width_focused`     | `integer` | **Live**     | Explicit outline width for focused view in logical pixels (`0..=16`).                                                              |
+| `decoration.border_width_idle`        | `integer` | **Live**     | Explicit outline width for idle views in logical pixels (`0..=16`).                                                                |
+| `decoration.background_image`         | `string`  | **Live**     | Path to global background image under approved roots.                                                                              |
+| `decoration.background_fit`           | `string`  | **Live**     | Background fit mode: `"fill"`, `"fit"`, `"center"`, `"tile"`, or `"stretch"`.                                                      |
+| `decoration.background_image_roots`   | `array`   | **Live**     | Approved directory roots for background image resolution.                                                                          |
+| `decoration.background_tint`          | `string`  | **Live**     | Background tint color over the View background image (`#RRGGBB` or `#RRGGBBAA`).                                                   |
+| `decoration.background_tint_strength` | `float`   | **Live**     | Tint strength (`0.0..=1.0`, default `0.0` = no tint); applies only when `background_tint` and a View background image are present. |
 
 ### Font & Shaping
 
@@ -243,6 +245,8 @@ Core-owned view decorations operate in logical pixels:
 | `terminal.bell`                    | `string`  | **RestartRequired** | Bell alert behavior (`"off"`, `"visual"`, `"audible"`, `"both"`).                                                                                         |
 | `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).                                                                    |
 | `close_confirm`                    | `string`  | **RestartRequired** | View close safety confirmation: `"always"`, `"when_busy"` (default), or `"never"`.                                                                        |
+| `history.capture.transcript`       | `boolean` | **RestartRequired** | Opt in to capturing completed scrollback lines into the bounded, redacted transcript ring (default `false`).                                              |
+| `history.capture.commands`         | `boolean` | **RestartRequired** | Accepted opt-in for command-history capture; no command source is implemented yet, so it is inert (default `false`).                                      |
 
 `selection.auto_copy` only controls whether a finished selection is written to
 the system clipboard. Pointer selection itself is always available: the
@@ -253,23 +257,52 @@ losing the anchored content drops it instead of selecting different text.
 
 ### Layout & Workspaces
 
-| Field                | Type      | Reload Class        | Description                                                                                                     |
-| :------------------- | :-------- | :------------------ | :-------------------------------------------------------------------------------------------------------------- |
-| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                        |
-| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                 |
-| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.20`, default `0.05`).                                    |
-| `workspace.layout`   | `string`  | **RestartRequired** | Default layout provider for new workspaces (e.g. `"dwindle"`, `"bsp"`).                                         |
-| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (reserved Core input consumed by extensions).                     |
-| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by extensions). |
+| Field                | Type      | Reload Class        | Description                                                                                                                                                                                          |
+| :------------------- | :-------- | :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout.gaps_in`     | `integer` | **RestartRequired** | Inner gap between sibling panes in character cells (`0` = edge-to-edge).                                                                                                                             |
+| `layout.gaps_out`    | `integer` | **RestartRequired** | Outer gap between container edges and panes in character cells.                                                                                                                                      |
+| `layout.resize_step` | `float`   | **Live**            | Tiled split-ratio delta per resize keypress (`0.01..=0.20`, default `0.05`).                                                                                                                         |
+| `workspace.layout`   | `string`  | **RestartRequired** | Parsed, validated, and merged but not applied to new workspaces yet (reserved); accepts provider names such as `"spiral"`, `"dwindle"`, `"master"`, `"grid"`, or a qualified `owner.name:algorithm`. |
+| `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (reserved Core input consumed by extensions).                                                                                                          |
+| `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by extensions).                                                                                      |
 
 ### Appearance, Themes & Animations
 
-| Field                                  | Type      | Reload Class | Description                                                          |
-| :------------------------------------- | :-------- | :----------- | :------------------------------------------------------------------- |
-| `appearance.theme`                     | `string`  | **Live**     | Built-in theme name or explicit `local:<name>` file selection.       |
-| `appearance.colors`                    | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).   |
-| `appearance.animations.enabled`        | `boolean` | **Live**     | Master switch for presentation transitions and animations.           |
-| `appearance.animations.reduced_motion` | `string`  | **Live**     | Reduced-motion accessibility mode (`"never"`, `"always"`, `"auto"`). |
+| Field                                         | Type      | Reload Class | Description                                                                                       |
+| :-------------------------------------------- | :-------- | :----------- | :------------------------------------------------------------------------------------------------ |
+| `appearance.theme`                            | `string`  | **Live**     | Built-in theme name or explicit `local:<name>` file selection.                                    |
+| `appearance.colors`                           | `table`   | **Live**     | Custom inline palette definition (chrome tokens + 16 ANSI colors).                                |
+| `appearance.style.glow_color`                 | `string`  | **Live**     | Optional glow halo color (`#RRGGBB` or `#RRGGBBAA`); unset paints no glow.                        |
+| `appearance.style.glow_width`                 | `integer` | **Live**     | Glow halo width in logical pixels (`0..=16`, default `0`).                                        |
+| `appearance.style.shadow_color`               | `string`  | **Live**     | Optional drop-shadow color (`#RRGGBB` or `#RRGGBBAA`); unset paints no shadow.                    |
+| `appearance.style.shadow_offset_x`            | `integer` | **Live**     | Drop-shadow horizontal offset in logical pixels (`-8..=8`, default `0`).                          |
+| `appearance.style.shadow_offset_y`            | `integer` | **Live**     | Drop-shadow vertical offset in logical pixels (`-8..=8`, default `0`).                            |
+| `appearance.style.fade_unfocused`             | `float`   | **Live**     | Dim factor for inactive Views (`0.0..=1.0`, default `1.0` = no fade).                             |
+| `appearance.animations.enabled`               | `boolean` | **Live**     | Master switch for presentation transitions and animations.                                        |
+| `appearance.animations.reduced_motion`        | `string`  | **Live**     | Reduced-motion accessibility mode (`"auto"` default, `"always"`, `"never"`).                      |
+| `appearance.animations.duration_ms.open`      | `integer` | **Live**     | Panel-open duration in milliseconds (`0..=500`, default `150`).                                   |
+| `appearance.animations.duration_ms.close`     | `integer` | **Live**     | Panel-close duration in milliseconds (`0..=500`, default `120`).                                  |
+| `appearance.animations.duration_ms.focus`     | `integer` | **Live**     | Focus-change duration in milliseconds (`0..=500`, default `100`).                                 |
+| `appearance.animations.duration_ms.workspace` | `integer` | **Live**     | Workspace-switch duration in milliseconds (`0..=500`, default `200`).                             |
+| `appearance.animations.duration_ms.move`      | `integer` | **Live**     | Panel-move duration in milliseconds (`0..=500`, default `150`).                                   |
+| `appearance.animations.duration_ms.resize`    | `integer` | **Live**     | Panel-resize duration in milliseconds (`0..=500`, default `120`).                                 |
+| `appearance.animations.duration_ms.drag`      | `integer` | **Live**     | Panel-drag duration in milliseconds (`0..=500`, default `150`).                                   |
+| `appearance.animations.easing.open`           | `string`  | **Live**     | Panel-open easing (`linear`, `ease_in`, `ease_out`, `ease_in_out`, `spring`; default `ease_out`). |
+| `appearance.animations.easing.close`          | `string`  | **Live**     | Panel-close easing (same set; default `ease_in`).                                                 |
+| `appearance.animations.easing.focus`          | `string`  | **Live**     | Focus-change easing (same set; default `ease_in_out`).                                            |
+| `appearance.animations.easing.workspace`      | `string`  | **Live**     | Workspace-switch easing (same set; default `ease_in_out`).                                        |
+| `appearance.animations.easing.move`           | `string`  | **Live**     | Panel-move easing (same set; default `ease_in_out`).                                              |
+| `appearance.animations.easing.resize`         | `string`  | **Live**     | Panel-resize easing (same set; default `ease_in_out`).                                            |
+| `appearance.animations.easing.drag`           | `string`  | **Live**     | Panel-drag easing (same set; default `ease_out`).                                                 |
+
+Chrome styling paints only the View frame and its background: it never moves
+the content grid or interpolates terminal truth. `shadow_color`,
+`shadow_offset_x`, `shadow_offset_y`, and `fade_unfocused` are global-only; the
+per-view tier accepts `glow_color`, `glow_width`, `background_tint`, and
+`background_tint_strength` alongside the outline and image leaves listed below.
+`spring` is accepted but currently resolves to `ease_in_out`, and
+`appearance.animations.enabled = false` or `reduced_motion = "always"` is
+equivalent to a `0` ms duration.
 
 ### Themes and custom colors
 
@@ -340,6 +373,46 @@ What the theme controls, and what is derived:
   glow/shadow/tint/fade (explicit `appearance.style` / `decoration` keys),
   layout, input, and terminal content itself.
 
+### Per-view overrides (`views`)
+
+`views` applies chrome overrides to individual Views. The key is a selector,
+and tiers resolve per field in this order regardless of declaration order:
+`*` (every View), a content type (`empty`, `terminal`, `rich`, `browser`),
+`ws:<1..=16>` (one workspace), then `view:<ViewId>` (one stable View id).
+
+```lua
+return {
+  views = {
+    ["*"] = { border_color = "#313244" },
+    terminal = { glow_color = "#89b4fa", glow_width = 2 },
+    ["ws:2"] = { background_tint = "#11223344", background_tint_strength = 0.25 },
+    ["view:7"] = { border_color_focused = "#f38ba8" },
+  },
+}
+```
+
+| Field                                       | Type      | Description                                                               |
+| :------------------------------------------ | :-------- | :------------------------------------------------------------------------ |
+| `views.<selector>.border_color`             | `string`  | Base outline color (`#RRGGBB` or `#RRGGBBAA`).                            |
+| `views.<selector>.border_color_focused`     | `string`  | Focused outline color.                                                    |
+| `views.<selector>.border_color_idle`        | `string`  | Idle outline color.                                                       |
+| `views.<selector>.border_width`             | `integer` | Base outline width in logical pixels (`0..=16`).                          |
+| `views.<selector>.border_width_focused`     | `integer` | Focused outline width in logical pixels (`0..=16`).                       |
+| `views.<selector>.border_width_idle`        | `integer` | Idle outline width in logical pixels (`0..=16`).                          |
+| `views.<selector>.background_image`         | `string`  | Per-View background image path under the approved roots.                  |
+| `views.<selector>.background_fit`           | `string`  | Per-View fit mode (`"fill"`, `"fit"`, `"center"`, `"tile"`, `"stretch"`). |
+| `views.<selector>.glow_color`               | `string`  | Per-View glow halo color.                                                 |
+| `views.<selector>.glow_width`               | `integer` | Per-View glow halo width in logical pixels (`0..=16`).                    |
+| `views.<selector>.background_tint`          | `string`  | Per-View background tint color (`#RRGGBB` or `#RRGGBBAA`).                |
+| `views.<selector>.background_tint_strength` | `float`   | Per-View tint strength (`0.0..=1.0`).                                     |
+
+An unset leaf inherits the next-less-specific tier and never shadows it.
+`opacity`, `blur`, and `animations` are reserved and rejected inside `views`;
+`shadow_color`, `shadow_offset_x`, `shadow_offset_y`, `fade_unfocused`, and
+`background_image_roots` stay global-only. Changes are **Live**: a selector edit
+re-resolves the affected Views without recreating a View or Terminal. A tint is
+visible only where a View paints a background image; without one it is inert.
+
 ### Input, Keymaps & Leader
 
 | Field               | Type      | Reload Class | Description                                                                       |
@@ -354,14 +427,22 @@ What the theme controls, and what is derived:
 
 ### Scrollbar, Mouse & Session
 
-| Field                                | Type      | Reload Class        | Description                                                             |
-| :----------------------------------- | :-------- | :------------------ | :---------------------------------------------------------------------- |
-| `scrollbar.mode`                     | `string`  | **RestartRequired** | Scrollbar display mode (`"auto"`, `"always"`, `"hidden"`).              |
-| `scrollbar.width`                    | `integer` | **RestartRequired** | Scrollbar thumb width in logical pixels.                                |
-| `mouse.focus_follows_mouse`          | `boolean` | **RestartRequired** | Whether pane focus automatically follows cursor movement.               |
-| `mouse.focus_follows_mouse_delay_ms` | `integer` | **RestartRequired** | Dwell time in milliseconds before hover focus activates.                |
-| `session.restore_on_startup`         | `boolean` | **RestartRequired** | Whether to restore previous workspaces and session on startup.          |
-| `plugins`                            | `array`   | **RestartRequired** | Explicit plugin declarations (`{ id = "owner/name", enabled = true }`). |
+| Field                                | Type      | Reload Class        | Description                                                                            |
+| :----------------------------------- | :-------- | :------------------ | :------------------------------------------------------------------------------------- |
+| `scrollbar.mode`                     | `string`  | **RestartRequired** | Scrollbar display mode (`"auto"`, `"always"`, `"hidden"`).                             |
+| `scrollbar.width`                    | `integer` | **RestartRequired** | Scrollbar thumb width in logical pixels.                                               |
+| `mouse.focus_follows_mouse`          | `boolean` | **RestartRequired** | Whether pane focus automatically follows cursor movement.                              |
+| `mouse.focus_follows_mouse_delay_ms` | `integer` | **RestartRequired** | Dwell time in milliseconds before hover focus activates.                               |
+| `mouse.right`                        | `string`  | **RestartRequired** | Right-button binding: `"none"` (default, inert) or any chrome action.                  |
+| `mouse.middle`                       | `string`  | **RestartRequired** | Middle-button binding: `"none"` or any chrome action (default `"paste_from_primary"`). |
+| `session.restore_on_startup`         | `boolean` | **RestartRequired** | Whether to restore previous workspaces and session on startup.                         |
+| `plugins`                            | `array`   | **RestartRequired** | Explicit plugin declarations (`{ id = "owner/name", enabled = true }`).                |
+
+Middle-click pastes the primary selection by default, matching the Linux
+selection convention; right-click is inert by default. Both buttons accept
+`"none"` or any chrome action from the same vocabulary as `keymaps[].action`.
+A pane that enables mouse reporting still receives the protocol bytes for that
+click, and Bitty does not run the host binding.
 
 ## Example `init.lua`
 
@@ -408,7 +489,7 @@ return {
     resize_step = 0.05,
   },
   workspace = {
-    layout = "dwindle",
+    -- `layout` is parsed and validated but not applied yet (reserved).
     -- The following keys are reserved Core inputs consumed by extensions
     -- (Bitty Core draws no native bar):
     show_bar = true,

@@ -46,19 +46,6 @@ the catalog with categories, aliases, and a `PROVENANCE` column that reads
 `one-light`, `ayu-light`, `kanagawa-lotus`, `rose-pine-dawn`,
 `everforest-light`, `github-light`.
 
-## Local theme files (not yet available)
-
-Bitty 0.0.26 does not load theme files. The `$XDG_CONFIG_HOME/bitty/themes/`
-directory is reserved but inert (OQ-047): a TOML file placed there changes
-nothing, and `bitty list themes` lists built-in presets only. Local theme files,
-hot reload of the active local theme, and a load-time contrast gate (normal text
-**4.5:1**, focused outline **3:1**) are **not shipped**; the work is proposed
-and tracked as [bitty#2465](https://github.com/bitty-terminal/bitty/issues/2465),
-so no file format, key names, or limits are documented here until it lands.
-
-Until then, use the inline `appearance.colors` palette below. It is live, and
-`bitty config check` already reports its measurements.
-
 ## Readability guarantees
 
 Every shipped preset is measured with WCAG 2.1 contrast, and a regression fails
@@ -114,7 +101,7 @@ naming the exact field.
 
 ## Local theme files (0.0.27)
 
-You can keep one theme per flat TOML file in
+Local theme files are shipped. You can keep one theme per flat TOML file in
 `$XDG_CONFIG_HOME/bitty/themes/` (fallback `~/.config/bitty/themes/`) and
 select it explicitly:
 
@@ -130,6 +117,7 @@ return {
 # $XDG_CONFIG_HOME/bitty/themes/sunset.toml
 name = "sunset"
 category = "dark"
+aliases = ["sunset-warm"]                  # optional
 source = "https://example.invalid/sunset"  # metadata only; never fetched
 license = "MIT"
 background = "#1e1e2e"
@@ -137,28 +125,46 @@ foreground = "#cdd6f4"
 cursor = "#f5e0dc"
 selection = "#313244"
 ansi = ["#45475a", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#f5c2e7", "#94e2d5", "#bac2de", "#585b70", "#f38ba8", "#a6e3a1", "#f9e2af", "#89b4fa", "#f5c2e7", "#94e2d5", "#cdd6f4"]
-border_focused = "#33CCFF"   # optional
-border_idle = "#595959AA"    # optional
+border_focused = "#33CCFF"                 # optional
+border_idle = "#595959AA"                  # optional
 ```
+
+The schema is v1, flat, and data-only:
+
+| Field            | Type                  | Requirement                                                                                          |
+| :--------------- | :-------------------- | :--------------------------------------------------------------------------------------------------- |
+| `name`           | `string`              | Required canonical slug: lowercase ASCII letters, digits, `-`, `_`, starting with a letter or digit. |
+| `category`       | `string`              | Required. `"dark"` or `"light"`; it selects the contrast policy's text roles.                        |
+| `background`     | `string`              | Required canonical `#RRGGBB`.                                                                        |
+| `foreground`     | `string`              | Required canonical `#RRGGBB`.                                                                        |
+| `cursor`         | `string`              | Required canonical `#RRGGBB`.                                                                        |
+| `selection`      | `string`              | Required canonical `#RRGGBB`.                                                                        |
+| `ansi`           | `array` of 16 strings | Required. Exactly 16 canonical `#RRGGBB` entries (0–15).                                             |
+| `aliases`        | `array` of strings    | Optional. At most 8 distinct canonical slugs, each accepted as `local:<alias>`.                      |
+| `source`         | `string`              | Optional provenance string, at most 512 bytes. Metadata only; never fetched or validated as a URL.   |
+| `license`        | `string`              | Optional license identifier, at most 512 bytes.                                                      |
+| `border_focused` | `string`              | Optional focused-outline override, `#RRGGBB` or `#RRGGBBAA`.                                         |
+| `border_idle`    | `string`              | Optional idle-outline override, `#RRGGBB` or `#RRGGBBAA`.                                            |
 
 Rules that matter:
 
 - The `local:` prefix is required. A local file never changes a built-in
   preset name, and selecting a built-in preset still performs zero file I/O.
-- At most 64 `.toml` files, each at most 64 KiB; symlinks are not accepted.
-  Keys are flat and one per line, so the `ansi` and `aliases` arrays stay on
-  one line. Unknown fields, malformed `#RRGGBB` colors, and arrays without
-  exactly 16 ANSI entries reject that file with a diagnostic.
+- At most 64 `.toml` files, each at most 64 KiB. The themes directory must be a
+  real directory, symlinked files are not followed, and one line is capped at
+  4 KiB. Keys are flat and one per line, so the `ansi` and `aliases` arrays stay
+  on one line. Unknown fields, duplicate keys, malformed `#RRGGBB` colors, and
+  arrays without exactly 16 ANSI entries reject that file with a diagnostic.
 - Every accepted file must clear the normal-text **4.5:1** and focused-outline
-  **3:1** contrast floors; a failing theme is rejected, not shown as
+  **3:1** contrast floors; a failing theme is rejected at load, not shown as
   selectable.
 - A valid edit is picked up automatically while Bitty runs. An invalid edit
   keeps the last good palette and reports `load-error`; it never paints a
   partial palette.
-- Local `source` is provenance metadata only. No theme path downloads, fetches,
-  or validates a URL.
+- A name or alias claimed by one file cannot be reused by another; the later
+  file is rejected instead of making the selection ambiguous.
 
-See `bitty list themes` for accepted local rows (`local:<name>`) and per-file
-diagnostics for rejected files. The full schema is still a candidate contract
-under OQ-047; `$XDG_DATA_HOME/bitty/themes/` installed theme packages are not
-implemented.
+`bitty list themes` scans the same directory and lists every accepted file as
+`local:<name>` with `PROVENANCE local`, plus per-file diagnostics for rejected
+files. The v1 contract above is the shipped schema;
+`$XDG_DATA_HOME/bitty/themes/` installed theme packages are not implemented.
