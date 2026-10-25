@@ -1,8 +1,8 @@
 # Actions Catalog
 
-Every keyboard-triggerable chrome action, every shipped default chord, and every `core.*` registry command in one place. This page is generated from the Bitty implementation, not from memory: the ground truth is `crates/bitty-config/src/keymap.rs` (`ChromeAction`, `DEFAULT_KEYMAPS`) and `crates/bitty-terminal/src/inspect.rs` (`CORE_COMMANDS`) at bitty `0.0.22`.
+Every keyboard-triggerable chrome action, every shipped default chord, and every `core.*` registry command in one place. This page is generated from the Bitty implementation, not from memory: the current ground truth is Core revision `7d98f53a`, the source used for current v0.0.29 preparation, in `crates/bitty-config/src/keymap.rs` (`ChromeAction`, `DEFAULT_KEYMAPS`) and `crates/bitty-terminal/src/inspect.rs` (`CORE_COMMANDS`). The protected 0.0.22 snapshot is retained below for historical comparison.
 
-## Ground truth and verification
+## Historical 0.0.22 snapshot (protected)
 
 Bitty `0.0.22` does not ship `bitty list actions` or `bitty list keymaps`: both fail closed as unknown kinds (exit 2, `want themes|plugins|instances`). This was confirmed against a local build (`cargo build -p bitty-terminal` with `CARGO_TARGET_DIR` under `.targets/manual-catalog`, binary reports `bitty 0.0.22`):
 
@@ -14,22 +14,36 @@ bitty list keymaps --format json
 # bitty list: unknown kind "keymaps" (want themes|plugins|instances) — exit 2
 ```
 
-The tables below are therefore extracted 1:1 from source and cross-checked mechanically:
+The historical tables were therefore extracted 1:1 from source and cross-checked mechanically:
 
 - Chrome actions cover the full `ChromeAction` vocabulary (`KNOWN_ACTIONS_HINT` plus the `parse` arms): 38 rows, one per variant. Parameterized actions (`goto_split:<dir>`, `workspace_focus:<n>`, ...) are single rows with their valid ranges.
 - Default chords reproduce `DEFAULT_KEYMAPS` entry for entry: 97 rows, Alt-as-Mod spelling, source order.
 - `core.*` commands reproduce `CORE_COMMANDS`: 14 rows.
 - Re-run procedure: from a bitty checkout at the pinned revision, extract the `(chord, action)` pairs from `DEFAULT_KEYMAPS`, the canonical spellings from `ChromeAction::canonical`, and the ids from `CORE_COMMANDS`, then assert that every extracted token appears in the matching table on this page and that the row counts are 38 / 97 / 14. Per-chord spot checks use `bitty inspect key <chord>` (e.g. `bitty inspect key alt+h` names `goto_split:left`; unbound keys such as `tab` succeed with `bound: false`).
 
+## Current ground truth and verification
+
+Current Core revision `7d98f53a`, used for current v0.0.29 preparation, ships the local catalog commands that were absent from 0.0.22:
+
+```bash
+bitty list actions --format json
+bitty list keymaps --format json
+```
+
+Both commands are local and succeed without a running instance. `list actions` reports the chrome-action catalog together with the `core.*` registry commands; `list keymaps` reports the resolved chord-to-action table, including the effective `mod_key` and whether each row comes from the shipped defaults or user configuration. The current source has 16 core commands, while this page retains 38 documented keyboard action variants and 97 shipped default chords.
+
+The current tables are cross-checked against Core revision `7d98f53a`: the `CORE_COMMANDS` table has 16 rows, the action table has 38 rows, and the default keymap has 97 rows. The 0.0.22 failure evidence above is historical and does not describe these current commands.
+
 ## Chrome actions
 
 One row per `ChromeAction` variant. "Manual-bind-only" means the action never appears in `DEFAULT_KEYMAPS`: it stays parseable and user-bindable but has no shipped chord.
 
+<!-- prettier-ignore-start -->
 | Action                                 | Behavior                                                                                                                                                                                       | Default chord(s)                                                                                                                                                                                                                                                                                                     | Manual-bind-only           |
 | :------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- |
 | `goto_split:<left\|right\|up\|down>`   | Move focus spatially beyond the facing edge; rank by nearest facing edge, then dwindle adjacency, then widest shared edge, then perpendicular center.                                          | `alt+h`, `alt+j`, `alt+k`, `alt+l`, `alt+left`, `alt+down`, `alt+up`, `alt+right`, `ctrl+alt+left`, `ctrl+alt+down`, `ctrl+alt+up`, `ctrl+alt+right`                                                                                                                                                                 | No                         |
 | `new_split:<left\|right\|up\|down>`    | Split the focused pane in a fixed direction.                                                                                                                                                   | `shift+alt+h`, `shift+alt+j`, `shift+alt+k`, `shift+alt+l`, `shift+alt+left`, `shift+alt+down`, `shift+alt+up`, `shift+alt+right`                                                                                                                                                                                    | No                         |
-| `new_panel`                            | Open a new panel with the adaptive `Balanced` policy: split the largest pane on the cell-aspect axis, place the new panel after it, and refuse a target with no axis that fits two 10x4 panes. | `alt+n`                                                                                                                                                                                                                                                                                                              | No                         |
+| `new_panel`                            | Default `Spiral`; clockwise around focus, with largest-feasible `Balanced` fallback when the focused slot cannot fit two usable panes.                                                         | `alt+n`                                                                                                                                                                                                                                                                                                              | No                         |
 | `resize_split:<left\|right\|up\|down>` | Nudge the enclosing split ratio by one `layout.resize_step` step.                                                                                                                              | `shift+ctrl+h`, `shift+ctrl+j`, `shift+ctrl+k`, `shift+ctrl+l`, `shift+ctrl+left`, `shift+ctrl+down`, `shift+ctrl+up`, `shift+ctrl+right`, `ctrl+shift+alt+h`, `ctrl+shift+alt+j`, `ctrl+shift+alt+k`, `ctrl+shift+alt+l`, `ctrl+shift+alt+left`, `ctrl+shift+alt+down`, `ctrl+shift+alt+up`, `ctrl+shift+alt+right` | No                         |
 | `close_view`                           | Close focused pane; see [close behavior](workspaces-panels.md#managing-workspaces-and-panels) for focus, workspace pruning, and confirmation.                                                  | `alt+d`, `alt+q`                                                                                                                                                                                                                                                                                                     | No                         |
 | `toggle_zoom`                          | Toggle single-pane zoom (aliases `toggle_split_zoom`, `suspend_panel`, `detach_panel`).                                                                                                        | `alt+m`, `alt+f`, `alt+z`                                                                                                                                                                                                                                                                                            | No                         |
@@ -65,6 +79,7 @@ One row per `ChromeAction` variant. "Manual-bind-only" means the action never ap
 | `toggle_floating`                      | Toggle the focused panel between tiled and floating (alias `floating_toggle`).                                                                                                                 | `alt+a`                                                                                                                                                                                                                                                                                                              | No                         |
 | `toggle_pinned`                        | Toggle the focused panel's pinned (sticky-float) state (alias `pinned_toggle`).                                                                                                                | —                                                                                                                                                                                                                                                                                                                    | Yes (intentional)          |
 | `command:<owner:command>`              | Invoke one registered plugin command with empty args (aliases `invoke_command`, `run_command`). Commands with required args refuse the chord loudly.                                           | —                                                                                                                                                                                                                                                                                                                    | Yes (intentional)          |
+<!-- prettier-ignore-end -->
 
 `close_view` also accepts `close_surface`, `close_panel`, and `exit_panel`. Tiled focus moves to the sibling subtree that expands into the vacated slot: the sibling's first pane when the closed pane was left/top, its last pane when it was right/bottom. A last-tile workspace is pruned only with another workspace and no local floats. Busy-session confirmation and hidden zoomed siblings still apply: repeat the close chord to confirm, or press `Esc` to cancel.
 
@@ -72,7 +87,7 @@ One row per `ChromeAction` variant. "Manual-bind-only" means the action never ap
 
 ## `core.*` registry commands
 
-The static core command surface (`CORE_COMMANDS` in `inspect.rs`): 11 `ctl` executables plus 3 `list` executables. Inspect any entry with `bitty inspect command <id>` (dot and colon forms are equivalent, e.g. `bitty inspect command core.terminal.text`); invoke the escape hatch with `bitty cmd <qualified-id> [-- <args-json>]` (well-formed ids without a live dispatch target fail closed naming the `bitty ctl ...` sugar form where one exists).
+The static core command surface (`CORE_COMMANDS` in `inspect.rs`): 11 `ctl` executables plus 5 `list` executables, 16 commands total. Inspect any entry with `bitty inspect command <id>` (dot and colon forms are equivalent, e.g. `bitty inspect command core.terminal.text`); invoke the escape hatch with `bitty cmd <qualified-id> [-- <args-json>]` (well-formed ids without a live dispatch target fail closed naming the `bitty ctl ...` sugar form where one exists).
 
 | Command                   | Class     | Summary                                                           |
 | :------------------------ | :-------- | :---------------------------------------------------------------- |
@@ -90,6 +105,8 @@ The static core command surface (`CORE_COMMANDS` in `inspect.rs`): 11 `ctl` exec
 | **`core.list.themes`**    | `local`   | Enumerate built-in theme presets (local).                         |
 | **`core.list.plugins`**   | `local`   | Enumerate the static bundled plugin catalog (local, no VM).       |
 | **`core.list.instances`** | `runtime` | Enumerate live instances via socket discovery (no content fetch). |
+| **`core.list.actions`**   | `local`   | Enumerate chrome actions and core commands (local catalog).       |
+| **`core.list.keymaps`**   | `local`   | Enumerate resolved chord/action keymaps (local defaults).         |
 
 Bundled plugin commands (same source as `bitty list plugins`) are looked up the same way via `bitty inspect command <publisher.name:command>`. The shell-integration bundle declares no commands, so the plugin-command list is currently empty; workspace verbs live in Core as `bitty ctl workspace`.
 
