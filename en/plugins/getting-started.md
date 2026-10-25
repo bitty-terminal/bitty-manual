@@ -74,7 +74,7 @@ warning_ms = 4
 
 ### Declare a compatibility floor, not a ceiling
 
-Write `compat.bitty` as a minimum-only requirement, for example `bitty = ">=0.0.26"`. The host evaluates exactly what the manifest declares, so an upper bound is a self-imposed expiry date: a plugin that declares `>=0.0.24,<0.1` is refused on a 0.1 host even when it still runs, and the official catalog refuses that install before fetching anything. `compat.plugin-api` is the real breaking boundary: it changes only when the Lua surface breaks, so `^1.0` admits every 1.x plugin API and a future 2.0 is the cutoff. Move the host floor when you start using a newer host API; do not enumerate host versions you have not tested.
+Write `compat.bitty` as a minimum-only requirement, for example `bitty = ">=0.0.26"`. The generated official catalog records each entry's declared minimum host version, and Core evaluates that requirement against the running host before fetching anything. `compat.plugin-api` is the breaking boundary for the Lua surface, so `^1.0` admits every 1.x Plugin API and a future 2.0 is the cutoff. Move the host floor when you start using a newer host API; do not enumerate host versions you have not tested.
 
 ## The Lazy Loading Lifecycle
 
@@ -118,21 +118,21 @@ Core embeds a catalog generated at build time from the [`bitty-plugins` registry
 
 No registry metadata is fetched at runtime; Core only invokes the system `git` transport. `bitty plugin list` shows catalog entries that are not installed as `available`, or as `incompatible` when `compat.bitty` excludes this host. `bitty plugin info <id>` prints one catalog row without installing it. An unknown id fails with the bundled and official installable id lists and exit code `4`.
 
-The 0.0.26 catalog has 11 entries:
+The current official catalog has 11 entries:
 
 | Official id                   | Manifest version | Declared `compat.bitty` |
 | :---------------------------- | :--------------- | :---------------------- |
-| `bitty-featured.activity`     | 0.0.1            | `>=0.0.24,<0.1`         |
-| `bitty-featured.devtools`     | 0.1.0            | `>=0.0.21,<1.0`         |
-| `bitty-terminal.bar`          | 0.0.1            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.composer`     | 0.0.1            | `>=0.0.21,<0.1`         |
-| `bitty-terminal.copy-mode`    | 0.0.1            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.dashboard`    | 0.0.1            | `>=0.0.26,<0.1`         |
-| `bitty-terminal.file-manager` | 0.1.0            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.git-panel`    | 0.1.0            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.history`      | 0.0.1            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.palette`      | 0.0.1            | `>=0.0.24,<0.1`         |
-| `bitty-terminal.search`       | 0.0.1            | `>=0.0.24,<0.1`         |
+| `bitty-featured.activity`     | 0.0.1            | `>=0.0.24`              |
+| `bitty-featured.devtools`     | 0.1.0            | `>=0.0.21`              |
+| `bitty-terminal.bar`          | 0.0.1            | `>=0.0.24`              |
+| `bitty-terminal.composer`     | 0.0.1            | `>=0.0.21`              |
+| `bitty-terminal.copy-mode`    | 0.0.1            | `>=0.0.24`              |
+| `bitty-terminal.dashboard`    | 0.0.1            | `>=0.0.26`              |
+| `bitty-terminal.file-manager` | 0.1.0            | `>=0.0.24`              |
+| `bitty-terminal.git-panel`    | 0.1.0            | `>=0.0.24`              |
+| `bitty-terminal.history`      | 0.0.1            | `>=0.0.24`              |
+| `bitty-terminal.palette`      | 0.0.1            | `>=0.0.24`              |
+| `bitty-terminal.search`       | 0.0.1            | `>=0.0.24`              |
 
 The standalone `bitty-terminal.statusline` identity is archived and was removed from the official set; its page is kept as [historical reference](catalog/statusline.md). Bar owns the visible status presentation.
 

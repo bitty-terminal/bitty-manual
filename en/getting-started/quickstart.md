@@ -4,7 +4,7 @@ Welcome to **Bitty**, a high-performance, programmable GPU-accelerated terminal 
 
 ## Installation
 
-Bitty is distributed across all major operating systems via automated install scripts, native packages, prebuilt binaries, or built directly from source:
+Bitty is distributed through automated install scripts, native packages, prebuilt binaries, or a source build:
 
 ### Automated Install Scripts
 
@@ -12,23 +12,20 @@ The scripts resolve the release through a single pointer (`latest.txt` holds the
 
 ```bash
 # Linux and macOS (Unix)
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # Pin a version, preview the plan, or change the install location
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.26
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --dry-run
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --prefix ~/.local
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.28
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
 
 ```powershell
 # Windows (PowerShell, user-local, no admin rights needed)
-irm https://cdn.bitty.run/bitty/install/install.ps1 | iex
+irm https://cdn.bitty.run/install/install.ps1 | iex
 ```
 
-What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. Verification in 0.1.0 is hash-only: there are no signatures yet (Windows signing is deferred past 0.2.0).
-
-> [!NOTE]
-> **PENDING — live CDN verify.** The release workflow uploads both scripts to their stable R2 keys on every tag, but no live tag upload and CDN read-back has completed yet. If the URLs above do not resolve, the owner-side publish is still outstanding: install from a package manager or build from source below.
+What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The v0.0.28 release uses hash verification through the per-asset `.sha256` sidecars.
 
 ### Native Packages
 
@@ -85,77 +82,54 @@ brew install bitty
 
 #### Windows (Scoop)
 
-Official Scoop bucket supporting x64 and ARM64:
+Published Scoop bucket for x64 and ARM64; the v0.0.28 artifact and hash are
+published, but the manifest does not yet provide a usable `bitty` executable
+alias. Register the bucket if needed, but wait for the alias fix before using
+Scoop to install Bitty:
 
 ```powershell
 scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
-scoop install bitty
 ```
 
-### Planned Packaging Channels (v0.0.27 Expansion)
+### Additional packaging status
 
-The following package ecosystems are scheduled for official packaging support in milestone `v0.0.27` (tracked under [bitty-terminal/bitty#2507](https://github.com/bitty-terminal/bitty/issues/2507)):
+The v0.0.28 release evidence supports these status-qualified paths:
 
-#### openSUSE & SUSE Linux Enterprise (OBS / Zypper)
+- **Alpine Linux:** the x86_64 `.apk` artifact is published and passed the
+  release install smoke test.
+- **Nix / NixOS:** the release build and Cachix publication passed:
+  `nix run github:bitty-terminal/bitty`.
+- **FreeBSD:** the x86_64 tarball is available as a best-effort build artifact;
+  no Ports or `pkg` channel is claimed.
+- **openSUSE, Gentoo, and Void:** best-effort recipes exist, but they are not
+  published v0.0.28 release channels.
+- **Flatpak / Flathub:** future packaging only; Bitty does not currently have a
+  supported Flatpak channel.
 
-RPM packaging hosted via openSUSE Build Service:
+For any channel not listed as published above, use the release assets or build
+from source instead of assuming that a package-manager submission is live.
 
-```bash
-sudo zypper addrepo https://download.opensuse.org/repositories/home:/xuepoo/openSUSE_Tumbleweed/home:xuepoo.repo
-sudo zypper refresh && sudo zypper install bitty
-```
+### AppImage (Linux)
 
-#### Alpine Linux (apk)
+The v0.0.28 x86_64 and aarch64 AppImage assets and their checksum sidecars are
+available from the CDN. The release manifest records these verified SHA-256
+digests:
 
-Official community / testing package built against `musl`:
+| Architecture | AppImage                                                                                                                      | SHA-256                                                            |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| x86_64       | [`bitty-x86_64-unknown-linux-gnu.AppImage`](https://cdn.bitty.run/releases/v0.0.28/bitty-x86_64-unknown-linux-gnu.AppImage)   | `24e42eeb3a07f2abc523c665701b9448ea56cd92519aa26bcf9ba762df014fa1` |
+| aarch64      | [`bitty-aarch64-unknown-linux-gnu.AppImage`](https://cdn.bitty.run/releases/v0.0.28/bitty-aarch64-unknown-linux-gnu.AppImage) | `316c645887d7a6b68641d56c0e1828311fd1ad5001893f68f4394b4e6b13def0` |
 
-```bash
-apk add bitty
-```
-
-#### NixOS & Nix Flakes
-
-Flake and Nixpkgs derivation:
-
-```bash
-nix profile install github:bitty-terminal/bitty
-# Or run directly without installing:
-nix run github:bitty-terminal/bitty
-```
-
-#### Gentoo Linux (Portage)
-
-Official ebuild via custom Gentoo overlay:
+Download the matching asset and its `.sha256` sidecar, then make it executable:
 
 ```bash
-emerge --ask app-misc/bitty
-```
-
-#### Void Linux (XBPS)
-
-Native package for glibc and musl architectures:
-
-```bash
-xbps-install -S bitty
-```
-
-#### FreeBSD (Ports & pkg)
-
-Native BSD port and prebuilt binary package:
-
-```bash
-pkg install bitty
-# Or via Ports tree:
-cd /usr/ports/x11/bitty && make install clean
-```
-
-#### Flatpak (Flathub)
-
-Sandboxed universal desktop application:
-
-```bash
-flatpak install flathub run.bitty.Bitty
-flatpak run run.bitty.Bitty
+# Set this to bitty-aarch64-unknown-linux-gnu.AppImage on ARM64 Linux.
+APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.28/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.28/$APPIMAGE.sha256"
+sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
+chmod +x "$APPIMAGE"
+./"$APPIMAGE"
 ```
 
 ### Cargo (build from the Git repository)
