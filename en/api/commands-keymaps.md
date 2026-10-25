@@ -95,7 +95,7 @@ return {
   keymaps = {
     {
       chord = "ctrl+shift+k",
-      action = "my-plugin:format-buffer",
+      action = "command:my-plugin:format-buffer",
       context = "global",
     },
     {
@@ -106,6 +106,8 @@ return {
   },
 }
 ```
+
+Each `action` is a Core action name (`toggle_palette`, `goto_split:left`) or a plugin invocation written as `command:<owner:command>`. A bare qualified command such as `my-plugin:format-buffer` is parsed as an action name and fails closed as an unknown action. Plugin suggestions are the exception: `bitty.keymaps.suggest({ command = "my-plugin:format-buffer" })` takes the bare qualified command id, and the published binding resolves to the same invocation action.
 
 ## Events (`bitty.events`)
 
