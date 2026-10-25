@@ -97,7 +97,9 @@ A container laying out child nodes horizontally.
 
 ### 3. `Column`
 
-A container laying out child nodes vertically.
+The band host flattens a `Column` and its descendants horizontally into the
+row like a `Row`; only an overlay `Column` root stacks its direct children
+vertically as overlay rows.
 
 ```lua
 {
@@ -145,7 +147,12 @@ on_click = {
 ```
 
 - `command`: Command identifier string (max 64 bytes).
-- `args`: Key-value scalar map (max 16 arguments, max 256 bytes per string).
+- `args`: Key-value scalar map with 256 bytes per string. The host keeps the
+  dispatched table at most 16 entries: an ordinary `on_click` binding may
+  declare up to 16 args; an `on_scroll` binding reserves `delta`, so it allows
+  at most 15 declared args; a region-aware click reserves `region` and
+  `button`, and a region-aware scroll reserves `region` and `delta`, leaving
+  at most 14 declared args.
 
 A scroll binding (`on_scroll`) reuses the same binding shape as `on_click`: a
 wheel tick over a bound node invokes the declared command with the declared
