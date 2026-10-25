@@ -227,10 +227,12 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 - `Ctrl+Shift+C` copies the selection and `Ctrl+Shift+V` pastes. Automatic
   copy-on-select stays off unless `selection.auto_copy = true`.
 - Holding a selection drag in the top or bottom painted row auto-scrolls the
-  selection owner by one line per bounded interval, extending the selection
-  through scrollback. Release, pointer leave, exhausted scrollback, or window-
-  focus loss stops auto-scroll. Leaving the pane clamps the selection at the
-  owner edge without scrolling.
+  pane that owns the selection, one line at a time on a fixed cadence: the top
+  row pages into history, the bottom row pages back toward live, and the
+  scroll pauses when the transcript has no room left in that direction.
+  Auto-scroll also stops when you release the drag, move the pointer out of
+  the edge row, or the window loses focus. A drag that strays past the pane
+  clamps to the pane it started in and cannot select text in a sibling panel.
 
 ## Uninstallation & Data Cleanup
 
