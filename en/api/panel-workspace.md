@@ -52,26 +52,40 @@ local is_floating = bitty.panel.toggle_floating(panel_id)
 
 #### `bitty.panel.set_pinned(panel_id, pinned)`
 
-Sets whether a panel is pinned as a window-global sticky float. This method
-requires the `panel.focus` capability.
+Pins or unpins a panel in the window-global pinned store. This method requires
+the `panel.focus` capability.
 
 ```lua
-local applied = bitty.panel.set_pinned(panel_id, true)
--- `true` means the panel is now pinned; this is also returned when it was
--- already pinned.
+local accepted = bitty.panel.set_pinned(panel_id, true)
+-- accepted == true: the request was accepted for application (also returned
+-- when the panel already holds the requested state)
+-- accepted == false: the target is not a panel the runtime can see, or the
+-- request queue is full; nothing changed
 ```
 
-Pinned panels live outside every workspace and remain visible when the active
-workspace changes. Setting `pinned` to `false` restores the panel to the
-currently active workspace, focuses it, and leaves it in floating mode.
+The call is validated against the last published layout snapshot: `true` is
+returned when the target is an already-pinned panel or a live panel of the
+active layout — including idempotent requests, such as pinning an
+already-pinned panel or unpinning an unpinned panel, which leave state
+untouched. `false` is returned — with no state change — when the target is
+not known to the runtime: an unknown panel id, or a panel living on an
+inactive workspace (it is not pinnable until its workspace is active).
+Accepted requests apply through the same pinned-float path the
+`toggle_pinned` keymap action uses, so plugin and keyboard pinning cannot
+drift.
 
-The return value is `true` when the requested state holds, including an
-idempotent call that makes no change. It is `false` for an unknown or
-unpinnable target, and those failures leave state unchanged. Only tiled or
-floating panels can be pinned; fullscreen and scratchpad panels cannot be
-pinned, and pinning the last live panel in a layout is refused. An unpinned
-panel can be passed with `pinned = false` and still returns `true` as an
-idempotent no-op.
+Pinned panels are detached from their workspace tree into the window-global
+pinned store and composited as floating windows above every workspace, so
+they remain visible across workspace switches.
+
+Setting `pinned` to `false` restores the panel to the currently active
+workspace, keeps it floating, focuses it, and clears its drag re-anchor
+offset. Re-tiling it instead is a separate `toggle_floating(panel_id)` call.
+
+Accepted requests can still be refused at application time, which logs a
+warning and keeps the layout untouched: pinning a fullscreen or scratchpad
+panel, pinning the last live panel of a layout, or a target that vanished
+between the call and the drain.
 
 #### `bitty.panel.get_state(panel_id)`
 
