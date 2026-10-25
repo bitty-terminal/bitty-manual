@@ -3,7 +3,7 @@
 The generic out-of-process IPC bridge: bounded framing, peer-credential auth, and scope-based consent for DevTools and MCP protocols. General infrastructure for DevTools, headless, sandbox, panel extensions, and AI plugins (`bitty-ipc` README).
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-ipc` ([github.com/bitty-terminal/bitty-ipc](https://github.com/bitty-terminal/bitty-ipc))
-- Crates: `bitty-ipc-api`, `bitty-ipc-core`, `bitty-ipc-auth`, `bitty-ipc-devtools`, `bitty-ipc-mcp`
+- Crates: `bitty-ipc`, `bitty-ipc-api`, `bitty-ipc-auth`, `bitty-ipc-core`, `bitty-ipc-devtools`, `bitty-ipc-winpipe`
 - Maturity: extracted from Bitty Core, pre-1.0 (`0.0.1`); not published to crates.io.
 
 ## Install status
