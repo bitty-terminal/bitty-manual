@@ -219,11 +219,12 @@ implemented, but upstream fastfetch support is not fixed by this release.
 
 ### Ghost or stale rows in a full-screen app
 
-If a selector or other full-screen program leaves an old highlighted row beside its replacement, or briefly shows a half-drawn repaint while you move quickly:
+If a selector or other full-screen program leaves an old highlighted row beside its replacement:
 
-- Bitty 0.0.27 waits for a burst of terminal output to finish before presenting the frame, so the committed frame is the complete repaint. The wait is short and internal: there is no configuration key for it. Upgrade to 0.0.27 or later.
-- A very short delay before the final frame appears during a burst is expected: the presenter is waiting for the repaint to finish arriving. The screen should settle on the complete frame once output stops.
-- If the screen stays wrong after the application stops writing, that is a different defect. Collect `bitty doctor --format json` and the application name, version, and key sequence that reproduces it.
+- The presenter invalidates retained glyphs when their pixel bounds intersect fresh repaint damage. If a safe incremental copy cannot prove that the old glyph is covered, it fails closed and redraws the whole affected leaf instead of carrying the stale glyph forward.
+- Hidden or occluded surfaces do not present and do not spin presentation or retry deadlines. Terminal Truth and its pending damage remain retained; revealing the surface queues a full redraw for the next frame.
+- A pending paste confirmation has an independent expiry. It may expire while the surface is hidden, without presenting and without emitting any bytes. This is a separate lifecycle from the Composer's external-editor wait; do not treat one as the other's timeout.
+- If the screen stays wrong after the application is visible and the next frame has been presented, collect `bitty doctor --format json` and the application name, version, and key sequence that reproduces it.
 
 ---
 
