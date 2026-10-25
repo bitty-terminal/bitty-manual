@@ -226,8 +226,11 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
   dropped rather than retargeted to different text.
 - `Ctrl+Shift+C` copies the selection and `Ctrl+Shift+V` pastes. Automatic
   copy-on-select stays off unless `selection.auto_copy = true`.
-- Dragging past a pane edge clamps at that edge for now; pointer-edge
-  auto-scroll during a drag is not implemented.
+- Holding a selection drag in the top or bottom painted row auto-scrolls the
+  selection owner by one line per bounded interval, extending the selection
+  through scrollback. Release, pointer leave, exhausted scrollback, or window-
+  focus loss stops auto-scroll. Leaving the pane clamps the selection at the
+  owner edge without scrolling.
 
 ## Uninstallation & Data Cleanup
 
