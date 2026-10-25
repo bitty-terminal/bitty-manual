@@ -197,6 +197,8 @@ is dropped at apply time without changing state. A valid positional index uses
 Core's workspace-focus behavior, which clamps a position beyond the current
 list to the last workspace.
 
+The current terminal routing uses the same stable-ID-first, display-position-fallback path for numeric focus targets. Treat `{ index = n }` as positionally unambiguous only in dense layouts: with sparse IDs, an open stable ID that equals `n` can win instead of the requested position. Use the stable `id` form when identity matters.
+
 #### `bitty.workspace.next()`
 
 Queues a request to cycle focus to the next workspace tab.
@@ -253,7 +255,7 @@ These are the current move behavior, not a new plugin layout API.
 bitty.workspace.move_panel(target_workspace_id)
 ```
 
-The keyboard position actions `workspace_focus:<n>`, `workspace_move:<n>`, and `workspace_swap:<n>` also address the current 1-based display position. They are separate from Lua arguments that take a stable workspace ID.
+Keyboard workspace operations are not uniformly positional: `workspace_focus:<n>` resolves a stable ID first and falls back to the current display position; `workspace_move:<n>` uses a display position when `n` is within the current count but can resolve a larger `n` as a stable ID; and `workspace_swap:<n>` resolves a stable ID and swaps sequence values. Do not assume that a workspace ID remains attached to the same workspace after `workspace_swap`. In dense layouts these numeric forms commonly coincide with positions, but sparse-ID positional targeting needs an explicit Core routing contract.
 
 ---
 
