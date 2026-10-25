@@ -79,27 +79,27 @@
     "decoration.border": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "View frame border width in logical pixels (0..=32, default 1)."
+      "description": "View frame border width in logical pixels (0..=8, default 1)."
     },
     "decoration.radius": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "View frame corner radius in logical pixels (0..=64, default 6)."
+      "description": "View frame corner radius in logical pixels (0..=16, default 6)."
     },
     "decoration.gaps_in": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Inner gap between sibling panels in logical pixels (0..=128, default 6)."
+      "description": "Inner gap between sibling panels in logical pixels (0..=32, default 6)."
     },
     "decoration.gaps_out": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Outer gap around the workspace container in logical pixels (0..=128, default 6)."
+      "description": "Outer gap around the workspace container in logical pixels (0..=32, default 6)."
     },
     "decoration.content_inset": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Inner padding between border and painted content in logical pixels (0..=128, default 6)."
+      "description": "Inner padding between border and painted content in logical pixels (0..=32, default 6)."
     },
     "decoration.border_color": {
       "type": "string",
@@ -119,7 +119,7 @@
     "decoration.border_width": {
       "type": "integer",
       "reload_class": "Live",
-      "description": "Base outline width in logical pixels (0..=32, default 1)."
+      "description": "Base outline width in logical pixels (0..=16, default 1)."
     },
     "decoration.border_width_focused": {
       "type": "integer",
@@ -145,6 +145,16 @@
       "type": "array",
       "reload_class": "Live",
       "description": "Approved directory path roots for background images."
+    },
+    "decoration.background_tint": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Background tint color over the View background image (#RRGGBB or #RRGGBBAA)."
+    },
+    "decoration.background_tint_strength": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Background tint strength (0.0..=1.0, default 0.0 = no tint); applies only with a tint color and a View background image."
     },
     "terminal.scrollback": {
       "type": "integer",
@@ -186,6 +196,16 @@
       "reload_class": "RestartRequired",
       "description": "Whether selecting text automatically copies to the system clipboard (default false)."
     },
+    "history.capture.transcript": {
+      "type": "boolean",
+      "reload_class": "RestartRequired",
+      "description": "Opt in to capturing completed scrollback lines into the bounded, redacted transcript ring (default false)."
+    },
+    "history.capture.commands": {
+      "type": "boolean",
+      "reload_class": "RestartRequired",
+      "description": "Accepted opt-in for command-history capture; no command source is implemented yet, so it is inert (default false)."
+    },
     "close_confirm": {
       "type": "string",
       "reload_class": "RestartRequired",
@@ -209,12 +229,42 @@
     "appearance.theme": {
       "type": "string",
       "reload_class": "Live",
-      "description": "Built-in theme name (e.g. catppuccin-mocha, tokyo-night, gruvbox-dark)."
+      "description": "Built-in theme name (e.g. catppuccin-mocha, tokyo-night) or an explicit local:<name> theme file."
     },
     "appearance.colors": {
       "type": "table",
       "reload_class": "Live",
       "description": "Custom color palette definition (background, foreground, cursor, selection, and 16 ANSI colors)."
+    },
+    "appearance.style.glow_color": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Optional glow halo color (#RRGGBB or #RRGGBBAA); unset paints no glow."
+    },
+    "appearance.style.glow_width": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Glow halo width in logical pixels (0..=16, default 0)."
+    },
+    "appearance.style.shadow_color": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Optional drop-shadow color (#RRGGBB or #RRGGBBAA); unset paints no shadow."
+    },
+    "appearance.style.shadow_offset_x": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Drop-shadow horizontal offset in logical pixels (-8..=8, default 0)."
+    },
+    "appearance.style.shadow_offset_y": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Drop-shadow vertical offset in logical pixels (-8..=8, default 0)."
+    },
+    "appearance.style.fade_unfocused": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Dim factor for inactive Views (0.0..=1.0, default 1.0 = no fade)."
     },
     "appearance.animations.enabled": {
       "type": "boolean",
@@ -224,7 +274,137 @@
     "appearance.animations.reduced_motion": {
       "type": "string",
       "reload_class": "Live",
-      "description": "Reduced-motion policy ('never', 'always', 'system')."
+      "description": "Reduced-motion policy ('auto' default, 'always', 'never')."
+    },
+    "appearance.animations.duration_ms.open": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Panel-open duration in milliseconds (0..=500, default 150)."
+    },
+    "appearance.animations.duration_ms.close": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Panel-close duration in milliseconds (0..=500, default 120)."
+    },
+    "appearance.animations.duration_ms.focus": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Focus-change duration in milliseconds (0..=500, default 100)."
+    },
+    "appearance.animations.duration_ms.workspace": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Workspace-switch duration in milliseconds (0..=500, default 200)."
+    },
+    "appearance.animations.duration_ms.move": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Panel-move duration in milliseconds (0..=500, default 150)."
+    },
+    "appearance.animations.duration_ms.resize": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Panel-resize duration in milliseconds (0..=500, default 120)."
+    },
+    "appearance.animations.duration_ms.drag": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Panel-drag duration in milliseconds (0..=500, default 150)."
+    },
+    "appearance.animations.easing.open": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Panel-open easing ('linear', 'ease_in', 'ease_out', 'ease_in_out', 'spring'; default 'ease_out')."
+    },
+    "appearance.animations.easing.close": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Panel-close easing (same set; default 'ease_in')."
+    },
+    "appearance.animations.easing.focus": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Focus-change easing (same set; default 'ease_in_out')."
+    },
+    "appearance.animations.easing.workspace": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Workspace-switch easing (same set; default 'ease_in_out')."
+    },
+    "appearance.animations.easing.move": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Panel-move easing (same set; default 'ease_in_out')."
+    },
+    "appearance.animations.easing.resize": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Panel-resize easing (same set; default 'ease_in_out')."
+    },
+    "appearance.animations.easing.drag": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Panel-drag easing (same set; default 'ease_out')."
+    },
+    "views.<selector>.border_color": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Base outline color for the selected Views (#RRGGBB or #RRGGBBAA)."
+    },
+    "views.<selector>.border_color_focused": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Focused outline color for the selected Views."
+    },
+    "views.<selector>.border_color_idle": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Idle outline color for the selected Views."
+    },
+    "views.<selector>.border_width": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Base outline width for the selected Views in logical pixels (0..=16)."
+    },
+    "views.<selector>.border_width_focused": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Focused outline width for the selected Views in logical pixels (0..=16)."
+    },
+    "views.<selector>.border_width_idle": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Idle outline width for the selected Views in logical pixels (0..=16)."
+    },
+    "views.<selector>.background_image": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Per-View background image path under the approved roots."
+    },
+    "views.<selector>.background_fit": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Per-View background fit mode ('fill', 'fit', 'center', 'tile', 'stretch')."
+    },
+    "views.<selector>.glow_color": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Per-View glow halo color (#RRGGBB or #RRGGBBAA)."
+    },
+    "views.<selector>.glow_width": {
+      "type": "integer",
+      "reload_class": "Live",
+      "description": "Per-View glow halo width in logical pixels (0..=16)."
+    },
+    "views.<selector>.background_tint": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Per-View background tint color (#RRGGBB or #RRGGBBAA)."
+    },
+    "views.<selector>.background_tint_strength": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Per-View background tint strength (0.0..=1.0)."
     },
     "mod_key": {
       "type": "string",
@@ -274,7 +454,7 @@
     "workspace.layout": {
       "type": "string",
       "reload_class": "RestartRequired",
-      "description": "Default layout provider name for new workspaces (e.g. 'bsp', 'dwindle')."
+      "description": "Parsed, validated, and merged but not applied to new workspaces yet (reserved); accepts provider names such as 'spiral', 'dwindle', 'master', 'grid', or a qualified owner.name:algorithm."
     },
     "scrollbar.mode": {
       "type": "string",
@@ -295,6 +475,16 @@
       "type": "integer",
       "reload_class": "RestartRequired",
       "description": "Dwell time in milliseconds before focus follows mouse switches pane."
+    },
+    "mouse.right": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Right-button binding: 'none' (default, inert) or any chrome action."
+    },
+    "mouse.middle": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "Middle-button binding: 'none' or any chrome action (default 'paste_from_primary')."
     },
     "session.restore_on_startup": {
       "type": "boolean",

@@ -20,9 +20,9 @@ Window
 A **Workspace** is an independent virtual desktop. Each workspace manages its own layout tree:
 
 - Switching workspaces changes the visible pane arrangement without suspending or interrupting background shell jobs.
-- `workspace.layout` selects the layout-provider name for new workspaces (for example `"dwindle"` or `"bsp"`). It does not choose the adaptive new-panel policy described below.
+- `workspace.layout` is parsed, validated, and merged, but nothing applies it to new workspaces yet, so it is reserved input rather than an active selection. It accepts provider names such as `"spiral"`, `"dwindle"`, `"master"`, `"grid"`, or a qualified `owner.name:algorithm`; changing it has no effect today. It does not choose the adaptive new-panel policy described below.
 - **Dense workspace IDs**: a new workspace takes the lowest free numeric ID in `1..=16`, and workspaces stay ordered by ID. Closing `ws2` from `[1, 2, 3]` and creating again reuses `ws2`, not `ws4`, so bar labels stay dense and do not reorder. The stable numeric ID is distinct from the current 1-based display position. Numeric workspace operations do not share one positional contract: `workspace_focus:<n>` resolves a stable ID first and falls back to a display position, `workspace_move:<n>` uses a display position when `n` is within the current count but can resolve a larger `n` as a stable ID, and `workspace_swap:<n>` resolves a stable ID and swaps sequence values. In particular, do not assume that a workspace ID remains attached to the same workspace after `workspace_swap`, and an open workspace's numeric ID is not reused.
-- **New-panel placement** (`Mod+n`): since 0.0.28, the default is the Core `Spiral` policy. It follows the focused pane's creation chain while that pane can host two children meeting the gap-aware minimum of 10 columns by 4 rows, rotating the new pane clockwise around the focused pane. If the focused leaf no longer fits, `Spiral` falls back to the largest feasible `Balanced` leaf; equal-size candidates are resolved by allocation order. If no leaf is feasible, Bitty refuses the split and leaves the layout unchanged. This is a runtime layout mode, not a TOML or Lua setting; `workspace.layout` selects a layout provider and does not select this new-panel policy. The 0.0.27 `Balanced` capacity is retained by the fallback, while `Balanced` remains an explicit selectable mode.
+- **New-panel placement** (`Mod+n`): since 0.0.28, the default is the Core `Spiral` policy. It follows the focused pane's creation chain while that pane can host two children meeting the gap-aware minimum of 10 columns by 4 rows, rotating the new pane clockwise around the focused pane. If the focused leaf no longer fits, `Spiral` falls back to the largest feasible `Balanced` leaf; equal-size candidates are resolved by allocation order. If no leaf is feasible, Bitty refuses the split and leaves the layout unchanged. This is a runtime layout mode, not a TOML or Lua setting; `workspace.layout` is parsed but not applied, so it selects neither this new-panel policy nor an active provider. The 0.0.27 `Balanced` capacity is retained by the fallback, while `Balanced` remains an explicit selectable mode.
 - **Workspace Bar Separation**: In accordance with Bitty's microkernel architecture, Bitty Core draws no visual workspace bar itself. Visual presentation is provided by an extension. Configuration keys `workspace.show_bar` and `workspace.bar.edge` (default `"bottom"`, or `"top"`) are reserved Core inputs consumed by extensions.
 
 ### Panels & Layout Spacing
@@ -60,6 +60,7 @@ Panels and workspaces can be controlled through default shortcut keys or program
 
 > [!NOTE]
 > The adaptive placement modes (`Balanced`, `Spiral`, `Dwindle`, `BisectLargest`)
-> are Core runtime layout modes. 0.0.27 exposes no TOML or Lua key to select
-> one; `workspace.layout` names a layout provider and does not change the
-> new-panel policy. `bitty.panel.create` likewise takes a content type only.
+> are Core runtime layout modes. No TOML or Lua key selects one; `workspace.layout`
+> is parsed and validated but not applied, so it selects neither a new-panel
+> policy nor an active layout provider. `bitty.panel.create` likewise takes a
+> content type only.
