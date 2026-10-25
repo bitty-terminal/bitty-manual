@@ -21,7 +21,7 @@ A **Workspace** is an independent virtual desktop. Each workspace manages its ow
 
 - Switching workspaces changes the visible pane arrangement without suspending or interrupting background shell jobs.
 - `workspace.layout` selects the layout-provider name for new workspaces (for example `"dwindle"` or `"bsp"`). It does not choose the adaptive new-panel policy described below.
-- **Dense workspace IDs**: a new workspace takes the lowest free numeric ID in `1..=16`, and workspaces stay ordered by ID. Closing `ws2` from `[1, 2, 3]` and creating again reuses `ws2`, not `ws4`, so bar labels stay dense and do not reorder.
+- **Dense workspace IDs**: a new workspace takes the lowest free numeric ID in `1..=16`, and workspaces stay ordered by ID. Closing `ws2` from `[1, 2, 3]` and creating again reuses `ws2`, not `ws4`, so bar labels stay dense and do not reorder. The stable numeric ID is distinct from the current 1-based display position. Numeric workspace operations do not share one positional contract: `workspace_focus:<n>` resolves a stable ID first and falls back to a display position, `workspace_move:<n>` uses a display position when `n` is within the current count but can resolve a larger `n` as a stable ID, and `workspace_swap:<n>` resolves a stable ID and swaps sequence values. In particular, do not assume that a workspace ID remains attached to the same workspace after `workspace_swap`, and an open workspace's numeric ID is not reused.
 - **New-panel placement** (`Mod+n`): since 0.0.28, the default is the Core `Spiral` policy. It follows the focused pane's creation chain while that pane can host two children meeting the gap-aware minimum of 10 columns by 4 rows, rotating the new pane clockwise around the focused pane. If the focused leaf no longer fits, `Spiral` falls back to the largest feasible `Balanced` leaf; equal-size candidates are resolved by allocation order. If no leaf is feasible, Bitty refuses the split and leaves the layout unchanged. This is a runtime layout mode, not a TOML or Lua setting; `workspace.layout` selects a layout provider and does not select this new-panel policy. The 0.0.27 `Balanced` capacity is retained by the fallback, while `Balanced` remains an explicit selectable mode.
 - **Workspace Bar Separation**: In accordance with Bitty's microkernel architecture, Bitty Core draws no visual workspace bar itself. Visual presentation is provided by an extension. Configuration keys `workspace.show_bar` and `workspace.bar.edge` (default `"bottom"`, or `"top"`) are reserved Core inputs consumed by extensions.
 
@@ -39,6 +39,10 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 - **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
 - **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
 - **Pinned Panels**: Pinning moves a tiled or floating panel into the window-global pinned store, so it remains visible across workspace switches. Unpinning restores it to the active workspace in floating mode; pinned state is separate from the workspace's tiled/floating/overlay hierarchy.
+
+### Detached history viewports
+
+When a panel is scrolled away from the live bottom, Bitty anchors the detached viewport to the retained scrollback line at its top. New output therefore keeps that top line in place instead of pushing the history view downward. The same anchor is restored across panel resize and terminal reflow, including for floating or pinned panels. If the top line is pruned or the backing state is rebuilt and receives new line identities, Bitty falls back to the previous bounded scroll offset and clamps it to the retained scrollback; the stale line anchor is then discarded.
 
 ## Managing Workspaces and Panels
 

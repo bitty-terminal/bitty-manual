@@ -160,12 +160,12 @@ closed without applying their state change.
 
 #### `bitty.workspace.list()`
 
-Returns an array of all open workspaces in workspace-ID order, with their layout descriptors.
+Returns an array of all open workspaces in current display order, with their layout descriptors. The array position is a 1-based display position; each row's `id` is the stable numeric workspace ID and is not a position.
 
 ```lua
 local list = bitty.workspace.list()
-for _, ws in ipairs(list) do
-  print(string.format("Workspace [%s]: %s (Active: %s)", ws.id, ws.name, tostring(ws.active)))
+for position, ws in ipairs(list) do
+  print(string.format("Workspace %d [%s]: %s (Active: %s)", position, ws.id, ws.name, tostring(ws.active)))
 end
 ```
 
@@ -196,6 +196,8 @@ Other values, zero, and non-positive `index` values fail closed with
 is dropped at apply time without changing state. A valid positional index uses
 Core's workspace-focus behavior, which clamps a position beyond the current
 list to the last workspace.
+
+The current terminal routing uses the same stable-ID-first, display-position-fallback path for numeric focus targets. Treat `{ index = n }` as positionally unambiguous only in dense layouts: with sparse IDs, an open stable ID that equals `n` can win instead of the requested position. Use the stable `id` form when identity matters.
 
 #### `bitty.workspace.next()`
 
@@ -252,6 +254,8 @@ These are the current move behavior, not a new plugin layout API.
 ```lua
 bitty.workspace.move_panel(target_workspace_id)
 ```
+
+Keyboard workspace operations are not uniformly positional: `workspace_focus:<n>` resolves a stable ID first and falls back to the current display position; `workspace_move:<n>` uses a display position when `n` is within the current count but can resolve a larger `n` as a stable ID; and `workspace_swap:<n>` resolves a stable ID and swaps sequence values. Do not assume that a workspace ID remains attached to the same workspace after `workspace_swap`. In dense layouts these numeric forms commonly coincide with positions, but sparse-ID positional targeting needs an explicit Core routing contract.
 
 ---
 
