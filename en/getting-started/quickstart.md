@@ -122,15 +122,14 @@ digests:
 Download the matching asset and its `.sha256` sidecar, then make it executable:
 
 ```bash
-curl -fsSLO https://cdn.bitty.run/releases/v0.0.28/bitty-x86_64-unknown-linux-gnu.AppImage
-curl -fsSLO https://cdn.bitty.run/releases/v0.0.28/bitty-x86_64-unknown-linux-gnu.AppImage.sha256
-sed 's#  dist/#  #' bitty-x86_64-unknown-linux-gnu.AppImage.sha256 | sha256sum -c -
-chmod +x bitty-x86_64-unknown-linux-gnu.AppImage
-./bitty-x86_64-unknown-linux-gnu.AppImage
+# Set this to bitty-aarch64-unknown-linux-gnu.AppImage on ARM64 Linux.
+APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.28/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.28/$APPIMAGE.sha256"
+sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
+chmod +x "$APPIMAGE"
+./"$APPIMAGE"
 ```
-
-For ARM64 Linux, substitute `bitty-aarch64-unknown-linux-gnu.AppImage` in the
-three download and verification commands.
 
 ### Cargo (build from the Git repository)
 
