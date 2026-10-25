@@ -207,8 +207,10 @@ When the target already has tiled leaves, Core inserts the moved leaf beside
 the largest target leaf using a bounded 50/50 split and the target's physical
 aspect. An empty target receives the moved leaf. If the source has only that
 leaf, the empty source workspace is removed. Detached workspace-local floats
-are outside the tiled layout and are not moved; they remain with their source
-workspace. These are the current move behavior, not a new plugin layout API.
+are outside the tiled layout and are not moved into the target. If the source
+workspace survives, its detached floats remain there; if a singleton source
+workspace is removed, its detached floats are discarded with that workspace.
+These are the current move behavior, not a new plugin layout API.
 
 ```lua
 bitty.workspace.move_panel(target_workspace_id)
