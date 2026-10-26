@@ -287,11 +287,124 @@ async function runPool(items, limit) {
   await Promise.all(workers);
 }
 
+// ---------------------------------------------------------------------------
+// Retired-key prune (CTX-1580)
+//
+// Uploading is add-only: when a published raw key is renamed or removed from
+// the source tree, the pipeline stops writing it but the previously uploaded
+// object stays in the bucket and keeps serving a stale copy to the CDN. The
+// list below deletes those retired keys deterministically after every
+// successful upload so the bucket reflects the current manual tree.
+//
+// Every entry is verifiable against git history: the catalog split
+// (#28, commit 06a7014) moved the source files, so the pre-split raw keys no
+// longer exist in the source tree:
+//   en/extensions/activity.md          -> en/plugins/catalog/activity.md
+//   en/plugins/upstream-components.md  -> en/extensions/upstream-components.md
+//   en/extensions/statusline.md        -> en/plugins/catalog/statusline.md
+//
+// Retired raw keys; the deploy-time R2 key becomes `${r2Prefix}/<relPath>`.
+const RETIRED_RAW_KEYS = [
+  "en/extensions/activity.md",
+  "en/plugins/upstream-components.md",
+  "en/extensions/statusline.md",
+];
+
+// Refuse to prune a key whose source path exists again: such a key would be
+// re-uploaded by this very run, so removing it is never safe.
+function collectRetiredKeys() {
+  const live = RETIRED_RAW_KEYS.filter((relPath) =>
+    existsSync(join(rootDir, relPath)),
+  );
+  if (live.length > 0) {
+    console.error(
+      `❌ Retired-key list is stale: these source paths exist again and must be removed from RETIRED_RAW_KEYS before pruning: ${live.join(", ")}.`,
+    );
+    process.exit(1);
+  }
+  return RETIRED_RAW_KEYS.map((relPath) => `${r2Prefix}/${relPath}`);
+}
+
+// A delete must not resurrect the failedCount > 0 path when the object is
+// already gone: the required end state is absence, so "not found" is success.
+// execFileAsync puts only the command line in the error message; the actual
+// error output (e.g. "404 NoSuchKey") lands in `stderr`/`stdout`.
+function isAlreadyMissing(err) {
+  const text = [err.message, err.stderr, err.stdout].filter(Boolean).join("\n");
+  return /(404|no\s*such\s*key|nosuchkey|key\s+not\s+found|object\s+not\s+found|1004|11000)/i.test(
+    text,
+  );
+}
+
+async function pruneTask(r2Key) {
+  const destination = `${bucketName}/${r2Key}`;
+  let lastError = null;
+  for (let attempt = 1; attempt <= UPLOAD_ATTEMPTS; attempt++) {
+    try {
+      const label =
+        attempt > 1 ? ` (attempt ${attempt}/${UPLOAD_ATTEMPTS})` : "";
+      console.log(`Pruning retired key: ${r2Key}${label}...`);
+      await execFileAsync(wranglerBin, [
+        "r2",
+        "object",
+        "delete",
+        destination,
+        "--remote",
+        "-y",
+      ]);
+      console.log(`Pruned retired key: ${r2Key}`);
+      return true;
+    } catch (err) {
+      if (isAlreadyMissing(err)) {
+        console.log(`Retired key already absent: ${r2Key}`);
+        return true;
+      }
+      lastError = err;
+      if (attempt < UPLOAD_ATTEMPTS) {
+        // Bounded backoff for transient CLI or network failures.
+        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+      }
+    }
+  }
+  console.error(
+    `❌ Failed to prune retired key ${r2Key}:`,
+    lastError && lastError.message ? lastError.message : lastError,
+  );
+  return false;
+}
+
+const retiredKeys = collectRetiredKeys();
+
 await runPool(uploadQueue, isDryRun ? 1 : CONCURRENCY);
 
 console.log(
   `\n🏁 Upload summary: ${uploadedCount} succeeded, ${failedCount} failed.`,
 );
 if (failedCount > 0) {
+  console.error(
+    "❌ Skipping the retired-key prune because the upload had failures.",
+  );
   process.exit(1);
+}
+
+if (isDryRun) {
+  console.log(
+    `[DRY-RUN] Would prune ${retiredKeys.length} retired key(s) with ` +
+      `'wrangler r2 object delete': ${retiredKeys.join(", ")}`,
+  );
+} else {
+  let pruningFailed = 0;
+  for (const retiredKey of retiredKeys) {
+    const ok = await pruneTask(retiredKey);
+    if (!ok) pruningFailed++;
+  }
+  if (pruningFailed > 0) {
+    console.error(
+      `❌ Retired-key prune failed for ${pruningFailed} of ${retiredKeys.length} key(s).`,
+    );
+    process.exit(1);
+  }
+  console.log(
+    `🏁 Retired-key prune complete: ${retiredKeys.length} key(s) pruned.`,
+  );
 }
