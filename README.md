@@ -40,7 +40,7 @@ Compat mechanism is copies, not redirects (plain R2 public serving has no redire
 
 ### Live Verification (CD-Run Step)
 
-A local listing is not possible with the available tooling (`wrangler r2 object` supports get/put/delete only), so the expected key set is reconstructed from `scripts/upload-r2.mjs` and verified live in CD: after `just upload-r2`, the `Verify published keys` step fetches the canonical manifest, one per-locale bundle, and the legacy manifest over public HTTPS. Local work validates the same mapping with `just upload-r2-dry`, which prints every key without network access.
+A local listing is not possible with the available tooling (`wrangler r2 object` supports get/put/delete only), so the expected key set is reconstructed from `scripts/upload-r2.mjs` and verified live in CD: after `just upload-r2` — which also deterministically prunes retired keys (`RETIRED_RAW_KEYS`) after a successful upload — the `Verify published keys` step fetches the canonical manifest, one per-locale bundle, and the legacy manifest over public HTTPS. Local work validates the same mapping with `just upload-r2-dry`, which prints every key and every would-be prune without network access.
 
 ## Downstream `bitty doc` Offline Panel Integration
 
@@ -97,10 +97,14 @@ list **upstream Rust-level extensions**, while `en/plugins/catalog/` and
 The catalog split ([#28](https://github.com/bitty-terminal/bitty-manual/pull/28))
 renamed published keys — section keys `extensions/<name>.md` →
 `plugins/catalog/<name>.md`, and search ids `en:extensions:<slug>` →
-`en:plugins:catalog-<slug>`. This is an accepted pre-1.0 break: the pipeline no longer writes the old
-keys, but previously published objects stay readable until they are pruned,
-so the old paths can serve stale copies in the meantime (tracked in
-[#35](https://github.com/bitty-terminal/bitty-manual/issues/35)).
+`en:plugins:catalog-<slug>`. This was an accepted pre-1.0 break while the
+pipeline was upload-only; CD now runs a deterministic prune step after every
+successful upload that deletes retired raw keys (`RETIRED_RAW_KEYS` in
+`scripts/upload-r2.mjs`, each entry traceable to the git commit that renamed
+its source file) and also tolerates keys that are already missing. Old raw
+keys stop resolving once pruned; before the prune step shipped, previously
+published pre-split keys stayed in the bucket and could still serve stale
+copies ([#35](https://github.com/bitty-terminal/bitty-manual/issues/35)).
 
 ## Quality Gates & Commands
 
