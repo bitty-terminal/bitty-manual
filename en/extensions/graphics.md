@@ -58,7 +58,42 @@ Bitty renders inline images with the [Kitty graphics protocol](https://sw.kovidg
 | chafa          | `chafa -f kitty image.png`     | A Kitty-protocol render of the image.        |
 | kitty's `icat` | `kitty +kitten icat image.png` | Image display plus `--print-window-size`.    |
 
-A tool that prefers SIXEL or iTerm2 inline images will not paint here: Bitty implements bounded Kitty graphics only. To stop children from misdetecting the outer terminal, Bitty sets `TERM_PROGRAM=bitty` in the PTY and strips inherited `KITTY_*`, `VTE_VERSION`, and iTerm2 marker variables, so a tool that honours `TERM_PROGRAM` chooses the Kitty path instead of trying an unsupported protocol.
+Bitty paints Kitty graphics by default and also admits one bounded iTerm2
+form. A tool that emits `OSC 1337 ; File=` inline images paints when the
+request fits that subset (see below); SIXEL is not supported. To stop children
+from misdetecting the outer terminal, Bitty sets `TERM_PROGRAM=bitty` in the
+PTY and strips inherited `KITTY_*`, `VTE_VERSION`, and iTerm2 marker variables,
+so a tool that honours `TERM_PROGRAM` still chooses its Kitty path.
+
+### iTerm2 inline images
+
+Kitty graphics remains the primary path. Bitty additionally admits
+`OSC 1337 ; File=` PNG inline images as a bounded subset that requires an
+explicit `inline=1`:
+
+- PNG only. The `IHDR` dimensions are checked before any decode or allocation.
+- 4 MiB base64 wire payload and 3 MiB decoded payload.
+- 4096-byte attribute header and 256-byte decoded `name=`.
+- 4096-cell requested span.
+- 8192 px per side and 16,777,216 px total.
+
+An admitted image anchors at the cursor cell rectangle, is aspect-fit inside
+the requested span, and the cursor advances past it the same way native
+`imgcat` does.
+
+These forms are refused, and paint nothing:
+
+- `inline=0` or an absent `inline` (iTerm2's download form).
+- Stretch: `preserveAspectRatio=0`.
+- Pixel or percentage dimensions: `Npx` / `N%`.
+- Any non-PNG payload.
+- The multipart forms `MultipartFile=`, `FilePart=`, and `FileEnd=`.
+
+There is no configuration key to enable or disable the intake: the caps and
+quotas are the gate. Every rejected `OSC 1337 ; File=` request is counted,
+stores no image, and paints nothing. The `name=` and `size=` attributes are
+validated then discarded: Bitty writes no files from protocol input. Sixel
+remains unsupported.
 
 ### Limits and failures
 
@@ -68,4 +103,4 @@ A tool that prefers SIXEL or iTerm2 inline images will not paint here: Bitty imp
 - Bitty never fetches remote images itself. The program that owns the image (yazi, chafa, `icat`) reads the file and sends the pixels.
 - yazi shows names but no preview, or `icat` says the terminal cannot report screen sizes in pixels: the build predates the placeholder and pixel-size fixes (bitty#2458). Upgrade Bitty; no tool setting change is needed.
 - An image in a pane disappears after you quit a full-screen app: the build predates the per-screen image planes that keep the main image while the alternate screen is active. Upgrade to Bitty 0.0.26 or later; the image returns at its original position and no tool setting change is needed.
-- A tool paints a solid block or replacement characters: it chose SIXEL or iTerm2 output. Force its Kitty mode; Bitty advertises `TERM_PROGRAM=bitty` and no SIXEL support.
+- A tool paints a solid block or replacement characters: it chose SIXEL output, or sent an iTerm2 form Bitty refuses (for example the download form without `inline=1`). Force its Kitty mode; Bitty advertises `TERM_PROGRAM=bitty` and no SIXEL support.

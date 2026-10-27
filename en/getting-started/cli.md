@@ -121,13 +121,49 @@ bitty config validate
 bitty config edit
 
 # Manage named profiles
+bitty config profile create work
+bitty config profile clone work work-trial
+bitty config profile rename work-trial work-fallback
+bitty config profile delete work-fallback
 bitty config profile list
 bitty config profile show work
 bitty config profile use work
+bitty config profile get work terminal.scrollback
+bitty config profile set work terminal.scrollback 20000
 bitty config profile path work
+
+# Machine-readable state for any of the verbs above
+bitty config profile show work --json
 ```
 
-`config profile list` reads directory metadata only and evaluates no Lua. `config profile show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
+`config profile` accepts `create`, `clone`, `rename`, `delete`, `list`,
+`show`, `use`, `get`, `set`, and `path`. Every state-reporting verb accepts
+`--json` (an alias for `--format json`) and prints one versioned envelope.
+Writes are validated before any file change. `set` and `use` commit atomically
+through the profile writer: a unique sibling temporary file, `sync_all`, a
+pre-commit identity re-check, rename, and a parent-directory sync. `create` and
+`clone` create the destination exclusively, so an existing target is never
+overwritten. A failed validation or write leaves the previous bytes intact.
+
+Conflicts exit `2` with nothing changed: `create` and `clone` refuse an
+existing destination, `rename` refuses the same name or an existing
+destination, and `delete`/`rename` refuse the active profile and any profile
+another profile `extends`. `default` is reserved for `bitty init`: `create`,
+`delete`, and `rename` refuse it outright, and `clone` refuses it as a
+destination (cloning from it is the supported way to branch the generated
+defaults).
+
+`get NAME PATH` prints the effective value and its source at one documented
+dotted schema path. Because `font`, `window`, `terminal`, `layout`,
+`decoration`, `scrollbar`, and `appearance` merge as complete tables, `set`
+first pins every inherited leaf of that table into the profile and reports
+`pinned '<table>' into '<name>'`, so a one-leaf edit never resets its
+siblings. `list` reads directory metadata only and evaluates no Lua. `show`
+loads and validates the single-parent `extends` chain. `use` validates the
+target chain and rewrites only the `profile = "..."` value in the existing
+selector, preserving comments and user overrides; it does not reload a running
+instance. `path` prints the resolved path without creating it. None of these
+commands installs, enables, or grants plugin state.
 
 `config check` is the strict diagnostic path: it evaluates the user file, the selected profile chain, and the merged result, prints effective rows with their source, and exits `2` with the exact first field error when anything is invalid. `config show` evaluates the same layers and prints the same effective rows, with `--format json|jsonl` emitting the versioned envelope with per-key `layer` and `source` attribution. `config validate` is validation-only: table mode prints nothing on success, and an invalid configuration exits `2` with the validation error (`--format json|jsonl` emits the validation envelope). None of these verbs applies the startup salvage described next, and `bitty doctor` uses the same strict load.
 
