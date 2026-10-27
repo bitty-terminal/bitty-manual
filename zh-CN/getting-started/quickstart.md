@@ -12,17 +12,17 @@ Bitty 面向主流操作系统提供自动化脚本、原生软件包、预编�
 
 ```bash
 # Linux 与 macOS (Unix)
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # 锁定版本、预览安装计划或更改安装位置
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --version 0.0.26
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --dry-run
-curl -fsSL https://cdn.bitty.run/bitty/install/install.sh | bash -s -- --prefix ~/.local
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.26
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
 
 ```powershell
 # Windows (PowerShell，用户级安装，无需管理员权限)
-irm https://cdn.bitty.run/bitty/install/install.ps1 | iex
+irm https://cdn.bitty.run/install/install.ps1 | iex
 ```
 
 各脚本获取内容：Linux 安装版本化 `.tar.zst` 软件包（二进制文件外加桌面入口、图标与 AppStream 元信息）；macOS 安装裸架构二进制文件（DMG 仅为交互式拖拽安装镜像，不适合无人值守安装）；Windows x64 安装便携 ZIP 负载，Windows arm64 安装裸 exe。在 Git-Bash 下运行 `install.sh` 会失败并指引使用 `install.ps1`；FreeBSD 不是一键安装目标，请手动下载。0.1.0 的校验仅为哈希：暂无签名（Windows 签名推迟至 0.2.0 之后）。
