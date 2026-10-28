@@ -4,19 +4,19 @@
 
 - 源码 checkout：`$BITTY_WORKSPACE/bitty-graphics`（[github.com/bitty-terminal/bitty-graphics](https://github.com/bitty-terminal/bitty-graphics)）
 - Crate：`bitty-graphics`（库，`src/lib.rs`）
-- 成熟度：主机 seam 已合并并测试；已发布的 `0.0.24` 扩展包含有界解码/光栅子集，放置策略、矩形辅助与渲染器上传校验仍在 Core。
+- 成熟度：主机 seam 已合并并测试；已发布的 `0.0.25` 扩展包含有界解码/光栅子集，放置策略、矩形辅助与渲染器上传校验仍在 Core。
 
 ## 安装状态
 
-> 已发布——`graphics 0.0.24` 的 CDN tarball 与 `SHA256SUMS` 均已上线（2026-10-22 验证），且 `extensions/catalog.v1` 已为 `x86_64-unknown-linux-gnu` 列出该版本。裸安装会为本机目标解析 `0.0.24` 为最新版；`--version 0.0.24` 锁定同一产物。
+> 已发布——`graphics 0.0.25` 的 CDN tarball 与 `SHA256SUMS` 已覆盖 Linux x86_64/aarch64、macOS arm64/x86_64 与 Windows x86_64 五个目标并全部上线（2026-10-28 验证），`extensions/catalog.v1` 已列出全部五个目标。裸安装会为本机目标解析 `0.0.25` 为最新版；`--version 0.0.25` 锁定同一产物。
 
 跟踪上述源码 checkout。安装已发布扩展：
 
 ```bash
-# 本机最新目录版本（当前为 0.0.24）
+# 本机最新目录版本（当前为 0.0.25）
 bitty extension install graphics
 # 精确锁定（可复现自动化；目录离线时同样可用）
-bitty extension install graphics --version 0.0.24
+bitty extension install graphics --version 0.0.25
 
 bitty extension list   # 查看本地扩展清单
 ```
