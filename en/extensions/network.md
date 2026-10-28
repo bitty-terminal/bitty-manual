@@ -4,18 +4,18 @@ The shared, optional network runtime: connection pooling, DNS, TLS, and the wire
 
 - Source checkout: `$BITTY_WORKSPACE/bitty-network` ([github.com/bitty-terminal/bitty-network](https://github.com/bitty-terminal/bitty-network))
 - Crates: `bitty-network-api`, `bitty-network-core`, `bitty-network-dns`, `bitty-network-tls`, `bitty-network-wire`, `bitty-network-lua`, `bitty-net`
-- Maturity: mainline source includes the `bitty-net` executable and `net 0.0.1` is published on the CDN; making the native extension the user-facing Lua path remains a separate routing change.
+- Maturity: mainline source includes the `bitty-net` executable and `net 0.0.2` is published on the CDN; making the native extension the user-facing Lua path remains a separate routing change.
 
 ## Install status
 
-> Published — `net 0.0.1` has a live CDN tarball and `SHA256SUMS` (verified 2026-10-22), and `extensions/catalog.v1` lists it for `x86_64-unknown-linux-gnu`. A bare `bitty extension install net` resolves it as the latest release for the host target.
+> Published — `net 0.0.2` has live CDN tarballs and `SHA256SUMS` for linux x86_64/aarch64, macOS arm64/x86_64, and Windows x86_64 (verified 2026-10-28), and `extensions/catalog.v1` lists all five targets. A bare `bitty extension install net` resolves it as the latest release for the host target.
 
 Track the source checkout above. The extension name is `net` and its executable is `bitty-net`. Install the published extension:
 
 ```bash
-bitty extension install net              # latest catalog release (0.0.1)
-bitty extension install net --version 0.0.1   # exact pin
-bitty extension install bitty-net --version 0.0.1   # repo-style alias
+bitty extension install net              # latest catalog release (0.0.2)
+bitty extension install net --version 0.0.2   # exact pin
+bitty extension install bitty-net --version 0.0.2   # repo-style alias
 
 bitty extension list   # inspect the local extension inventory
 ```
