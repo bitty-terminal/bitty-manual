@@ -149,7 +149,7 @@ Open it from the command palette (`bitty-terminal.dashboard:toggle_dashboard`) o
 
 - **Sections**: Overview (app version, active profile and source, theme and source, font, decoration, counts), Plugins, Extensions, Settings, Profiles, and Diagnostics. A section either renders bounded rows or an explicit `unavailable: <reason>` marker — a failed source is never shown as "none installed".
 - **Keys while open**: `j`/`k` or arrows move rows, `h`/`l` or `Tab`/`Shift+Tab` change section, `1`…`6` jump to a section, `g`/`G` and `PageUp`/`PageDown` move within a section, the wheel scrolls, `r` re-reads the snapshot, and `q`/`Esc` closes.
-- **Read-only by design**: settings writes, plugin toggles, and profile switches are deferred until the typed `config.manage` API lands (bitty#2393). Only `runtime.inspect` and `ui.overlay.focus` are requested.
+- **Read-only by design**: the dashboard requests only `runtime.inspect` and `ui.overlay.focus`, so its settings, plugin-toggle, and profile rows stay read-only. The typed `config.manage` API (bitty#2393) is available to plugins that declare and are granted it, but the dashboard does not request it in this release.
 - **Limits**: only one plugin may own the transient overlay capture at a time; Core bounds its event queue and revokes an expired capture. The dashboard uses keyboard capture for its controls; mounted presentation and transient capture remain separate operations.
 - **No keybinding is installed.** Bind `command:bitty-terminal.dashboard:toggle_dashboard` yourself, for example `alt+g` in `init.lua`.
 
