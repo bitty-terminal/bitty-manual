@@ -126,7 +126,7 @@ local applied = bitty.config.set("window.opacity", 0.95, preview.digest)
 
 -- One managed plugin record's enable bit.
 local toggle = bitty.config.preview_enabled("owner.plugin", true)
--- { digest, rendered, keys }
+-- { digest, rendered, keys, changed }
 local changed = bitty.config.set_enabled("owner.plugin", true, toggle.digest)
 -- { changed = true, reload = "restart" }
 
@@ -138,10 +138,13 @@ local active = bitty.profiles.use("work", switch.digest)
 ```
 
 `preview` returns the bounded exact `rendered` diff and the `keys` it changes;
-pinning an inherited table expands `keys` to the seeded leaves. `set` consumes
-the digest once and invalidates it when the plugin generation reloads. A moved
-profile, ledger, or concurrent edit returns `E_CONFIG_STALE` with nothing
-written. A missing or replayed token returns `E_CONFIG_APPROVAL_REQUIRED`.
+pinning an inherited table expands `keys` to the seeded leaves.
+`config.preview_enabled` and `profiles.preview_use` also report `changed`, so a
+no-op is visible before the apply call (`keys` is empty exactly when `changed`
+is `false`). `set` consumes the digest once and invalidates it when the plugin
+generation reloads. A moved profile, ledger, or concurrent edit returns
+`E_CONFIG_STALE` with nothing written. A missing or replayed token returns
+`E_CONFIG_APPROVAL_REQUIRED`.
 
 `config.set` writes only the user layer (`init.lua` or its `config.lua` alias).
 `config.set_enabled` flips only the `enabled` bit of one managed
@@ -149,13 +152,19 @@ written. A missing or replayed token returns `E_CONFIG_APPROVAL_REQUIRED`.
 capabilities exactly like `bitty plugin enable`/`disable`; installed store
 packages remain on the CLI path. The ledger is read at activation and nothing
 re-activates the generation at runtime, so an applied toggle reports
-`reload = "restart"` (a no-op reports `none`). The ledger is read at activation and nothing
-re-activates the generation at runtime, so an applied toggle reports
-`reload = "restart"`. `profiles.use` rewrites only the selector's
-`profile = "..."` value through the same validated atomic writer as `bitty
-config profile use`. `default` is not a magic reset: it must name the existing
-`profiles/default.lua` that `bitty init` created. The switch persists for the
-next launch; a running instance is not re-merged, so `pending_restart = true`.
+`reload = "restart"` (a no-op reports `none`). `profiles.use` rewrites only the
+selector's `profile = "..."` value through the same validated atomic writer as
+`bitty config profile use`. `default` is not a magic reset: it must name the
+existing `profiles/default.lua` that `bitty init` created.
+
+`pending_restart` is conservative: an applied selector rewrite always reports
+`true`, because reads keep resolving the startup profile until the next launch.
+The config watcher does re-resolve the persisted selector on the next
+config-file change and can live-apply live-class fields (for example
+`window.padding`) without a restart, but the flag and `profiles.list.active`
+still describe the startup profile in that window. The precise per-field
+live-merge contract is tracked in
+[bitty#2814](https://github.com/bitty-terminal/bitty/issues/2814).
 
 The scalar allowlist takes one dotted key and one typed scalar per call.
 `history.capture.*` is never writable, and neither are `terminal.shell`, the
@@ -171,9 +180,11 @@ refused validation or failed commit leaves the previous bytes byte-identical.
 
 #### Bounds and refusals
 
-At most 64 rows per list, 128 bytes per list string, 1 KiB per `config.get`
-value, 16 calls per second, 4 KiB per second, and a 10 ms wall budget per call.
-A violated bound fails closed with `E_DEF_LIMIT`; nothing is clamped silently.
+At most 64 rows and 4 KiB of row bytes per list, 128 bytes per list string,
+1 KiB per `config.get` value, 16 calls per second, 4 KiB per second, and a
+10 ms wall budget per call. A list that would exceed either list bound is
+shortened and reports `truncated = true`; every other violated bound fails
+closed with `E_DEF_LIMIT`, so values are never clamped silently.
 
 Refusals are typed and path-free:
 
