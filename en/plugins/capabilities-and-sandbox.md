@@ -89,20 +89,27 @@ local sources = bitty.config.sources()
 -- { rows = { { key, source }, ... }, count, truncated }
 
 local plugins = bitty.plugins.list()
--- { rows = { { id, enabled, source, version }, ... }, count, truncated }
+-- { rows = { { id, enabled, managed, source, version }, ... }, count, truncated }
 
 local profiles = bitty.profiles.list()
 -- { rows = { { name, active }, ... }, active, count, truncated }
 ```
 
 `config.get` accepts one dotted key from the same scalar allowlist the write
-path uses. `source` is a logical label — `default`, `user`, `plugin:<id>`, or
-`env` — and never a host path. Profiles are user-owned, so a value inherited
-from a profile reports `user`. Secret-shaped values are replaced with
+path uses. `source` is a logical label — `default`, `user`, or `plugin:<id>` —
+and never a host path. Profiles are user-owned, so a value inherited from a
+profile reports `user`. Secret-shaped values are replaced with
 `***REDACTED***` and the row reports `redacted = true`.
 
 `plugins.list` carries no grants and no paths; `source` is the provenance label
-(`bundled`, `registry`, `local-path`, ...). `profiles.list` evaluates no Lua.
+(`bundled`, `registry`, `local-path`, ...). `managed` reports whether the row
+has a managed `bitty-plugins.lua` record: a catalog-only bundled row reports
+`enabled = false, managed = false`, so it is never mistaken for a recorded
+disabled plugin, and only managed rows accept `config.set_enabled` (store
+packages stay on the CLI path). `profiles.list` evaluates no Lua. Its `active`
+names the profile the running instance loaded — `--profile`/`BITTY_PROFILE`
+first, then the persisted selector — so after `profiles.use` it still names the
+startup profile until the next launch.
 
 #### Token-bound writes
 
@@ -121,7 +128,7 @@ local applied = bitty.config.set("window.opacity", 0.95, preview.digest)
 local toggle = bitty.config.preview_enabled("owner.plugin", true)
 -- { digest, rendered, keys }
 local changed = bitty.config.set_enabled("owner.plugin", true, toggle.digest)
--- { changed = true, reload = "auto" }
+-- { changed = true, reload = "restart" }
 
 -- One persisted profile switch.
 local switch = bitty.profiles.preview_use("work")
@@ -140,7 +147,11 @@ written. A missing or replayed token returns `E_CONFIG_APPROVAL_REQUIRED`.
 `config.set_enabled` flips only the `enabled` bit of one managed
 `bitty-plugins.lua` record and re-checks the bundled manifest pin and granted
 capabilities exactly like `bitty plugin enable`/`disable`; installed store
-packages remain on the CLI path. `profiles.use` rewrites only the selector's
+packages remain on the CLI path. The ledger is read at activation and nothing
+re-activates the generation at runtime, so an applied toggle reports
+`reload = "restart"` (a no-op reports `none`). The ledger is read at activation and nothing
+re-activates the generation at runtime, so an applied toggle reports
+`reload = "restart"`. `profiles.use` rewrites only the selector's
 `profile = "..."` value through the same validated atomic writer as `bitty
 config profile use`. `default` is not a magic reset: it must name the existing
 `profiles/default.lua` that `bitty init` created. The switch persists for the
