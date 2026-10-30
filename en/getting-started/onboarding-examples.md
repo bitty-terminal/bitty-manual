@@ -76,21 +76,18 @@ bitty config check
 
 ## 3. Extension flow example
 
-Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../extensions/upstream-components.md)). `list` shows only what is already installed. A bare `install` resolves the latest catalog release for this host; `--version` pins an exact `X.Y.Z`.
+Extensions are out-of-process binaries managed separately from plugins (see [Native Component Boundary](../extensions/upstream-components.md)). `list` shows only what is already installed. `install` is pinned-only: `--version X.Y.Z` is required, and a bare `install` is a usage error (exit code `2`); Core does not resolve a latest catalog release.
 
 ```bash
 # Installed extensions only (empty when nothing is installed)
 bitty extension list
 
-# Fetch the latest published release (TOFU-pinned, explicit consent)
-bitty extension install graphics
-
-# Pin a confirmed release (recommended for scripts)
-bitty extension install graphics --version 0.0.24
-bitty extension install net --version 0.0.1
+# Fetch published releases (TOFU-pinned, explicit consent)
+bitty extension install graphics --version 0.0.25
+bitty extension install net --version 0.0.2
 
 # Repo-style names are aliases for the stored extension name
-bitty extension install bitty-graphics --version 0.0.24
+bitty extension install bitty-graphics --version 0.0.25
 
 # Stage a local binary instead of downloading (no network)
 bitty extension add /usr/local/bin/bitty-net
@@ -100,7 +97,7 @@ bitty extension remove net
 bitty extension show-source net
 ```
 
-Publication changes over time; the authoritative selector is the extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`, published schema 1 on 2026-10-22). A bare `install` never guesses: when the catalog is unavailable or has no entry, the command fails closed and prints a concrete `--version` example. Confirm a pinned release by checking `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS`; `graphics/0.0.24` and `net/0.0.1` were live at that date.
+Publication changes over time; the extension catalog (`https://cdn.bitty.run/extensions/catalog.v1`, published schema 1 on 2026-10-22) is the manager-owned resolution input. Core's pinned seed never reads it: a bare `install` fails closed with exit code `2` and a concrete `--version` example. Confirm a pinned release by checking `https://cdn.bitty.run/extensions/<name>/<version>/SHA256SUMS`; `graphics/0.0.25` and `net/0.0.2` were live at that date.
 
 ## 4. Leader key (`alt+space` default)
 

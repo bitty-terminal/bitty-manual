@@ -8,12 +8,11 @@ The shared, optional network runtime: connection pooling, DNS, TLS, and the wire
 
 ## Install status
 
-> Published — `net 0.0.2` has live CDN tarballs and `SHA256SUMS` for linux x86_64/aarch64, macOS arm64/x86_64, and Windows x86_64 (verified 2026-10-28), and `extensions/catalog.v1` lists all five targets. A bare `bitty extension install net` resolves it as the latest release for the host target.
+> Published — `net 0.0.2` has live CDN tarballs and `SHA256SUMS` for linux x86_64/aarch64, macOS arm64/x86_64, and Windows x86_64 (verified 2026-10-28), and `extensions/catalog.v1` lists all five targets. Core's installer is pinned-only: `bitty extension install net --version 0.0.2`. A bare `install` without `--version` is a usage error (exit 2).
 
 Track the source checkout above. The extension name is `net` and its executable is `bitty-net`. Install the published extension:
 
 ```bash
-bitty extension install net              # latest catalog release (0.0.2)
 bitty extension install net --version 0.0.2   # exact pin
 bitty extension install bitty-net --version 0.0.2   # repo-style alias
 
