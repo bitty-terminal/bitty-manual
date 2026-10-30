@@ -8,14 +8,12 @@ Bounded PNG decode plus the raster mechanics subset for inline images. Placement
 
 ## Install status
 
-> Published — `graphics 0.0.25` has live CDN tarballs and `SHA256SUMS` for linux x86_64/aarch64, macOS arm64/x86_64, and Windows x86_64 (verified 2026-10-28), and `extensions/catalog.v1` lists all five targets. A bare install resolves `0.0.25` as the latest release for the host target; `--version 0.0.25` pins the same artifacts.
+> Published — `graphics 0.0.25` has live CDN tarballs and `SHA256SUMS` for linux x86_64/aarch64, macOS arm64/x86_64, and Windows x86_64 (verified 2026-10-28), and `extensions/catalog.v1` lists all five targets. Core's installer is pinned-only: `bitty extension install graphics --version 0.0.25`. A bare `install` without `--version` is a usage error (exit 2).
 
 Track the source checkout above. Install the published extension:
 
 ```bash
-# Latest catalog release for this host (currently 0.0.25)
-bitty extension install graphics
-# Exact pin (reproducible automation; also works when the catalog is offline)
+# Exact pin (reproducible automation)
 bitty extension install graphics --version 0.0.25
 
 bitty extension list   # inspect the local extension inventory
