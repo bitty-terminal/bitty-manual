@@ -232,6 +232,29 @@ Core-owned view decorations operate in logical pixels:
 | `font.features`          | `array`  | **RestartRequired** | Raw OpenType feature overrides applied at shaping time (e.g. `{"calt", "ss01"}`). |
 | `font.disable_ligatures` | `string` | **RestartRequired** | Programming-ligature policy: `"never"`, `"cursor"`, or `"always"`.                |
 
+#### Text stack
+
+The shaped `harfrust`/`swash` stack is the production default. It is the only
+stack that applies `font.features` and `font.disable_ligatures`; on the
+crossfont fallback those two keys are inert.
+
+`BITTY_TEXT_STACK` is a startup-only environment escape hatch, read once at
+launch:
+
+| Value     | Effect                                                                                                          |
+| :-------- | :-------------------------------------------------------------------------------------------------------------- |
+| `auto`    | Default. Prefer shaped; fall back to crossfont with a diagnostic when the shaped stack cannot initialize.       |
+| `shaped`  | Request the shaped stack explicitly; still falls back to crossfont with a diagnostic when it cannot initialize. |
+| `classic` | Force the crossfont stack.                                                                                      |
+
+An absent or empty value means `auto`; any other value falls back to `auto`
+and prints a warning naming `BITTY_TEXT_STACK`. Startup logs
+`bitty: text stack fallback: ...` whenever the shaped stack loses to crossfont,
+and `bitty doctor` reports the effective stack in the `text-stack` row,
+including a forced `classic` or an ignored invalid value. The variable is not a
+live-reload key: switching stacks mid-session would invalidate the shaped
+caches and change glyph rasterization under you.
+
 ### Terminal Behavior & Selection
 
 | Field                              | Type      | Reload Class        | Description                                                                                                                                               |
@@ -243,6 +266,8 @@ Core-owned view decorations operate in logical pixels:
 | `terminal.page_scroll_percent`     | `integer` | **RestartRequired** | Page-scroll distance (`alt+u` / `alt+i`) as a percentage of viewport rows (`10..=100`, default `75`).                                                     |
 | `terminal.cursor_style`            | `string`  | **RestartRequired** | Initial cursor shape (`"default"`, `"blinking_block"`, `"steady_block"`, `"blinking_underline"`, `"steady_underline"`, `"blinking_bar"`, `"steady_bar"`). |
 | `terminal.bell`                    | `string`  | **RestartRequired** | Bell alert behavior (`"off"`, `"visual"`, `"audible"`, `"both"`).                                                                                         |
+| `terminal.ambiguous_width`         | `string`  | **RestartRequired** | East Asian Ambiguous cell policy: `"narrow"` (default) or `"wide"`.                                                                                       |
+| `terminal.bidi`                    | `string`  | **Live**            | Paint-time UAX #9 reordering: `"off"` (default) or `"on"`; display-spoofing (Trojan-Source) risk.                                                         |
 | `selection.auto_copy`              | `boolean` | **RestartRequired** | Whether selecting text automatically copies to the system clipboard (default `false`).                                                                    |
 | `close_confirm`                    | `string`  | **RestartRequired** | View close safety confirmation: `"always"`, `"when_busy"` (default), or `"never"`.                                                                        |
 | `history.capture.transcript`       | `boolean` | **RestartRequired** | Opt in to capturing completed scrollback lines into the bounded, redacted transcript ring (default `false`).                                              |
@@ -254,6 +279,25 @@ I-beam appears only over selectable grid text, `Alt`+drag selects a rectangular
 block, and ranges may span scrollback. A selection is presentation state, not
 terminal content: resizing or changing DPI re-clamps its buffer anchors, and
 losing the anchored content drops it instead of selecting different text.
+
+#### East Asian ambiguous width and BiDi
+
+`terminal.ambiguous_width` selects the UAX #11 cell width for East Asian
+Ambiguous scalars (Greek and Cyrillic letters, CJK-adjacent punctuation,
+arrows, math symbols, and box drawing). The default `"narrow"` charges one
+cell. Set `"wide"` on a CJK terminal that expects those characters to occupy
+two cells. The policy is seeded when a terminal is created, so it is
+**RestartRequired**: changing it never re-measures cells already on the grid.
+
+`terminal.bidi = "on"` resolves UAX #9 over each logical line and paints rows
+with an odd resolved level in visual order. Reordering is paint-time only:
+Terminal Truth stays logical, so copying, searching, snapshots, and the
+canonical hash keep reading the same cells and bytes as with it off, and the
+switch is **Live**. Because reordering can disguise the text a user sees
+(display spoofing, the Trojan-Source class of attack), it defaults to `"off"`.
+Two rules apply regardless of the setting: isolate controls `U+2066`..`U+2069`
+are zero-width, and a bidi control at column 0 after a hard line break is
+dropped because it has no preceding cell to attach to.
 
 ### Layout & Workspaces
 

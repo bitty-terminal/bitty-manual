@@ -55,9 +55,65 @@ version = ">=2.30"
    - Plugins can only invoke explicit, allowlisted system tools declared in `[tools.<name>]` (e.g. `process.spawn:git`), subject to host argument sanitization, timeout, and output caps (8 KiB default).
    - Every spawn decision (allow or deny) is recorded exactly once in a bounded audit ledger: caller identity, tool name, and bounded argument previews only. Environment values and secrets never enter the ledger. The ledger retains at most 1024 entries with drop-oldest semantics and counts evicted entries.
    - On Linux, admitted tool invocations additionally run under inherited OS confinement (Landlock execute rules covering the tool binaries plus their loaders), so an admitted binary cannot exec outside the allowlist from inside. Confinement setup failure refuses the spawn fail-closed with a confinement diagnostic; no admitted spawn ever runs unconfined. Non-Linux platforms refuse admitted spawns the same fail-closed way until their mechanisms land.
-6. **Consent & Revocation**:
+6. **`config` Family**:
+   - `config.manage`: write-only, high-risk head for changing allowlisted user configuration values. Configuration reads stay on `runtime.inspect`; the write grant adds no read.
+7. **Consent & Revocation**:
    - Capability grants use explicit confirmation: `bitty plugin install` prompts `Grant these capabilities? [y/N]` (up to 3 attempts); `--yes` approves non-interactively, while a decline aborts with nothing changed. Grants are bound to the exact manifest hash, so a later manifest that adds a capability blocks until re-approved.
    - Revoke without dropping the record: `bitty plugin revoke <id>` drops every granted capability and disables the plugin; `bitty plugin revoke <id> --cap <capability>` drops one capability and remembers it as explicitly denied (no silent re-prompt). Re-grant with `install` under explicit consent.
+
+### Configuration writes (`config.manage`)
+
+A plugin declares the head in its manifest:
+
+```toml
+[capabilities]
+config.manage = true
+```
+
+`config.manage` is write-only and high-risk. It requires a recorded grant: a
+development (`local-path`) package declaration does not grant it, and safe mode
+denies it even when a grant is recorded. Approve it through `bitty plugin
+install` consent or explicitly with `bitty plugin grant <id> --cap
+config.manage`; the grant is recorded in the managed plugin ledger bound to the
+manifest hash.
+
+The write is a two-call flow:
+
+```lua
+local preview = bitty.config.preview("window.opacity", 0.95)
+-- preview = { digest = "<sha256>", rendered = "<exact diff>", keys = { ... } }
+
+local result = bitty.config.set("window.opacity", 0.95, preview.digest)
+-- result = { applied = true, reload = "auto" }
+```
+
+`preview` renders the exact candidate user-layer change and returns the
+one-shot approval `digest`, the bounded exact `rendered` diff, and the `keys`
+it changes; pinning an inherited table expands `keys` to the seeded leaves, so
+the full effect is visible. `set` re-renders and commits only if the exact
+bytes still match, consumes the digest once, and invalidates it when the
+plugin generation reloads. A moved profile or concurrent edit returns
+`E_CONFIG_STALE` with nothing written.
+
+The allowlist takes one dotted key and one typed scalar per call.
+`history.capture.*` is never writable, and neither are `terminal.shell`, the
+input aliases (`mod_key`, `mouse.right`, `mouse.middle`), list-valued or
+nullable settings, profiles, and any path. There is no parameter for a target
+file: only the user layer (`init.lua` or its `config.lua` alias) is
+addressable.
+
+Every candidate is re-validated through the same strict loader `bitty config
+check` uses, then written atomically: a rolling `.bak` of the previous bytes
+when the layer already exists, a unique temporary file, `sync_all`, a
+pre-commit identity re-check, rename, a parent-directory sync, and owner-only
+`0600`. A refused validation or failed commit leaves the previous bytes
+byte-identical. Because inherited tables are pinned first, one plugin write
+never resets sibling values inherited from a profile. Failures cross back as
+path-free classes (`E_CONFIG_INVALID`, `E_CONFIG_UNAVAILABLE`,
+`E_CONFIG_UNSAFE`, `E_CONFIG_STALE`, `E_CONFIG_IO`).
+
+See [Per-Plugin Config Files](plugin-settings.md) for the settings files
+themselves.
 
 ## Resource Quotas & Budgets
 
