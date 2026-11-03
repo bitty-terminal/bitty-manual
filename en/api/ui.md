@@ -26,15 +26,15 @@ local handle = bitty.ui.mount(slot, component)
 
 #### Supported Slots
 
-| Slot Name    | Placement Status | Description                                                                                                                             |
-| :----------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
-| `"top"`      | **Painted**      | Top edge chrome band.                                                                                                                   |
-| `"bottom"`   | **Painted**      | Bottom edge chrome band.                                                                                                                |
-| `"left"`     | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                      |
-| `"right"`    | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                      |
-| `"tabline"`  | **Unavailable**  | Reserved for panel tabs; requires the `[lazy].claims = ["workspaceline"]` claim, and no host surface is available (`E_UI_UNAVAILABLE`). |
-| `"overlay"`  | **Mounted**      | Core-hosted overlay block; call `bitty.ui.overlay.show` to present it without capture. Requires `ui.rich` and `ui.overlay`.             |
-| `"terminal"` | **Unavailable**  | Accepted slot name, but no terminal-attached block host is available (`E_UI_UNAVAILABLE`).                                              |
+| Slot Name    | Placement Status | Description                                                                                                                                                                                                         |
+| :----------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `"top"`      | **Painted**      | Top edge chrome band.                                                                                                                                                                                               |
+| `"bottom"`   | **Painted**      | Bottom edge chrome band.                                                                                                                                                                                            |
+| `"left"`     | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                                                                                                  |
+| `"right"`    | **Unavailable**  | Accepted slot name, but this build has no vertical band host (`E_UI_UNAVAILABLE`).                                                                                                                                  |
+| `"tabline"`  | **Unavailable**  | Reserved for panel tabs; requires the `[lazy].claims = ["workspaceline"]` claim, and no host surface is available (`E_UI_UNAVAILABLE`).                                                                             |
+| `"overlay"`  | **Mounted**      | Core-hosted overlay block; present it with `bitty.ui.present.show` (or the older `bitty.ui.overlay.show` spelling). Mounting requires `ui.rich` and `ui.overlay`; presenting without capture requires `ui.present`. |
+| `"terminal"` | **Unavailable**  | Accepted slot name, but no terminal-attached block host is available (`E_UI_UNAVAILABLE`).                                                                                                                          |
 
 The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](../plugins/catalog/bar.md) plugin's `bottom` (or `top`) band. Unsupported names in the closed set fail closed with `E_UI_UNAVAILABLE`; they are not silently stored for a future host.
 
@@ -209,8 +209,10 @@ implemented in the current build and stays deferred.
 
 Mounting a component into the `"overlay"` slot creates a Core-hosted overlay
 block. Mounting alone does **not** present it or capture keyboard input;
-`bitty.ui.overlay.show(handle)` presents the mounted block without capture. The
-presentation surface is separate from transient keyboard capture.
+`bitty.ui.present.show(handle)` — or its older `bitty.ui.overlay.show(handle)`
+spelling — presents the mounted block without capture. The presentation surface
+is separate from transient keyboard capture, and each is gated by its own
+capability: `ui.present` to draw, `ui.overlay.focus` to capture.
 
 Overlay surfaces paint the same declarative node kinds and style vocabulary as
 bands: `fg`/`bg`/`bold` on a mounted overlay row resolve through the same host
@@ -260,10 +262,164 @@ local session = bitty.ui.overlay.acquire({
 
 `bitty.ui.overlay.show(handle)` and `bitty.ui.overlay.hide(handle)` are the
 presentation-only operations when a mounted overlay should be shown or hidden
-without keyboard capture. `show` requires `ui.rich` and `ui.overlay`, not
+without keyboard capture. `show` requires the `ui.present` grant, not
 `ui.overlay.focus`, and fails closed in Safe Mode or when the host surface is
 unavailable. `hide` is an ungated, idempotent cleanup operation, so it remains
-available after capability revocation and in Safe Mode.
+available after capability revocation and in Safe Mode. `bitty.ui.present.show`
+and `bitty.ui.present.hide` are the named spelling of the same Core session;
+see [Presentation-Only Overlay](#presentation-only-overlay-bittyuipresent).
+
+## Presentation-Only Overlay (`bitty.ui.present`)
+
+A presentation panel is a mounted `overlay` block drawn above the focused view
+with no keyboard or pointer authority: which-key hints, a read-only help card, a
+transient status panel. Core owns the geometry, stacking, `Esc` routing, and
+teardown; the plugin owns only the scene.
+
+```lua
+-- Mount first (requires ui.rich and ui.overlay)
+local handle = bitty.ui.mount("overlay", panel_tree)
+
+-- Draw it above the focused view without capture (requires ui.present)
+bitty.ui.present.show(handle)
+
+-- Remove it (idempotent, ungated)
+bitty.ui.present.hide(handle)
+```
+
+### Capability separation
+
+Drawing is not input. Each UI head authorizes exactly one thing, and no head
+implies another:
+
+| Capability         | Authorizes                                                                                          | Does not authorize                             |
+| :----------------- | :-------------------------------------------------------------------------------------------------- | :--------------------------------------------- |
+| `ui.rich`          | `bitty.ui.mount` / `bitty.ui.update` of declarative blocks in any hosted slot                       | presenting, focusing, or capturing input       |
+| `ui.overlay`       | mounting a block into the `overlay` slot (the precondition for both overlay paths)                  | presenting it, or capturing input              |
+| `ui.overlay.focus` | transient keyboard capture through `bitty.ui.overlay.acquire`                                       | drawing a presentation panel                   |
+| `ui.present`       | drawing one presentation panel with `bitty.ui.present.show` (and its `bitty.ui.overlay.show` alias) | mounting a block, focusing, or capturing input |
+
+A plugin that only wants to draw therefore declares the two mount heads plus
+`ui.present`; it cannot reach `bitty.ui.overlay.acquire` by asking to draw, and
+granting `ui.present` never widens an existing capture grant.
+
+### Behavior
+
+- **Non-modal and non-focusable**: the panel never takes focus, never receives
+  key or pointer events, and never changes the focus ring. Clicks over it pass
+  through to the surface beneath.
+- **One surface per window**: a second plugin's `show` fails closed with
+  `E_UI_UNAVAILABLE` and leaves the live surface untouched. The owner may `show`
+  again with the same handle or with another handle it mounted into `overlay`;
+  the newest handle wins and no second slot is consumed.
+- **Placement**: centered over the focused view, clipped to that view's content
+  rect, painted above the focused view and above the chrome bands but below the
+  focusable capture panel. A view narrower than 10 columns paints nothing; the
+  session stays live and paints after a resize.
+- **Focus-follow**: the panel tracks the focused view. A focus switch re-centers
+  it rather than dismissing it; when the view it was drawn over closes, the
+  panel is dropped instead of re-centering on a surviving view.
+- **Frame budget**: at most 64 rows and 16 KiB of row text per frame, applied
+  like a chrome band. Whole trailing rows are dropped deterministically and the
+  drop is recorded in host diagnostics rather than painted past the budget; the
+  first row is always kept and clips horizontally.
+- **`Esc` dismisses without consuming the press**: the same `Esc` still reaches
+  whatever would have received it, so a confirmation gate keeps its own consume
+  and, with no gate, the key reaches the focused terminal. The plugin never sees
+  the keypress.
+- **Lifecycle**: `hide` is idempotent; suspend, unload, disable, crash,
+  rollback, and generation change drop the surface with no residue. Safe Mode
+  refuses `show` with `E_UI_UNAVAILABLE`.
+
+### Errors
+
+Denials are catchable Lua error tables (`class` / `code` / `message`); match on
+`code`.
+
+| `code`                   | `class`      | When                                                                                                                                            |
+| :----------------------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `E_CAPABILITY_DENIED`    | `runtime`    | The `ui.present` grant is absent.                                                                                                               |
+| `E_UI_NOT_OWNER`         | `runtime`    | The handle is not a block this generation mounted into the `overlay` slot: a band block, another plugin's handle, or a stale-generation handle. |
+| `E_UI_COMPONENT_INVALID` | `validation` | The argument is not an integer block handle.                                                                                                    |
+| `E_UI_UNAVAILABLE`       | `runtime`    | Another plugin already holds the window's presentation surface, the host has no presentation surface, or Safe Mode is active.                   |
+| `E_TIMEOUT`              | `budget`     | The call missed its deadline; nothing was committed.                                                                                            |
+
+`bitty.ui.present.hide` raises none of these: a foreign, stale, or repeated
+handle returns `false` with no effect and never removes another plugin's panel.
+
+### Dismissal observation (`overlay.dismissed`)
+
+Core reports each dismissal once, on the application tick, to the presenting
+plugin. Declare the kind in `[lazy].events` and subscribe like any other event:
+
+```lua
+-- bitty-plugin.toml
+-- [lazy]
+-- events = ["overlay.dismissed"]
+
+bitty.events.subscribe("overlay.dismissed", function(ev)
+  -- ev.owner  string   the presenting plugin id
+  -- ev.handle integer  the block handle that was presented
+  -- ev.reason string   "escape" (Core routed Esc) or
+  --                    "view-closed" (the view it was drawn over closed)
+end)
+```
+
+The payload carries no input bytes, terminal content, or coordinates. Delivery
+happens on the cold tick, never as a callback on the input path, so a dismissal
+never runs plugin code while the key is being routed. Lifecycle teardown
+(unload, suspend, disable, crash, rollback) removes the surface silently and
+reports nothing — the plugin is going away. At most 64 observations are held
+between ticks; overflow drops the oldest, so a show/dismiss loop inside one
+command callback can lose its earliest observations.
+
+### Example: a which-key panel
+
+```lua
+-- bitty-plugin.toml
+-- [capabilities]
+-- ui = ["ui.rich", "ui.overlay", "ui.present"]
+-- [lazy]
+-- events = ["overlay.dismissed"]
+
+local handle = bitty.ui.mount("overlay", { kind = "Column", children = {} })
+local presenting = false
+
+local function render(groups)
+  local rows = { { kind = "Text", text = "which-key", fg = "accent", bold = true } }
+  for _, group in ipairs(groups) do
+    rows[#rows + 1] = { kind = "Text", text = group.key .. "  " .. group.label }
+  end
+  return { kind = "Column", children = rows }
+end
+
+local function open(groups)
+  bitty.ui.update(handle, render(groups))
+  -- Present above the focused view; no capture, no focus change.
+  local ok = pcall(bitty.ui.present.show, handle)
+  if not ok then
+    -- E_UI_UNAVAILABLE: another plugin is already presenting, or Safe Mode.
+    presenting = false
+    return
+  end
+  presenting = true
+end
+
+local function close()
+  bitty.ui.present.hide(handle) -- idempotent
+  presenting = false
+end
+
+-- Esc dismisses the panel without consuming it, so no key handler is needed:
+-- the press reached the terminal (or a confirmation gate) on its own.
+bitty.events.subscribe("overlay.dismissed", function(ev)
+  presenting = false
+end)
+```
+
+The mounted block and its handle stay valid after a dismissal, so the next
+`open` only needs `bitty.ui.update` plus `bitty.ui.present.show`; nothing has to
+be re-mounted.
 
 ## Example: Building a Live Statusline Component
 
@@ -307,7 +463,10 @@ implementation ([PR #2385](https://github.com/bitty-terminal/bitty/pull/2385)
 and [PR #2392](https://github.com/bitty-terminal/bitty/pull/2392), tracked in
 issue [#2191](https://github.com/bitty-terminal/bitty/issues/2191);
 implementation task CTX-1419, while the API-design task CTX-1299 and the
-release-scope task CTX-1305 remain open). Still
+release-scope task CTX-1305 remain open). The presentation-only overlay
+(`bitty.ui.present`) was added on top of that reconciliation by
+[PR #2856](https://github.com/bitty-terminal/bitty/pull/2856) for issue
+[#2849](https://github.com/bitty-terminal/bitty/issues/2849). Still
 deferred (candidate work, not shipped): the unresolved statusline vocabulary
 outside the `bottom`-band composition, overlay pointer routing, one surface
 per plugin per band edge, terminal-wide budget aggregation, a wider theme

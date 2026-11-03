@@ -42,6 +42,7 @@ version = ">=2.30"
    - `ui.rich`: Grants permission to mount and update declarative UI scenes. In the current host, `top` and `bottom` are painted bands; the other accepted slot names either fail closed as unavailable or, for `overlay`, require the additional `ui.overlay` grant.
    - `ui.overlay`: Grants permission to mount and present a component in the `overlay` slot. Presentation does not capture keyboard input.
    - `ui.overlay.focus`: Grants permission to acquire transient keyboard/input capture via `bitty.ui.overlay.acquire`. It is separate from the `ui.overlay` presentation grant; safe mode denies the focusable surface.
+   - `ui.present`: Grants permission to draw one non-focusable presentation panel above the focused view via `bitty.ui.present.show`, with no input capture. It implies nothing and is implied by nothing: neither `ui.rich`, `ui.overlay`, nor `ui.overlay.focus` grants it or follows from it. Draw authority is never input authority. See [`bitty.ui.present`](../api/ui.md#presentation-only-overlay-bittyuipresent).
 2. **`platform` Family**:
    - `platform.notify`: Grants permission to post desktop notifications via `bitty.notify.show`.
 3. **`workspace` Family**:
