@@ -22,6 +22,9 @@ Documentation artifacts are continuously published to the `bitty` Cloudflare R2 
 - **Per-Locale Tarballs**: `https://cdn.bitty.run/manual/bitty-manual/<locale>.tar.gz` (e.g. `en.tar.gz`, `zh-CN.tar.gz`)
 - **Per-Locale Zips**: `https://cdn.bitty.run/manual/bitty-manual/<locale>.zip`
 - **Versioned (immutable)**: `https://cdn.bitty.run/manual/bitty-manual/v<version>/<locale>.tar.gz` plus versioned `manifest.json`, `search-index.json`, `toc.json`
+
+Versioned keys are immutable: **any content change requires a `manifest.version` bump** before publishing. `scripts/upload-r2.mjs` enforces it - before uploading a `v<version>/` object it reads the existing bytes from R2 and aborts when they differ, because a silent overwrite leaves CDN edges serving different payloads for the same "immutable" URL and breaks every lock file that pinned the version (bitty-manual#109).
+
 - **Raw Documents**: `https://cdn.bitty.run/manual/bitty-manual/<locale>/<section>/<file>.md`
 
 ### Legacy Compat (Dual-Publish)
