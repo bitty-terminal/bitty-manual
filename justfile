@@ -5,7 +5,11 @@ markdownlint_version := "0.23.1"
 actionlint_version := "1.7.12"
 
 # Default gate: run all checks
-check: fmt-check markdownlint actionlint verify-schema package
+check: fmt-check markdownlint actionlint verify-schema test package
+
+# Immutability guard decision table (bitty-manual#109)
+test:
+    bun test scripts/version-guard.test.mjs
 
 # Format all Markdown, JSON, and script files
 fmt:

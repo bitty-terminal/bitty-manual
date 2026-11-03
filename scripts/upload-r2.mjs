@@ -5,6 +5,14 @@ import { fileURLToPath } from "url";
 import { execFile, execFileSync } from "child_process";
 import { promisify } from "util";
 
+import { createHash } from "crypto";
+
+import {
+  decideVersionedWrite,
+  isMissingKeyError,
+  isVersionedKey,
+} from "./version-guard.mjs";
+
 const execFileAsync = promisify(execFile);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -374,6 +382,63 @@ async function pruneTask(r2Key) {
 }
 
 const retiredKeys = collectRetiredKeys();
+
+// ---------------------------------------------------------------------------
+// Immutable version guard (bitty-manual#109)
+//
+// `v<version>/` keys are served `immutable` for a year and are pinned by
+// downstream lock files, so a content change under an existing version leaves
+// CDN edges disagreeing with each other. Refuse to replace a versioned object
+// whose bytes differ; the fix is a `manifest.version` bump.
+const versionedTargets = [
+  ...new Map(
+    uploadQueue
+      .filter((task) => isVersionedKey(task.r2Key, version))
+      .map((task) => [task.r2Key, task]),
+  ).values(),
+];
+
+async function remoteSha256(r2Key) {
+  try {
+    const { stdout } = await execFileAsync(
+      wranglerBin,
+      ["r2", "object", "get", `${bucketName}/${r2Key}`, "--pipe", "--remote"],
+      { encoding: "buffer", maxBuffer: 64 * 1024 * 1024 },
+    );
+    return createHash("sha256").update(stdout).digest("hex");
+  } catch (err) {
+    const message = `${err?.stderr ?? ""} ${err?.message ?? ""}`;
+    if (isMissingKeyError(message)) {
+      return null;
+    }
+    throw err;
+  }
+}
+
+if (isDryRun) {
+  console.log(
+    `[DRY-RUN] Would verify ${versionedTargets.length} immutable versioned key(s)`,
+  );
+} else {
+  for (const task of versionedTargets) {
+    const localSha = createHash("sha256")
+      .update(readFileSync(task.localPath))
+      .digest("hex");
+    const remoteSha = await remoteSha256(task.r2Key);
+    const decision = decideVersionedWrite({ remoteSha, localSha });
+    if (decision === "reject") {
+      console.error(
+        `\u274c ${task.r2Key} already exists with different bytes ` +
+          `(remote ${remoteSha.slice(0, 12)}\u2026, local ${localSha.slice(0, 12)}\u2026). ` +
+          "Versioned keys are immutable: bump manifest.version and re-run.",
+      );
+      process.exit(1);
+    }
+    console.log(
+      `${decision === "idempotent" ? "=" : "+"} ${task.r2Key} (${decision})`,
+    );
+  }
+}
 
 await runPool(uploadQueue, isDryRun ? 1 : CONCURRENCY);
 
