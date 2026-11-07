@@ -227,6 +227,32 @@ If a selector or other full-screen program leaves an old highlighted row beside 
 - A pending paste confirmation has an independent expiry. It may expire while the surface is hidden, without presenting and without emitting any bytes. This is a separate lifecycle from the Composer's external-editor wait; do not treat one as the other's timeout.
 - If the screen stays wrong after the application is visible and the next frame has been presented, collect `bitty doctor --format json` and the application name, version, and key sequence that reproduces it.
 
+### `Shift+Enter` submits instead of inserting a newline
+
+A terminal can only report `Shift+Enter` separately if the application asks for
+an extended key protocol; the legacy encoding sends the same `CR` byte for both
+keys. Bitty implements both negotiated forms:
+
+- the **Kitty keyboard protocol** (`CSI > 1 u`, `CSI > 4 ; 1 u`, and the rest of
+  the progressive flags) — `Shift+Enter` is reported as `ESC[13;2u` once the
+  application enables disambiguation, while a bare `Enter` keeps `CR`;
+- xterm **`modifyOtherKeys`** (`CSI > 4 ; 2 m`) — `Shift+Enter` is reported as
+  `ESC[27;2;13~`.
+
+If a TUI still treats `Shift+Enter` as `Enter`, the application did not ask for
+either form. That is an application setting, not a Bitty setting:
+
+- Many TUIs allowlist terminals by name and enable extended keys only for the
+  ones they recognise. Bitty reports `TERM_PROGRAM=bitty`, so an application
+  whose allowlist does not include `bitty` never enables them — check its
+  terminal compatibility documentation or its list of recognised terminals.
+- `Alt+Enter` and `Ctrl+J` are accepted by most TUIs for a newline and work
+  regardless of the protocol.
+- To confirm what Bitty sends, run `cat -v` in a pane and press `Shift+Enter`:
+  a bare `^M` means no protocol is active; `^[[13;2u` (Kitty) or
+  `^[[27;2;13~` (xterm) means the application asked for one and Bitty reported
+  the key distinctly.
+
 ---
 
 ## Exit Behavior & Session Restore
