@@ -125,6 +125,10 @@ bitty config profile list
 bitty config profile show work
 bitty config profile use work
 bitty config profile path work
+
+# Bring a configuration file up to the current schema version
+bitty config migrate
+bitty config migrate --dry-run
 ```
 
 `config profile list` reads directory metadata only and evaluates no Lua. `config profile show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
@@ -134,6 +138,8 @@ bitty config profile path work
 Launching `bitty` is fail-soft for present external configuration. An invalid top-level table or scalar is ignored with one stderr diagnostic naming the file path, field path, error, and `ignored; using defaults and remaining layers`; every other valid table and layer stays in effect, and the file is never modified. Failures that cannot be narrowed to one element (Lua syntax or runtime errors, budget exhaustion, undeclared keys, unreadable files, profile `extends` problems) drop the whole external layer and startup continues on the remaining layers. Security-sensitive settings touched by salvage (plugins, history capture, mouse buttons, background-image roots and configured images) are denied for that launch so a lower layer cannot re-enable them. A missing explicit `--config` or `BITTY_CONFIG` path, a missing `--profile` or `BITTY_PROFILE` name, and CLI usage errors still exit `2`; a persisted selector that no longer resolves is ignored at startup with a diagnostic. See [Invalid Configuration at Startup](../configuration/overview.md#invalid-configuration-at-startup) for the full contract.
 
 `config check`, `config show`, and `config validate` do not comprehensively validate per-plugin settings files; those are selected and loaded during plugin activation.
+
+`config migrate` stamps the file's `config_version` and applies the registered migrations in order. It prints the changes it would make, writes atomically (temporary file, `fsync`, rename, directory `fsync`, mode preserved), and keeps a `.bak-<from-version>` backup next to the file; `--dry-run` reports the change list without writing, `--backup`/`--no-backup` control the copy, and a file that is already current is a no-op. A file from a newer Bitty is refused with `ConfigVersionUnsupported` rather than rewritten, and `--safe` refuses before any write.
 
 ### Setup Wizard (`bitty init`)
 
@@ -183,7 +189,75 @@ bitty doctor
 
 # Output diagnostic report as JSON
 bitty doctor --format json
+
+# Repair the safe, reversible findings (dry run first)
+bitty doctor --fix --dry-run
+bitty doctor --fix
 ```
+
+`--fix` only touches findings with a safe, reversible repair: a dead instance socket in a user-owned `0700` directory, the bundled terminfo entry when the host lookup fails, and a profile selector that points at a profile that no longer exists (only when `profiles/default.lua` does). Each repair is reported with what changed, the previous value, and how to undo it; a finding without a repair is a hint, not an action. `--safe` refuses the whole run before any probe, and the exit code is unchanged by `--fix`.
+
+### Applying Configuration to a Running Instance (`bitty reload`)
+
+Re-read the user configuration and the selected profile in a live instance, without restarting it:
+
+```bash
+# Apply the configuration to the instance on the default socket
+bitty reload
+
+# Show what would change, apply nothing
+bitty reload --dry-run
+
+# Target a specific instance or socket
+bitty reload --instance work --socket /run/user/1000/bitty/work.sock
+```
+
+The plan is atomic: a rejected configuration leaves the running instance untouched and prints the dotted path of the first error (exit `3`). `--dry-run` reports the same plan as `would-apply` and exits `0`. A change that cannot be applied live — today `terminal.shell` and a change to the enabled plugin set — is reported as `restart-required` with the affected keys or plugin ids, and the command exits `4`; run it again after restarting. A write needs the same `config.modify` elevation as `bitty ctl config reload` (`BITTY_CTL_ELEVATE=config.modify`).
+
+### Self-Update (`bitty upgrade`)
+
+Update the installed binary from the release channel that installed it:
+
+```bash
+# Report the current version and the channel it was installed from
+bitty upgrade --check
+
+# Show the download and replacement plan, change nothing
+bitty upgrade --dry-run
+
+# Update, verifying the asset against SHA256SUMS
+bitty upgrade --yes
+
+# Restore the previous binary
+bitty upgrade --rollback
+```
+
+Detection reads the install marker (`$XDG_DATA_HOME/bitty/install.json`) written by the install scripts and the binary's own path: script install, AppImage, Homebrew, Scoop, Nix, APT, DNF, RPM, pacman/AUR, or unknown. A system-owned channel (APT, DNF, RPM, pacman) only prints the command to run and exits `7`; a script, AppImage, Homebrew, or Scoop install replaces the binary atomically, keeps the previous one as `bitty.prev`, and verifies the downloaded asset against the release `SHA256SUMS` before the swap. On Windows the installer must be run instead, because a running executable cannot be replaced.
+
+### Session Host (`bittyd`)
+
+`bittyd` is the optional session host: it owns PTYs so a session can outlive the window that created it. It is installed with the Linux packages and runs in the foreground; supervise it with a user unit rather than backgrounding it by hand.
+
+```bash
+# Start the host (foreground; one instance per user)
+bittyd start
+
+# Print the crate and service API versions
+bittyd --version
+
+# Stop the host
+bittyd stop
+bittyd stop --drain
+bittyd stop --force
+```
+
+```bash
+# Enable the shipped per-user unit
+systemctl --user enable --now bittyd
+loginctl enable-linger "$USER"   # keep it running without an open login
+```
+
+`bittyd stop` refuses with exit `3` while sessions are attached; `--drain` stops accepting new sessions and exits when the last one ends, and `--force` terminates them. The exit codes are `0` stopped or no daemon, `1` transport failure, `3` active sessions, `4` a drain that had to be forced, `5` a forced stop whose cleanup could not be verified, and `6` an authentication invariant failure. The daemon survives a closed terminal (it ignores `SIGHUP`) and exits `6` when the endpoint directory or operator file is not private.
 
 ### Resolved Font Probe (`bitty +show-font`)
 

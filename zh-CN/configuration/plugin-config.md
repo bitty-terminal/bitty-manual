@@ -127,7 +127,7 @@ modules_right = ["clock"]
 
 每模块选项组（例如时钟格式或轮询间隔）由插件声明，但当前设置契约不接受 map 取值。它们会按模块默认值读取。当前真正生效的是上面的框架标量和三个模块列表。
 
-### 作曲家：和弦
+### Composer：和弦
 
 ```toml
 # $XDG_CONFIG_HOME/bitty/plugins/bitty-terminal.composer.toml
@@ -181,5 +181,5 @@ bitty doctor               # 宿主环境健康检查
 
 - [每插件配置文件](../plugins/plugin-settings.md)——选择顺序、格式限制与取值层优先级的参考说明。
 - [状态栏模块用户指南](../plugins/bar-modules.md)——每个模块的显示内容。
-- [作曲家模态框用法](../plugins/composer.md)——打开、提交与关闭行为。
+- [Composer 模态框用法](../plugins/composer.md)——打开、提交与关闭行为。
 - [故障排查与安全模式](../faq/troubleshooting.md)——激活错误与设置警告。
