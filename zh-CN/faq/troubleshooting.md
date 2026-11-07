@@ -108,6 +108,19 @@ Bitty 依据操作系统规范将结构化诊断日志写入磁盘：
 RUST_LOG=bitty=debug,bitty_runtime=trace bitty
 ```
 
+### `Shift+Enter` 直接提交，而不是换行
+
+只有当应用主动请求扩展按键协议时，终端才能把 `Shift+Enter` 与 `Enter` 区分开；旧的编码方式对两者发送同一个 `CR` 字节。Bitty 实现了两种协商形式：
+
+- **Kitty 键盘协议**（`CSI > 1 u`、`CSI > 4 ; 1 u` 等渐进式标志位）：应用开启消歧后，`Shift+Enter` 上报为 `ESC[13;2u`，单独的 `Enter` 仍是 `CR`；
+- xterm **`modifyOtherKeys`**（`CSI > 4 ; 2 m`）：`Shift+Enter` 上报为 `ESC[27;2;13~`。
+
+如果某个 TUI 仍把 `Shift+Enter` 当成 `Enter`，说明它没有请求这两种形式。这是应用的设置，不是 Bitty 的设置：
+
+- 不少 TUI 按终端名称维护白名单，只对认识的终端开启扩展按键。Bitty 上报 `TERM_PROGRAM=bitty`，若应用的白名单里没有 `bitty`，就永远不会开启——请查看该应用的终端兼容性文档或它识别的终端列表。
+- 大多数 TUI 都接受 `Alt+Enter` 和 `Ctrl+J` 换行，与协议无关。
+- 想确认 Bitty 实际发送了什么，在面板里运行 `cat -v` 再按 `Shift+Enter`：只出现 `^M` 表示没有协议生效；出现 `^[[13;2u`（Kitty）或 `^[[27;2;13~`（xterm）表示应用已请求且 Bitty 已区分上报。
+
 ---
 
 ## GPU 与渲染后备方案 (GPU Fallbacks)
