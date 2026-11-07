@@ -1,6 +1,6 @@
-# 作曲家模态框用法 (Composer Modal Usage)
+# Composer 模态框用法 (Composer Modal Usage)
 
-作曲家（`bitty-terminal.composer`）是一个模态命令行：在终端上打开可编辑缓冲区，将缓冲区作为一整个括号粘贴帧提交给聚焦面板，然后关闭。关闭期间插件不触碰任何东西——输入字节原样流向 PTY。仅手动打开；没有自动进入路径。
+Composer（`bitty-terminal.composer`）是一个模态命令行：在终端上打开可编辑缓冲区，将缓冲区作为一整个括号粘贴帧提交给聚焦面板，然后关闭。关闭期间插件不触碰任何东西——输入字节原样流向 PTY。仅手动打开；没有自动进入路径。
 
 ## 打开与关闭
 
@@ -45,7 +45,7 @@ open_chord = "alt+e"
 - 打开和弦严格为 `<mod>+...+<single-char>`（修饰键任意顺序），挂在宿主 keymap 上——它在模态框关闭时指向 `open` 命令，因此永远不会遮挡 shell 输入。模态框内 Alt+E 角色仅在模态框持有捕获时生效，所以两个 Alt+E 默认值永远不会竞争。
 - 未声明的键无法读取：宿主对未声明键的读取直接失败，因此只有以上五个键生效。
 
-## 作曲家保持沉默时
+## Composer 保持沉默时
 
 - 版本或 capability 不匹配会禁用插件并给出诊断，不做部分激活：没有命令、没有 keymap、没有 overlay。请检查 `bitty plugin doctor` 与[故障排查指南](../faq/troubleshooting.md)。
 - 缺少提交授权时缓冲区保留、会话保持打开，并附 `unavailable:no-submit` 提示——缺失授权永远不会丢弃你的草稿。

@@ -107,7 +107,13 @@ bitty config check
 
 # 使用 $VISUAL 或 $EDITOR 打开当前配置文件
 bitty config edit
+
+# 把配置文件升级到当前 schema 版本
+bitty config migrate
+bitty config migrate --dry-run
 ```
+
+`config migrate` 会写入 `config_version` 并按注册顺序执行迁移：原子写入（临时文件、`fsync`、重命名、目录 `fsync`，保留权限），并在旁边保留 `.bak-<原版本>` 备份；`--dry-run` 只列出变更，`--backup`/`--no-backup` 控制备份，已是最新版本时不改动文件。比当前 Bitty 更新的文件会被拒绝（`ConfigVersionUnsupported`），`--safe` 在任何写入前拒绝。
 
 ### 初始化向导 (`bitty init`)
 
@@ -134,7 +140,75 @@ bitty doctor
 
 # 以 JSON 格式输出诊断报告
 bitty doctor --format json
+
+# 修复可安全回退的问题（建议先 dry run）
+bitty doctor --fix --dry-run
+bitty doctor --fix
 ```
+
+`--fix` 只处理有安全、可回退修复方式的条目：用户自有的 `0700` 目录下的失效实例 socket、宿主查找失败时安装内置 terminfo、以及指向已删除 profile 的选择器（仅当 `profiles/default.lua` 存在）。每条修复都会报告改了什么、原值是什么、如何撤销；没有修复方式的条目只给出提示。`--safe` 会在任何探测前拒绝，`--fix` 不改变退出码。
+
+### 应用配置到运行中的实例 (`bitty reload`)
+
+在不重启实例的情况下重新读取用户配置与所选 profile：
+
+```bash
+# 应用到默认 socket 上的实例
+bitty reload
+
+# 只显示将要发生的变更，不写入
+bitty reload --dry-run
+
+# 指定实例或 socket
+bitty reload --instance work --socket /run/user/1000/bitty/work.sock
+```
+
+计划是原子的：被拒绝的配置不会改动运行中的实例，并打印第一个错误的点分路径（退出码 `3`）。`--dry-run` 以 `would-apply` 报告同一计划并退出 `0`。无法在线应用的变更——目前是 `terminal.shell` 和启用插件集合的变化——会以 `restart-required` 报告并列出受影响的键或插件 id，退出码 `4`，重启后再次执行即可。写入需要与 `bitty ctl config reload` 相同的 `config.modify` 提权（`BITTY_CTL_ELEVATE=config.modify`）。
+
+### 自更新 (`bitty upgrade`)
+
+从安装时所用的发布通道更新二进制：
+
+```bash
+# 报告当前版本与安装通道
+bitty upgrade --check
+
+# 显示下载与替换计划，不做任何更改
+bitty upgrade --dry-run
+
+# 执行更新，并用 SHA256SUMS 校验资产
+bitty upgrade --yes
+
+# 回滚到上一个二进制
+bitty upgrade --rollback
+```
+
+通道识别读取安装脚本写入的标记（`$XDG_DATA_HOME/bitty/install.json`）和二进制自身路径：脚本安装、AppImage、Homebrew、Scoop、Nix、APT、DNF、RPM、pacman/AUR 或未知。系统级通道（APT、DNF、RPM、pacman）只打印应执行的命令并退出 `7`；脚本、AppImage、Homebrew、Scoop 安装会原子替换二进制，把旧版本保留为 `bitty.prev`，并在替换前用发布页的 `SHA256SUMS` 校验下载内容。Windows 上需要运行安装器，因为正在运行的 exe 无法被替换。
+
+### 会话宿主 (`bittyd`)
+
+`bittyd` 是可选的会话宿主：它持有 PTY，使会话可以比创建它的窗口存活更久。它随 Linux 软件包安装，前台运行；请用用户级 unit 托管，而不是手动放到后台。
+
+```bash
+# 启动宿主（前台；每个用户一个实例）
+bittyd start
+
+# 打印 crate 与服务 API 版本
+bittyd --version
+
+# 停止宿主
+bittyd stop
+bittyd stop --drain
+bittyd stop --force
+```
+
+```bash
+# 启用随包安装的用户级 unit
+systemctl --user enable --now bittyd
+loginctl enable-linger "$USER"   # 未登录时也保持运行
+```
+
+`bittyd stop` 在仍有会话附着时以退出码 `3` 拒绝；`--drain` 停止接受新会话并在最后一个会话结束后退出，`--force` 直接终止。退出码：`0` 已停止或没有守护进程，`1` 传输失败，`3` 存在活跃会话，`4` 需要强制完成的 drain，`5` 强制停止但无法验证清理，`6` 认证不变量失败。守护进程忽略 `SIGHUP`，终端关闭不会杀死它；端点目录或操作员文件权限不正确时以 `6` 退出。
 
 ### 资源枚举 (`bitty list`)
 
