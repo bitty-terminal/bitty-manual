@@ -191,6 +191,16 @@
       "reload_class": "RestartRequired",
       "description": "Bell alert behavior ('off', 'visual', 'audible', 'both')."
     },
+    "terminal.ambiguous_width": {
+      "type": "string",
+      "reload_class": "RestartRequired",
+      "description": "East Asian Ambiguous cell policy."
+    },
+    "terminal.bidi": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Paint-time UAX #9 reordering (Trojan-Source risk)."
+    },
     "selection.auto_copy": {
       "type": "boolean",
       "reload_class": "RestartRequired",

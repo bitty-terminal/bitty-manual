@@ -121,17 +121,68 @@ bitty config validate
 bitty config edit
 
 # Manage named profiles
+bitty config profile create work --preset dark
+bitty config profile clone work work-trial
+bitty config profile rename work-trial work-fallback
+bitty config profile delete work-fallback
 bitty config profile list
 bitty config profile show work
 bitty config profile use work
+bitty config profile get work terminal.scrollback
+bitty config profile set work terminal.scrollback 20000
+bitty config profile edit work
 bitty config profile path work
+
+# Preview writes or emit machine-readable state
+bitty config profile set work terminal.scrollback 20000 --dry-run
+bitty config profile show work --json
 
 # Bring a configuration file up to the current schema version
 bitty config migrate
 bitty config migrate --dry-run
 ```
 
-`config profile list` reads directory metadata only and evaluates no Lua. `config profile show` loads and validates the single-parent `extends` chain. `use` validates the target chain and rewrites only the `profile = "..."` value in the existing selector, preserving comments and user overrides; it does not reload a running instance. `path` prints the resolved path without creating it. None of these commands installs, enables, or grants plugin state.
+`config profile` accepts eleven verbs: `create`, `clone`, `rename`, `delete`,
+`list`, `show`, `use`, `get`, `set`, `edit`, and `path`. Every verb accepts
+`--json` (an alias for `--format json`) and prints one versioned envelope.
+Every write verb (`create`, `clone`, `rename`, `delete`, `use`, `set`, `edit`)
+accepts `--dry-run`, which runs the same reads, validation, and merge gates and
+reports the prospective change without touching the filesystem.
+
+Writes are validated before any file change. `set`, `use`, and `edit` commit
+atomically through the profile writer: a unique sibling temporary file,
+`sync_all`, a pre-commit identity re-check, rename, and a parent-directory
+sync (`edit` opens a sibling draft in `$VISUAL`/`$EDITOR` and replaces the
+profile only after the edited result passes the strict loader). `create`
+(`--from EXISTING` or `--preset minimal|dark|light`) and `clone` create the
+destination exclusively by default; `clone` copies the source bytes verbatim,
+so the clone keeps the source's own `extends` parent and never names the source
+in `extends`. A failed validation or write leaves the previous bytes intact.
+
+Conflicts exit `2` with nothing changed: without `--force`, `create`, `clone`,
+and `rename` refuse an existing destination (and `rename` always refuses the
+same name). With `--force`, `create`, `clone`, and `rename` back the replaced
+destination up to a collision-free `<name>.lua.bak-<epoch>` sibling before the
+atomic commit and restore it if the commit fails (`rename` also rewrites the
+persisted `init.lua` selector when it named `OLD` and rolls back on failure).
+`delete` always writes that `<name>.lua.bak-<epoch>` backup before removing the
+profile; deleting or renaming a profile that another profile names in `extends`
+is always refused, while deleting the active profile or the reserved `default`
+requires `--force` (`create`, `clone`, and `rename` always refuse `default` as
+a target name, though cloning from `default` is the supported way to branch the
+generated defaults).
+
+`get NAME PATH` prints the effective value and its source at one documented
+dotted schema path. Because `font`, `window`, `terminal`, `layout`,
+`decoration`, `scrollbar`, and `appearance` merge as complete tables, `set`
+first pins every inherited leaf of that table into the profile and reports
+`pinned '<table>' into '<name>'`, so a one-leaf edit never resets its
+siblings. `list` reads directory metadata only and evaluates no Lua. `show`
+loads and validates the single-parent `extends` chain. `use` validates the
+target chain and rewrites only the `profile = "..."` value in the existing
+selector, preserving comments and user overrides; it does not reload a running
+instance. `path` prints the resolved path without creating it. None of these
+commands installs, enables, or grants plugin state.
 
 `config check` is the strict diagnostic path: it evaluates the user file, the selected profile chain, and the merged result, prints effective rows with their source, and exits `2` with the exact first field error when anything is invalid. `config show` evaluates the same layers and prints the same effective rows, with `--format json|jsonl` emitting the versioned envelope with per-key `layer` and `source` attribution. `config validate` is validation-only: table mode prints nothing on success, and an invalid configuration exits `2` with the validation error (`--format json|jsonl` emits the validation envelope). None of these verbs applies the startup salvage described next, and `bitty doctor` uses the same strict load.
 
