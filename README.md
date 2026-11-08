@@ -23,7 +23,7 @@ Documentation artifacts are continuously published to the `bitty` Cloudflare R2 
 - **Per-Locale Zips**: `https://cdn.bitty.run/manual/bitty-manual/<locale>.zip`
 - **Versioned (immutable)**: `https://cdn.bitty.run/manual/bitty-manual/v<version>/<locale>.tar.gz` plus versioned `manifest.json`, `search-index.json`, `toc.json`
 
-Versioned keys are immutable: **any content change requires a `manifest.version` bump** before publishing. `scripts/upload-r2.mjs` enforces it - before uploading a `v<version>/` object it reads the existing bytes from R2 and aborts when they differ, because a silent overwrite leaves CDN edges serving different payloads for the same "immutable" URL and breaks every lock file that pinned the version (bitty-manual#109).
+Versioned keys are immutable: **any content change requires a `manifest.version` bump** before publishing. `scripts/upload-r2.mjs` enforces it - before uploading a `v<version>/` object it reads the existing bytes from R2 and aborts when they differ, because a silent overwrite leaves CDN edges serving different payloads for the same "immutable" URL and breaks every lock file that pinned the version (bitty-manual#109). Versioned keys (`v<version>/...`, `-<version>.`, `-<version>-`) carry `Cache-Control: public, max-age=31536000, immutable`; mutable latest keys (`<locale>.tar.gz`, `manifest.json`, `search-index.json`, `toc.json`, raw Markdown) carry `Cache-Control: public, max-age=60, s-maxage=60, must-revalidate` so edge caches converge within a minute after a deploy.
 
 - **Raw Documents**: `https://cdn.bitty.run/manual/bitty-manual/<locale>/<section>/<file>.md`
 

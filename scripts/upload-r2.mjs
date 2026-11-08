@@ -55,11 +55,11 @@ function getContentType(filePath) {
 
 function getCacheControl(r2Key) {
   // Versioned artifacts are immutable
-  if (r2Key.includes(`-${version}.`) || r2Key.includes(`/v${version}/`)) {
+  if (isVersionedKey(r2Key, version)) {
     return "public, max-age=31536000, immutable";
   }
-  // Latest pointers and content can be updated
-  return "public, max-age=300, s-maxage=3600";
+  // Latest pointers and raw content revalidate quickly across edges
+  return "public, max-age=60, s-maxage=60, must-revalidate";
 }
 
 function collectFiles(dir, baseDir) {
