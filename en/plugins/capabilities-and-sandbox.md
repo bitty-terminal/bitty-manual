@@ -136,7 +136,19 @@ local switch = bitty.profiles.preview_use("work")
 -- { digest, rendered, keys, changed }
 local active = bitty.profiles.use("work", switch.digest)
 -- { active = "work", changed = true, reload = "auto", pending_restart = true }
+
+-- Profile lifecycle (create, clone, rename, delete) under bitty.profiles / bitty.config.profiles.
+local created_preview = bitty.profiles.preview_create("work", { from = "default" })
+local created = bitty.profiles.create("work", { from = "default", digest = created_preview.digest })
+local cloned_preview = bitty.profiles.preview_clone("work", "work-trial")
+local cloned = bitty.profiles.clone("work", "work-trial", cloned_preview.digest)
+local renamed_preview = bitty.profiles.preview_rename("work-trial", "work-alt")
+local renamed = bitty.profiles.rename("work-trial", "work-alt", renamed_preview.digest)
+local deleted_preview = bitty.profiles.preview_delete("work-alt")
+local deleted = bitty.profiles.delete("work-alt", deleted_preview.digest)
 ```
+
+`bitty.profiles` (also mounted as `bitty.config.profiles`) exposes `list`, `preview_use`/`use`, and four two-step profile lifecycle pairs (`preview_create`/`create`, `preview_clone`/`clone`, `preview_rename`/`rename`, `preview_delete`/`delete`). Together with `bitty.config.get` and `bitty.config.preview`/`set`, these provide all eight profile management operations (`profile.list`, `profile.get`, `profile.create`, `profile.update`, `profile.delete`, `profile.clone`, `profile.rename`, `profile.switch`). Without `force = true`, an existing destination on `create`, `clone`, or `rename`, or deleting the active profile or `default`, fails closed with `E_PROFILE_CONFLICT`; with `force = true`, the replaced or deleted profile is backed up to `<name>.lua.bak-<epoch>` before atomic replacement. Both `clone(src, dst)` and `create(name, { from = src })` copy `src`'s Lua bytes verbatim so the new profile retains `src`'s own `extends` parent rather than chaining onto `src`. A profile that another profile extends cannot be deleted or renamed (`E_PROFILE_CONFLICT`), and `default` cannot be renamed.
 
 `preview` returns the bounded exact `rendered` diff and the `keys` it changes;
 pinning an inherited table expands `keys` to the seeded leaves.

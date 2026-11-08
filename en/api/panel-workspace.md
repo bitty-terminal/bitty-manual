@@ -97,14 +97,15 @@ local accepted = bitty.panel.set_pinned(panel_id, true)
 
 The call is validated against the last published layout snapshot: `true` is
 returned when the target is an already-pinned panel or a live panel of the
-active layout — including idempotent requests, such as pinning an
+active layout (either tiled or a detached workspace-local float) — including idempotent requests, such as pinning an
 already-pinned panel or unpinning an unpinned panel, which leave state
 untouched. `false` is returned — with no state change — when the target is
 not known to the runtime: an unknown panel id, or a panel living on an
 inactive workspace (it is not pinnable until its workspace is active).
 Accepted requests apply through the same pinned-float path the
-`toggle_pinned` keymap action uses, so plugin and keyboard pinning cannot
-drift.
+`toggle_pinned` keymap action uses, preserving the panel's live `PaneSession`
+when pinning a detached float (`bitty#3078` / `bitty#3074`), so plugin and
+keyboard pinning cannot drift.
 
 Pinned panels are detached from their workspace tree into the window-global
 pinned store and composited as floating windows above every workspace, so

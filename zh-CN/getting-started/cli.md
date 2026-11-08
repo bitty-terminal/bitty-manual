@@ -111,7 +111,22 @@ bitty config edit
 # 把配置文件升级到当前 schema 版本
 bitty config migrate
 bitty config migrate --dry-run
+
+# 管理命名配置 (profiles)
+bitty config profile create work --preset dark
+bitty config profile clone work work-trial
+bitty config profile rename work-trial work-fallback
+bitty config profile delete work-fallback
+bitty config profile list
+bitty config profile show work
+bitty config profile use work
+bitty config profile get work terminal.scrollback
+bitty config profile set work terminal.scrollback 20000
+bitty config profile edit work
+bitty config profile path work
 ```
+
+`config profile` 提供 11 个动词：`create`、`clone`、`rename`、`delete`、`list`、`show`、`use`、`get`、`set`、`edit` 与 `path`（所有动词支持 `--json`，所有写入动词支持 `--dry-run`）。`create`（支持 `--from EXISTING` 或 `--preset minimal|dark|light`）与 `clone` 默认以独占方式创建目标文件；`clone` 与 `create --from` 均原样拷贝源文件的 Lua 字节，因此新配置保留源文件自身的 `extends` 父节点，而不会将源文件作为 `extends` 目标。未指定 `--force` 时，已存在的目标文件会以冲突拒绝（退出码 `2`）；指定 `--force` 时，`create`、`clone` 与 `rename` 会先将旧目标备份至无冲突的 `<name>.lua.bak-<epoch>` 同级文件再原子提交（失败时自动回滚），`delete` 在删除前始终生成该时间戳备份（删除当前活动 profile 或保留的 `default` 需显式传入 `--force`，被其他配置在 `extends` 中引用的父配置始终拒绝删除或重命名）。
 
 `config migrate` 会写入 `config_version` 并按注册顺序执行迁移：原子写入（临时文件、`fsync`、重命名、目录 `fsync`，保留权限），并在旁边保留 `.bak-<原版本>` 备份；`--dry-run` 只列出变更，`--backup`/`--no-backup` 控制备份，已是最新版本时不改动文件。比当前 Bitty 更新的文件会被拒绝（`ConfigVersionUnsupported`），`--safe` 在任何写入前拒绝。
 
@@ -129,6 +144,8 @@ bitty init --yes
 # 强制覆盖已有配置文件（会自动生成 .bak 备份）
 bitty init --force
 ```
+
+在 Windows 上，当环境变量 `$SHELL` 未设置时，交互式 `bitty init` 会自动探测并填入解析到的 Windows 默认 Shell（`pwsh.exe` -> `powershell.exe` -> `cmd.exe`）而非回退到 `/bin/sh`；若候选程序均无法解析，则会输出包含已尝试候选的告警并将 `terminal.shell` 保持为未设置（除非手动输入显式路径），且对不支持补全脚本的 `cmd.exe` 不输出 shell-init 补全提示。
 
 ### 安装与环境诊断 (`bitty doctor`)
 

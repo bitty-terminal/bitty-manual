@@ -22,8 +22,12 @@ curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.loc
 
 ```powershell
 # Windows (PowerShell, user-local, no admin rights needed)
-irm https://cdn.bitty.run/install/install.ps1 | iex
+irm https://cdn.bitty.run/install/install.ps1 -OutFile "$env:TEMP\bitty-install.ps1"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$env:TEMP\bitty-install.ps1"
 ```
+
+On Windows, the three-step sequence downloads `install.ps1` to `$env:TEMP\bitty-install.ps1` so you can inspect the script locally, allows unsigned script execution for the current PowerShell process only, and then runs the installer (avoiding `irm ... | iex` clipboard filters in content blockers such as uBlock Origin's ClickFix guard).
 
 What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The v0.0.29 release uses hash verification through the per-asset `.sha256` sidecars.
 
@@ -203,7 +207,7 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 | ``Alt+` `` (`Alt+?`)                                                                          | Help                  | Toggle the shortcut help overlay                    |
 
 > [!NOTE]
-> `Ctrl+Shift+F` and `Ctrl+Shift+Space` are **not** search chords: they are shell input again. Scrollback search has no Core default chord; a plugin may rebind one (see [Configuration Reference](../configuration/overview.md)).
+> `Ctrl+Shift+F` and `Ctrl+Shift+Space` are **not** search chords: they are shell input again. Scrollback search has no Core default chord; a plugin may rebind one (see [Configuration Reference](../configuration/overview.md)). New panels (`Alt+n`), splits (`Shift+Alt+h/j/k/l`), floating/pinned panels, and new workspaces (`Alt+t`) automatically inherit the focused pane's working directory (consulting the pinned PTY-child kernel working directory first and falling back to the `OSC 7` / session-restore chain when available).
 
 ## Selecting and Copying Text
 

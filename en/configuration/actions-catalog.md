@@ -291,6 +291,12 @@ The current action catalog has **39 action variants**. The documented behavior d
 
 The current `new_panel` default is also documented in [workspace and panel placement](workspaces-panels.md): `Spiral` follows the focused pane's creation chain while feasible, then falls back to the largest feasible `Balanced` leaf (allocation-order ties) and refuses without mutation when no gap-aware 10x4 split fits.
 
+In `0.0.37`, the action surface adds and refines:
+
+- **`toggle_scratchpad` (`scratchpad_toggle`)**: Resolves to `command:bitty.workspace:scratchpad-toggle` (`bitty#3078` / `bitty#3074`), parking or restoring the window-global scratchpad floating terminal across workspaces even when the active workspace's base tiled layout has been emptied (closing any parked scratchpad pane session cleanly before restoring a layout snapshot).
+- **`toggle_pinned` (`pinned_toggle`)**: Pins or unpins both tiled panels and detached workspace-local floating panels directly into the window-global pinned store while preserving their live `PaneSession` (`bitty#3078` / `bitty#3074`).
+- **Focused-pane `cwd` inheritance (`bitty#3028`)**: `new_split:<dir>`, `new_panel`, and `workspace_new` inherit the currently focused pane's working directory (via shell-reported OSC 7 or platform process cwd inspection) when available, falling back to the explicit profile `cwd` or startup working directory.
+
 ### Current core command catalog
 
 Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command historical catalog plus the two current local catalog commands below. This table is current-only and is not part of the historical snapshot.

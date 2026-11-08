@@ -31,6 +31,10 @@ Window
 - **调整大小步长 (Resize Granularity)**：交互式分屏大小调整使用 `layout.resize_step`（分屏比例增量，默认 `0.05`）。
 - **浮动模式 (Floating Mode)**：Panel 脱离平铺树，浮动在活动终端之上，保留其尺寸、位置和焦点状态。
 - **覆层模式 (Overlay Mode)**：瞬态可聚焦层（如命令面板 Command Palette 或选择器弹窗）居中显示，并在关闭前捕获键盘输入。
+- **置顶面板 (Pinned Panels)**：置顶（`toggle_pinned` 或 `bitty.panel.set_pinned`）支持将平铺面板或已分离的工作区局部浮动面板（detached float）直接移入窗口全局置顶区，并完整保留底层存活的 `PaneSession`（`bitty#3078` / `bitty#3074`），使其在切换工作区时持续可见；取消置顶会将其以浮动模式恢复至当前活动工作区。
+- **便签终端 (Scratchpad Terminal)**：`toggle_scratchpad`（别名 `scratchpad_toggle`，映射至 `command:bitty.workspace:scratchpad-toggle`）可在各工作区之间停靠或恢复浮动便签终端（包括底层平铺布局已清空的情形），并在恢复布局快照时干净关闭已停靠的便签会话（`bitty#3078` / `bitty#3074`）。
+- **聚焦窗格 `cwd` 继承（`bitty#3028`）**：新建分屏（`new_split:<dir>`）、自适应新建面板（`new_panel`）以及新建工作区（`workspace_new`）优先继承当前聚焦窗格的工作目录（通过 OSC 7 或平台进程 `cwd` 探测）。
+- **分离浮动与置顶视图解析（`bitty#3085`）**：浮层坐标/规则求值以及未绑定的 `search_refresh` / `cw_latest_command_id` 查询均会与平铺窗格一并解析当前聚焦的分离浮动面板（detached float）与置顶视图（pinned view）。
 
 ## 管理工作区与面板
 

@@ -22,8 +22,12 @@ curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.loc
 
 ```powershell
 # Windows (PowerShell，用户级安装，无需管理员权限)
-irm https://cdn.bitty.run/install/install.ps1 | iex
+irm https://cdn.bitty.run/install/install.ps1 -OutFile "$env:TEMP\bitty-install.ps1"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& "$env:TEMP\bitty-install.ps1"
 ```
+
+在 Windows 上，上述三步命令先将 `install.ps1` 下载至 `$env:TEMP\bitty-install.ps1` 以便本地审阅，仅对当前 PowerShell 进程临时放行脚本执行策略，再运行安装脚本（同时避免 `irm ... | iex` 管道写法触发 uBlock Origin 等扩展的 ClickFix 剪贴板拦截规则）。
 
 各脚本获取内容：Linux 安装版本化 `.tar.zst` 软件包（二进制文件外加桌面入口、图标与 AppStream 元信息）；macOS 安装裸架构二进制文件（DMG 仅为交互式拖拽安装镜像，不适合无人值守安装）；Windows x64 安装便携 ZIP 负载，Windows arm64 安装裸 exe。在 Git-Bash 下运行 `install.sh` 会失败并指引使用 `install.ps1`；FreeBSD 不是一键安装目标，请手动下载。0.1.0 的校验仅为哈希：暂无签名（Windows 签名推迟至 0.2.0 之后）。
 
@@ -227,7 +231,7 @@ bitty
 | ``Alt+` ``（`Alt+?`）                                                                          | 帮助                  | 切换快捷键帮助悬浮层                       |
 
 > [!NOTE]
-> `Ctrl+Shift+F` 与 `Ctrl+Shift+Space` **不是**搜索快捷键：它们已恢复为 Shell 输入。回滚搜索没有 Core 默认快捷键；插件可自行重新绑定（见[配置参考手册](../configuration/overview.md)）。
+> `Ctrl+Shift+F` 与 `Ctrl+Shift+Space` **不是**搜索快捷键：它们已恢复为 Shell 输入。回滚搜索没有 Core 默认快捷键；插件可自行重新绑定（见[配置参考手册](../configuration/overview.md)）。新建面板（`Alt+n`）、分屏（`Shift+Alt+h/j/k/l`）、浮动/置顶面板以及新建工作区（`Alt+t`）会自动继承当前聚焦窗格的工作目录（优先读取 PTY 子进程的内核工作目录，不可用时回退至 `OSC 7` / 会话恢复链）。
 
 ## 卸载与数据清理
 

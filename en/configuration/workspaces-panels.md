@@ -38,7 +38,10 @@ A **Panel** is a workspace-managed container. Panels decouple window management 
 - **Resize Granularity**: Interactive split resizing applies `layout.resize_step` (split-ratio delta `0.01..=0.20`, default `0.05`).
 - **Floating Mode**: A panel detaches from the tiling tree to float above active terminals, retaining its dimensions, position, and focus state.
 - **Overlay Mode**: Transient focusable surfaces (such as the Command Palette or picker dialogs) appear centered and capture keyboard input until dismissed.
-- **Pinned Panels**: Pinning moves a tiled or floating panel into the window-global pinned store, so it remains visible across workspace switches. Unpinning restores it to the active workspace in floating mode; pinned state is separate from the workspace's tiled/floating/overlay hierarchy.
+- **Pinned Panels**: Pinning moves a tiled or detached floating panel directly into the window-global pinned store while preserving its live `PaneSession` (`bitty#3078` / `bitty#3074`), so it remains visible across workspace switches. Unpinning restores it to the active workspace in floating mode; pinned state is separate from the workspace's tiled/floating/overlay hierarchy.
+- **Scratchpad Terminal**: `toggle_scratchpad` (`scratchpad_toggle`, mapping to `command:bitty.workspace:scratchpad-toggle`) parks and restores a floating scratchpad terminal across workspaces, including over an emptied base tiled layout, and cleanly closes any parked scratchpad session when a layout snapshot is restored (`bitty#3078` / `bitty#3074`).
+- **Focused-pane `cwd` inheritance (`bitty#3028`)**: New splits (`new_split:<dir>`), adaptive panels (`new_panel`), and new workspaces (`workspace_new`) inherit the focused pane's working directory (via OSC 7 or platform process cwd inspection) when available.
+- **Detached-float and pinned-view resolution (`bitty#3085`)**: Overlay coordinate/rule evaluation and unbound `search_refresh` / `cw_latest_command_id` lookups resolve focused detached-float and pinned views alongside tiled panes.
 
 ### Detached history viewports
 
