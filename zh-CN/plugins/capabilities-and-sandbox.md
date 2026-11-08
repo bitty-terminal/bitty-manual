@@ -55,7 +55,11 @@ version = ">=2.30"
    - 插件只能调用在 `[tools.<name>]` 中显式声明的白名单系统工具（如 `process.spawn:git`），并受宿主参数消毒、超时和输出大小截断（默认 8 KiB）的严格限制。
    - 每次派生裁决（允许或拒绝）都会在有界审计台账中精确记录一次：仅记录调用者身份、工具名与有界参数预览。环境变量与密钥绝不进入台账。台账至多保留 1024 条，采用丢弃最旧语义，并计数已驱逐条目。
    - 在 Linux 上，已放行的工具调用还会运行在继承式操作系统约束之下（Landlock 可执行规则，覆盖工具二进制程序及其加载器），因此已放行的二进制程序无法从内部执行白名单之外的程序。约束建立失败则失败并关闭，拒绝该次派生并给出约束诊断；任何已放行的派生都不会在无约束下运行。非 Linux 平台在对应机制落地前，对已放行的派生同样失败并关闭。
-6. **用户确认与授权撤销**：
+6. **`config.manage` 配置与 Profile 生命周期能力**：
+   - 高风险能力头，需在插件清单中声明并经用户显式授权记录在台账中（`local-path` 开发插件不会自动获授，`--safe` 安全模式下始终拒绝）。
+   - 提供有界配置读取与双阶段摘要（SHA-256 `digest`）审批写入：覆盖全部 8 项 Profile 生命周期与配置操作（`profile.list` / `bitty.profiles.list`、`profile.get` / `bitty.config.get`、`profile.create` / `preview_create`+`create`、`profile.update` / `bitty.config.preview`+`set`、`profile.delete` / `preview_delete`+`delete`、`profile.clone` / `preview_clone`+`clone`、`profile.rename` / `preview_rename`+`rename`、`profile.switch` / `preview_use`+`use`；`bitty.profiles` 同时挂载为 `bitty.config.profiles`）。
+   - 与 CLI `bitty config profile` 保持一致：`force = true` 覆盖或删除前自动生成 `<name>.lua.bak-<epoch>` 时间戳备份；`clone` 与 `create { from = ... }` 原样复制源文件的 Lua 字节并保留源文件自身的 `extends` 父节点。
+7. **用户确认与授权撤销**：
    - 能力授予采用显式确认：`bitty plugin install` 提示 `Grant these capabilities? [y/N]`（至多 3 次尝试）；`--yes` 以非交互方式批准，拒绝则中止且不产生任何变更。授权绑定到精确的清单哈希，后续清单若新增能力将阻塞，直至重新批准。
    - 不删除记录的撤销：`bitty plugin revoke <id>` 撤销全部已授予能力并禁用插件；`bitty plugin revoke <id> --cap <capability>` 撤销单个能力并将其记住为显式拒绝（不再静默重新提示）。以显式用户确认重新 `install` 即可重新授予。
 

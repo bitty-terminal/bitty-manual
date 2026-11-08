@@ -39,11 +39,21 @@ bitty.panel.set_presentation(panel_id, "floating")
 
 #### `bitty.panel.toggle_floating(panel_id)`
 
-在平铺二叉树布局与浮动窗口模式之间切换面板状态。
+在平铺二叉树布局与浮动窗口模式之间切换面板状态（当前插件方法保留名称并在 `panel.focus` 能力校验后以 `E_NOT_IMPLEMENTED` 失败关闭；内置键盘动作 `toggle_floating` 则作用于当前聚焦面板）。
 
 ```lua
-local is_floating = bitty.panel.toggle_floating(panel_id)
+local ok, err = pcall(bitty.panel.toggle_floating, panel_id)
 ```
+
+#### `bitty.panel.set_pinned(panel_id, pinned)`
+
+将活动工作区中的平铺面板或已分离的局部浮动面板（detached float）置顶/取消置顶至窗口全局置顶存储，并完整保留其存活的 `PaneSession`（`bitty#3078` / `bitty#3074`）。需要 `panel.focus` 能力。
+
+```lua
+local accepted = bitty.panel.set_pinned(panel_id, true)
+```
+
+取消置顶（`pinned = false`）会将面板恢复至当前活动工作区并保持浮动状态。内置 `bitty.workspace:scratchpad-toggle`（对应键盘动作 `toggle_scratchpad` / `scratchpad_toggle`）使用同一浮动/停靠生命周期，可在空平铺基座上正常切换便签终端，并在恢复快照时自动清理已停靠的便签会话。
 
 #### `bitty.panel.get_state(panel_id)`
 

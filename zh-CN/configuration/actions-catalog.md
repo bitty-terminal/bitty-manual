@@ -258,3 +258,9 @@ return {
 | `toggle_pinned`                                                               | 有意为之：同样的字节一致性纪律（推荐和弦 `alt+p`）。                                                      |
 | `command:<owner:command>`                                                     | 有意为之：调用目标与用户、插件相关，无法内置（示例和弦 `ctrl+alt+p`）。                                   |
 | `workspace_focus:10..=16`、`workspace_move:10..=16`、`workspace_swap:10..=16` | 有意为之：单和弦数字仅覆盖 `1..=9`；更高编号可由用户绑定（如 `alt+g` 绑定 `workspace_focus:10`）。        |
+
+## `0.0.37` 动作行为补充
+
+- **`toggle_scratchpad`（别名 `scratchpad_toggle`）**：解析为 `command:bitty.workspace:scratchpad-toggle`（`bitty#3078` / `bitty#3074`），可在各工作区之间停靠或恢复窗口全局便签浮动终端（即便当前工作区底层平铺布局已清空也能正常切换，并在恢复布局快照前干净关闭已停靠的便签终端会话）。
+- **`toggle_pinned`（别名 `pinned_toggle`）**：支持直接将平铺面板或已分离的工作区局部浮动面板（detached float）置顶/取消置顶至窗口全局置顶区，并完整保留其底层存活的 `PaneSession`（`bitty#3078` / `bitty#3074`）。
+- **聚焦窗格 `cwd` 继承（`bitty#3028`）**：`new_split:<dir>`、`new_panel` 与 `workspace_new` 在新建终端时优先继承当前聚焦窗格的工作目录（通过 Shell 上报的 OSC 7 或平台进程 `cwd` 探测），不可用时再回退至 Profile 显式配置的 `cwd` 或启动目录。
