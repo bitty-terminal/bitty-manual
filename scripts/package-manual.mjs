@@ -8,11 +8,95 @@ import {
   existsSync,
   readdirSync,
   statSync,
+  utimesSync,
 } from "fs";
 import { join, dirname, relative } from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { createHash } from "crypto";
+
+const DETERMINISTIC_MTIME_ISO = "2020-01-01T00:00:00Z";
+const DETERMINISTIC_DATE = new Date(DETERMINISTIC_MTIME_ISO);
+const DETERMINISTIC_ENV = {
+  ...process.env,
+  TZ: "UTC",
+  LC_ALL: "C",
+};
+
+function normalizeMtimes(targetPath) {
+  const stat = statSync(targetPath);
+  if (stat.isDirectory()) {
+    for (const entry of readdirSync(targetPath)) {
+      normalizeMtimes(join(targetPath, entry));
+    }
+  }
+  utimesSync(targetPath, DETERMINISTIC_DATE, DETERMINISTIC_DATE);
+}
+
+function collectRelativePathsSorted(baseDir, entry = ".") {
+  const startPath = entry === "." ? baseDir : join(baseDir, entry);
+  const results = [];
+  function walk(currentPath) {
+    const stat = statSync(currentPath);
+    const rel = relative(baseDir, currentPath).replace(/\\/g, "/");
+    if (rel !== "") {
+      results.push(rel);
+    }
+    if (stat.isDirectory()) {
+      const children = readdirSync(currentPath).sort();
+      for (const child of children) {
+        walk(join(currentPath, child));
+      }
+    }
+  }
+  walk(startPath);
+  return results.sort();
+}
+
+function createDeterministicTarGz(outPath, cwdDir, entries = ["."]) {
+  normalizeMtimes(cwdDir);
+  if (existsSync(outPath)) {
+    rmSync(outPath, { force: true });
+  }
+  execFileSync(
+    "tar",
+    [
+      "--sort=name",
+      `--mtime=${DETERMINISTIC_MTIME_ISO}`,
+      "--owner=0",
+      "--group=0",
+      "--numeric-owner",
+      "-I",
+      "gzip -n",
+      "-cf",
+      outPath,
+      "-C",
+      cwdDir,
+      ...entries,
+    ],
+    { stdio: "inherit", env: DETERMINISTIC_ENV },
+  );
+  utimesSync(outPath, DETERMINISTIC_DATE, DETERMINISTIC_DATE);
+}
+
+function createDeterministicZip(outPath, cwdDir, entries = ["."]) {
+  normalizeMtimes(cwdDir);
+  if (existsSync(outPath)) {
+    rmSync(outPath, { force: true });
+  }
+  const relPaths = Array.from(
+    new Set(
+      entries.flatMap((entry) => collectRelativePathsSorted(cwdDir, entry)),
+    ),
+  ).sort();
+  execFileSync("zip", ["-q", "-X", outPath, "-@"], {
+    cwd: cwdDir,
+    input: `${relPaths.join("\n")}\n`,
+    stdio: ["pipe", "inherit", "inherit"],
+    env: DETERMINISTIC_ENV,
+  });
+  utimesSync(outPath, DETERMINISTIC_DATE, DETERMINISTIC_DATE);
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
@@ -179,17 +263,14 @@ const zipVersionPath = join(distDir, zipVersionName);
 
 try {
   // Create tar.gz from inside dist/manual (relative paths)
-  execSync(`tar -czf "${tarLatestPath}" -C "${distManualDir}" .`, {
-    stdio: "inherit",
-  });
+  createDeterministicTarGz(tarLatestPath, distManualDir, ["."]);
   cpSync(tarLatestPath, tarVersionPath);
+  utimesSync(tarVersionPath, DETERMINISTIC_DATE, DETERMINISTIC_DATE);
 
   // Create zip from inside dist/manual
-  execSync(`zip -q -r "${zipLatestPath}" .`, {
-    cwd: distManualDir,
-    stdio: "inherit",
-  });
+  createDeterministicZip(zipLatestPath, distManualDir, ["."]);
   cpSync(zipLatestPath, zipVersionPath);
+  utimesSync(zipVersionPath, DETERMINISTIC_DATE, DETERMINISTIC_DATE);
 
   // Per-locale archives for the offline `doc` plugin: one bundle per
   // language so readers download only their locale from the CDN.
@@ -199,19 +280,28 @@ try {
     const localeTarVersion = `bitty-manual-${version}-${locale}.tar.gz`;
     const localeZipLatest = `bitty-manual-${locale}-latest.zip`;
     const localeZipVersion = `bitty-manual-${version}-${locale}.zip`;
-    execSync(
-      `tar -czf "${join(distDir, localeTarLatest)}" -C "${distManualDir}" "${locale}" manifest.json toc.json`,
-      { stdio: "inherit" },
-    );
+    createDeterministicTarGz(join(distDir, localeTarLatest), distManualDir, [
+      locale,
+      "manifest.json",
+      "toc.json",
+    ]);
     cpSync(join(distDir, localeTarLatest), join(distDir, localeTarVersion));
-    execSync(
-      `zip -q -r "${join(distDir, localeZipLatest)}" "${locale}" manifest.json toc.json`,
-      {
-        cwd: distManualDir,
-        stdio: "inherit",
-      },
+    utimesSync(
+      join(distDir, localeTarVersion),
+      DETERMINISTIC_DATE,
+      DETERMINISTIC_DATE,
     );
+    createDeterministicZip(join(distDir, localeZipLatest), distManualDir, [
+      locale,
+      "manifest.json",
+      "toc.json",
+    ]);
     cpSync(join(distDir, localeZipLatest), join(distDir, localeZipVersion));
+    utimesSync(
+      join(distDir, localeZipVersion),
+      DETERMINISTIC_DATE,
+      DETERMINISTIC_DATE,
+    );
     localeArchives.push(
       localeTarLatest,
       localeTarVersion,
@@ -231,7 +321,7 @@ try {
 
 // 4. Per-locale bundles for the per-package CDN layout
 // (`manual/bitty-manual/<locale>.tar.gz`). Each bundle holds that locale's
-// tree plus the manifest, so a new locale ships as new files without
+// tree plus the manifest and TOC, so a new locale ships as new files without
 // renaming existing keys.
 const localeArchives = [];
 for (const locale of locales) {
@@ -244,24 +334,35 @@ for (const locale of locales) {
     recursive: true,
   });
   cpSync(join(distManualDir, "manifest.json"), join(stageDir, "manifest.json"));
+  cpSync(join(distManualDir, "toc.json"), join(stageDir, "toc.json"));
 
   const localeTarLatest = `bitty-manual-${locale}-latest.tar.gz`;
   const localeTarVersion = `bitty-manual-${locale}-${version}.tar.gz`;
   const localeZipLatest = `bitty-manual-${locale}-latest.zip`;
   const localeZipVersion = `bitty-manual-${locale}-${version}.zip`;
   try {
-    execSync(
-      `tar -czf "${join(distDir, localeTarLatest)}" -C "${stageDir}" .`,
-      {
-        stdio: "inherit",
-      },
-    );
+    createDeterministicTarGz(join(distDir, localeTarLatest), stageDir, [
+      locale,
+      "manifest.json",
+      "toc.json",
+    ]);
     cpSync(join(distDir, localeTarLatest), join(distDir, localeTarVersion));
-    execSync(`zip -q -r "${join(distDir, localeZipLatest)}" .`, {
-      cwd: stageDir,
-      stdio: "inherit",
-    });
+    utimesSync(
+      join(distDir, localeTarVersion),
+      DETERMINISTIC_DATE,
+      DETERMINISTIC_DATE,
+    );
+    createDeterministicZip(join(distDir, localeZipLatest), stageDir, [
+      locale,
+      "manifest.json",
+      "toc.json",
+    ]);
     cpSync(join(distDir, localeZipLatest), join(distDir, localeZipVersion));
+    utimesSync(
+      join(distDir, localeZipVersion),
+      DETERMINISTIC_DATE,
+      DETERMINISTIC_DATE,
+    );
   } catch (err) {
     console.error(`❌ Failed to create ${locale} archive bundle:`, err);
     process.exit(1);
@@ -276,7 +377,7 @@ for (const locale of locales) {
   console.log(`📦 Created per-locale bundle set for '${locale}'.`);
 }
 
-// 5. Generate SHA256 checksums (combined + per-locale bundles)
+// 5. Generate SHA256 checksums (combined + per-locale bundles, deduplicated)
 const archivesToHash = [
   tarLatestName,
   tarVersionName,
@@ -286,15 +387,14 @@ const archivesToHash = [
 ];
 for (const locale of locales) {
   archivesToHash.push(
-    `bitty-manual-${locale}-latest.tar.gz`,
     `bitty-manual-${version}-${locale}.tar.gz`,
-    `bitty-manual-${locale}-latest.zip`,
     `bitty-manual-${version}-${locale}.zip`,
   );
 }
+const uniqueArchivesToHash = Array.from(new Set(archivesToHash));
 
 let checksumsOutput = "";
-for (const filename of archivesToHash) {
+for (const filename of uniqueArchivesToHash) {
   const filePath = join(distDir, filename);
   const fileBuffer = readFileSync(filePath);
   const hash = createHash("sha256").update(fileBuffer).digest("hex");
