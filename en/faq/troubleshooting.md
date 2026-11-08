@@ -253,6 +253,21 @@ either form. That is an application setting, not a Bitty setting:
   `^[[27;2;13~` (xterm) means the application asked for one and Bitty reported
   the key distinctly.
 
+### The cursor looks one cell off beside CJK or emoji
+
+Terminal columns are cells, not characters. A wide glyph owns two cells (a lead
+and a spacer), and the cursor can only rest on the lead, so `Left`/`Right`
+across a wide glyph move two columns while a narrow glyph moves one. That is
+what xterm does, and Bitty matches it: the block cursor covers the glyph's
+whole two-cell span, never the spacer alone.
+
+A TUI that computes its own cursor column from a width table that treats CJK as
+one cell will therefore appear to lag by one cell for every wide character on
+the line, while a TUI that asks the terminal to place the cursor (`CUP`/`CUF`)
+is unaffected. If the offset appears only in one application, compare its
+behaviour with `Left`/`Right` against a plain shell prompt on the same line; a
+prompt that moves correctly proves the terminal side is consistent.
+
 ---
 
 ## Exit Behavior & Session Restore
