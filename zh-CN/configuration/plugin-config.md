@@ -127,7 +127,7 @@ modules_right = ["clock"]
 
 每模块选项组（例如时钟格式或轮询间隔）由插件声明，但当前设置契约不接受 map 取值。它们会按模块默认值读取。当前真正生效的是上面的框架标量和三个模块列表。
 
-### Composer：和弦
+### `composer`：快捷键设置
 
 ```toml
 # $XDG_CONFIG_HOME/bitty/plugins/bitty-terminal.composer.toml
@@ -138,7 +138,7 @@ external_editor = "alt+e"
 open_chord = "alt+e"
 ```
 
-四个模态内角色（`newline`、`submit`、`close`、`external_editor`）必须两两不同。匹配顺序为提交、关闭、外部编辑器、换行和文本。打开和弦必须恰好为 `<mod>+...+<single-char>`，并位于宿主键位图上；它在模态关闭时指向打开命令。打开和弦与模态内的外部编辑器角色彼此独立，因此两个 `alt+e` 默认值不会冲突。
+四个模态内快捷键角色（`newline`、`submit`、`close`、`external_editor`）必须两两不同。匹配顺序为提交、关闭、外部编辑器、换行和文本。打开快捷键（`open_chord`）必须恰好为 `<mod>+...+<single-char>`，并位于宿主键位图上；它在模态关闭时指向打开命令。打开快捷键与模态内的外部编辑器角色彼此独立，因此两个 `alt+e` 默认值不会冲突。
 
 ### 搜索：分页预算
 
@@ -180,6 +180,5 @@ bitty doctor               # 宿主环境健康检查
 ## 下一步
 
 - [每插件配置文件](../plugins/plugin-settings.md)——选择顺序、格式限制与取值层优先级的参考说明。
-- [状态栏模块用户指南](../plugins/bar-modules.md)——每个模块的显示内容。
-- [Composer 模态框用法](../plugins/composer.md)——打开、提交与关闭行为。
+- [Bitty Plugins 插件目录网站](https://plugins.bitty.run)——各个插件（如 [`bar`](https://plugins.bitty.run/plugins/bitty-terminal.bar)、[`composer`](https://plugins.bitty.run/plugins/bitty-terminal.composer) 及第三方插件）的说明页。
 - [故障排查与安全模式](../faq/troubleshooting.md)——激活错误与设置警告。

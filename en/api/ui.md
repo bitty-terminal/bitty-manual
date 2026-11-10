@@ -36,7 +36,7 @@ local handle = bitty.ui.mount(slot, component)
 | `"overlay"`  | **Mounted**      | Core-hosted overlay block; present it with `bitty.ui.present.show` (or the older `bitty.ui.overlay.show` spelling). Mounting requires `ui.rich` and `ui.overlay`; presenting without capture requires `ui.present`. |
 | `"terminal"` | **Unavailable**  | Accepted slot name, but no terminal-attached block host is available (`E_UI_UNAVAILABLE`).                                                                                                                          |
 
-The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](../plugins/catalog/bar.md) plugin's `bottom` (or `top`) band. Unsupported names in the closed set fail closed with `E_UI_UNAVAILABLE`; they are not silently stored for a future host.
+The closed v1 set has exactly these seven names. The retired `"statusline"` name is not a slot: mounting it fails closed with `E_UI_COMPONENT_INVALID`, exactly like any other unknown slot. Status presentation belongs to the [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar) plugin's `bottom` (or `top`) band. Unsupported names in the closed set fail closed with `E_UI_UNAVAILABLE`; they are not silently stored for a future host.
 
 ### `bitty.ui.update(block_id, component)`
 

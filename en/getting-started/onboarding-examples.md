@@ -57,7 +57,7 @@ bitty plugin enable bitty-terminal.bar
 
 Consent is explicit: the installer prints `Grant these capabilities? [y/N]`; `--yes` approves non-interactively, a decline aborts with exit `1` and nothing changes. Grants bind to the exact manifest hash, so added capabilities always need fresh consent.
 
-Configure the bar with the canonical Lua settings file at `$XDG_CONFIG_HOME/bitty/plugins/bitty-terminal.bar.lua` (see [Plugin Configuration](../configuration/plugin-config.md) and [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see [Bar Modules User Guide](../plugins/bar-modules.md)):
+Configure the bar with the canonical Lua settings file at `$XDG_CONFIG_HOME/bitty/plugins/bitty-terminal.bar.lua` (see [Plugin Configuration](../configuration/plugin-config.md) and [Per-Plugin Config Files](../plugins/plugin-settings.md)). Only chassis scalars and the three module lists take effect today; per-module option groups stay inert (see the [bar plugin page](https://plugins.bitty.run/plugins/bitty-terminal.bar)):
 
 ```lua
 return {
@@ -124,6 +124,6 @@ Press `alt+space`, then `w` (close view) or `v` (split right) inside the pending
 
 - [CLI Commands & Controls](cli.md) — Full `config`, `plugin`, and `extension` verb reference.
 - [Configuration Reference](../configuration/overview.md) — Every key, type, and reload class.
-- [Bar Modules User Guide](../plugins/bar-modules.md) — What each bar module shows.
+- [Bitty Plugins Directory](https://plugins.bitty.run) — Individual plugin pages (`bar`, `composer`, and community plugins).
 - [Plugin Configuration](../configuration/plugin-config.md) — File locations, worked examples, and when changes apply.
 - [Per-Plugin Config Files](../plugins/plugin-settings.md) — File selection, the restricted Lua form, and fail-to-default rules.

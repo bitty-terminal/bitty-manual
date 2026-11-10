@@ -7,5 +7,13 @@
     },
   },
   "globs": ["**/*.md"],
-  "ignores": [".git", ".worktrees", ".trash", "node_modules", "target", "dist"],
+  "ignores": [
+    ".git",
+    ".worktrees",
+    ".trash",
+    "recording",
+    "node_modules",
+    "target",
+    "dist",
+  ],
 }
