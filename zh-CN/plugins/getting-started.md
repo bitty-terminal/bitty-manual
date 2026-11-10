@@ -70,10 +70,29 @@ bitty plugin install ./my-plugin
 bitty plugin list
 ```
 
-`install` 接受四种来源形式：内置插件 **id**（例如 `bitty plugin install bitty-terminal.shell-integration`）、**本地路径/目录**、**git URL**（`https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。追加 `--yes` 可以非交互方式完成能力授权。
+`install` 接受四种来源形式：内置或官方目录插件 **id**（例如 `bitty plugin install bitty-terminal.bar`）、**本地路径/目录**、**git URL**（`https://<host>/<path>.git`、`git+https://…` 或 `git@<host>:<path>`），或本地**压缩包**（`.tar.gz`/`.tgz`/`.tar.zst`/`.zip`）。追加 `--yes` 可以非交互方式完成能力授权。
+
+### 官方插件目录与插件网站
+
+各个插件（含官方插件与第三方社区插件）统一在独立的 **[Bitty Plugins 插件网站](https://plugins.bitty.run)** 中维护与展示，与终端核心手册分离。当前官方目录包含 11 个插件：
+
+| 官方 id                       | 清单版本 | 声明 `compat.bitty` | 插件主页                                                                      |
+| :---------------------------- | :------- | :------------------ | :---------------------------------------------------------------------------- |
+| `bitty-featured.activity`     | 0.0.1    | `>=0.0.24`          | [activity](https://plugins.bitty.run/plugins/bitty-featured.activity)         |
+| `bitty-featured.devtools`     | 0.1.0    | `>=0.0.21`          | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
+| `bitty-terminal.bar`          | 0.0.1    | `>=0.0.24`          | [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar)                   |
+| `bitty-terminal.composer`     | 0.0.1    | `>=0.0.21`          | [composer](https://plugins.bitty.run/plugins/bitty-terminal.composer)         |
+| `bitty-terminal.copy-mode`    | 0.0.1    | `>=0.0.24`          | [copy-mode](https://plugins.bitty.run/plugins/bitty-terminal.copy-mode)       |
+| `bitty-terminal.dashboard`    | 0.0.1    | `>=0.0.26`          | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
+| `bitty-terminal.file-manager` | 0.1.0    | `>=0.0.24`          | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
+| `bitty-terminal.git-panel`    | 0.1.0    | `>=0.0.24`          | [git-panel](https://plugins.bitty.run/plugins/bitty-terminal.git-panel)       |
+| `bitty-terminal.history`      | 0.0.1    | `>=0.0.24`          | [history](https://plugins.bitty.run/plugins/bitty-terminal.history)           |
+| `bitty-terminal.palette`      | 0.0.1    | `>=0.0.24`          | [palette](https://plugins.bitty.run/plugins/bitty-terminal.palette)           |
+| `bitty-terminal.search`       | 0.0.1    | `>=0.0.24`          | [search](https://plugins.bitty.run/plugins/bitty-terminal.search)             |
 
 ## 下一步
 
+- [Bitty Plugins 插件目录网站](https://plugins.bitty.run) — 浏览官方与第三方插件详情及安装说明。
 - [能力鉴权与沙箱机制](capabilities-and-sandbox.md) — 了解安全边界、资源配额与能力家族。
 - [权限是如何判定的](permissions-decision.md) — 能力授予或拒绝背后的四道关卡。
 - [原生组件边界](../extensions/upstream-components.md) — 理解上游预构建扩展如何在插件间共享原生基础设施。

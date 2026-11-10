@@ -5,7 +5,7 @@ and the helper-side `ai.*` control surface. The accepted direction is component
 `ai` with executable `bitty-ai` behind the [Native Component Boundary](upstream-components.md)
 (DIR-030). This is broader than a UI or a model backend: the component owns the
 AI runtime and the capability families that AI-aware Lua plugins request. The
-[Wheel](../plugins/catalog/wheel.md) harness is a separate artifact, outside
+[Wheel](https://github.com/bitty-terminal/wheel) harness is a separate artifact, outside
 this extension.
 
 - Source checkout: [github.com/bitty-terminal/bitty-ai](https://github.com/bitty-terminal/bitty-ai)

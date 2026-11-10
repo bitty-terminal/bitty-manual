@@ -95,7 +95,7 @@ Two floors gate what runs where, and both fail closed with a diagnostic rather t
 
 Plugin authors should declare a **minimum-only** host requirement such as `bitty = ">=0.0.26"`. An upper bound is enforced when present, so a `<0.1` ceiling blocks a 0.1 host that would still run the plugin. The Plugin API range (`compat.plugin-api`, currently `^1.0`) is the breaking boundary; it is what changes when the Lua surface breaks.
 
-The standalone [statusline](../plugins/catalog/statusline.md) plugin is archived and removed from the official set; the bar plugin supersedes it. Do not re-add it or lower a range to bypass a refusal.
+The standalone [statusline](https://github.com/bitty-terminal/statusline) plugin is archived and removed from the official set; the bar plugin supersedes it. Do not re-add it or lower a range to bypass a refusal.
 
 ---
 

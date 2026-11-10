@@ -1,6 +1,6 @@
 {
   "name": "Bitty Manual",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "default_locale": "en",
   "locales": ["en", "zh-CN"],
   "distribution": {
@@ -80,16 +80,6 @@
           "path": "plugins/getting-started.md"
         },
         {
-          "slug": "bar-modules",
-          "title": "Bar Modules User Guide",
-          "path": "plugins/bar-modules.md"
-        },
-        {
-          "slug": "composer",
-          "title": "Composer Modal Usage",
-          "path": "plugins/composer.md"
-        },
-        {
           "slug": "plugin-settings",
           "title": "Per-Plugin Config Files",
           "path": "plugins/plugin-settings.md"
@@ -103,66 +93,6 @@
           "slug": "permissions-decision",
           "title": "How Permissions Are Decided",
           "path": "plugins/permissions-decision.md"
-        },
-        {
-          "slug": "catalog-activity",
-          "title": "activity (Lua plugin)",
-          "path": "plugins/catalog/activity.md"
-        },
-        {
-          "slug": "catalog-bar",
-          "title": "bar (Lua plugin)",
-          "path": "plugins/catalog/bar.md"
-        },
-        {
-          "slug": "catalog-composer",
-          "title": "composer (Lua plugin)",
-          "path": "plugins/catalog/composer.md"
-        },
-        {
-          "slug": "catalog-copy-mode",
-          "title": "copy-mode (Lua plugin)",
-          "path": "plugins/catalog/copy-mode.md"
-        },
-        {
-          "slug": "catalog-devtools",
-          "title": "devtools (Lua plugin)",
-          "path": "plugins/catalog/devtools.md"
-        },
-        {
-          "slug": "catalog-file-manager",
-          "title": "file-manager (Lua plugin)",
-          "path": "plugins/catalog/file-manager.md"
-        },
-        {
-          "slug": "catalog-git-panel",
-          "title": "git-panel (Lua plugin)",
-          "path": "plugins/catalog/git-panel.md"
-        },
-        {
-          "slug": "catalog-history",
-          "title": "history (Lua plugin)",
-          "path": "plugins/catalog/history.md"
-        },
-        {
-          "slug": "catalog-palette",
-          "title": "palette (Lua plugin)",
-          "path": "plugins/catalog/palette.md"
-        },
-        {
-          "slug": "catalog-search",
-          "title": "search (Lua plugin)",
-          "path": "plugins/catalog/search.md"
-        },
-        {
-          "slug": "catalog-statusline",
-          "title": "statusline (retired)",
-          "path": "plugins/catalog/statusline.md"
-        },
-        {
-          "slug": "catalog-wheel",
-          "title": "wheel (agent harness)",
-          "path": "plugins/catalog/wheel.md"
         }
       ]
     },

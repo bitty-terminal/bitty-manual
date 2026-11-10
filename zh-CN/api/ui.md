@@ -36,7 +36,7 @@ local handle = bitty.ui.mount(slot, component)
 | `"overlay"`  | 交互式     | 可聚焦的覆层界面。需要 `ui.overlay` 能力。                       |
 | `"terminal"` | 独占保留   | 附加到回滚缓冲区的终端块。                                       |
 
-v1 的封闭插槽集合恰好是以上七个名称。已退役的 `"statusline"` 不是插槽：挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭，与任何其他未知插槽完全一致。状态呈现归 [bar](../plugins/catalog/bar.md) 插件的 `bottom`（或 `top`）边缘栏负责。
+v1 的封闭插槽集合恰好是以上七个名称。已退役的 `"statusline"` 不是插槽：挂载它会以 `E_UI_COMPONENT_INVALID` 失败关闭，与任何其他未知插槽完全一致。状态呈现归 [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar) 插件的 `bottom`（或 `top`）边缘栏负责。
 
 ### `bitty.ui.update(block_id, component)`
 

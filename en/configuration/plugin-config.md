@@ -330,8 +330,7 @@ type, and the plugin's grants, in that order.
 
 - [Per-Plugin Config Files](../plugins/plugin-settings.md) — Selection order,
   format limits, and value-layer precedence in reference form.
-- [Bar Modules User Guide](../plugins/bar-modules.md) — What each module shows.
-- [Composer Modal Usage](../plugins/composer.md) — Open, submit, and close
-  behavior.
+- [Bitty Plugins Directory](https://plugins.bitty.run) — Individual plugin pages
+  (`bar`, `composer`, and community plugins).
 - [Troubleshooting & Safe Mode](../faq/troubleshooting.md) — Activation errors
   and settings warnings.

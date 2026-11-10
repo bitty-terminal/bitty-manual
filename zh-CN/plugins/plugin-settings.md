@@ -34,7 +34,7 @@ modules_left = ["workspaces", "cpu"]  # 单行字符串数组
 - 取值为布尔值、裸整数、双引号字符串或单行字符串数组。浮点数、引号数字、内联表、嵌套数组与多行值不在子集中：违规的键回退到默认值，文件的其余部分继续生效。
 - 未知键（manifest 从未声明的键）不改变任何东西：它们被记录为跳过。
 - 重复键、`[section]`、没有 `=` 的行或非法键名会导致**整个文件**失败——插件继续按默认值运行。未闭合的字符串或数组只跳过该键。
-- v1 语法没有表。这就是为什么模块选项组（如状态栏的模块设置）在表/点路径后续工作落地前保持惰性——见[状态栏模块指南](bar-modules.md)。今日存入表会因类型不匹配而读作默认值。
+- v1 语法没有表。这就是为什么模块选项组（如状态栏的模块设置）在表/点路径后续工作落地前保持惰性——见 [`bar` 插件页面](https://plugins.bitty.run/plugins/bitty-terminal.bar)。今日存入表会因类型不匹配而读作默认值。
 - 非 UTF-8 文件直接失败；插件永远不会看到可能误认为配置的乱码。
 
 大小边界在信任任何取值前失败：单文件至多 16 KiB、512 行，64 个键，每个字符串 512 字节，每个数组 32 个字符串项。
@@ -61,7 +61,7 @@ modules_left = ["workspaces", "cpu", "memory", "battery"]
 modules_right = ["clock", "pulseaudio"]
 ```
 
-Composer 和弦（五个键全；非法和弦回退到默认值）：
+`composer` 快捷键设置（全部五个键；非法快捷键回退到默认值）：
 
 ```toml
 newline = "enter"
@@ -84,5 +84,4 @@ bitty config check
 ## 下一步
 
 - [插件配置](../configuration/plugin-config.md)——面向任务的指南：文件选择、安全编辑与生效时机。
-- [状态栏模块用户指南](bar-modules.md)——每个模块的显示内容与选项。
-- [Composer 模态框用法](composer.md)——打开和弦、提交和弦与自定义设置。
+- [Bitty Plugins 插件目录网站](https://plugins.bitty.run)——各个插件（如 [`bar`](https://plugins.bitty.run/plugins/bitty-terminal.bar)、[`composer`](https://plugins.bitty.run/plugins/bitty-terminal.composer) 及第三方插件）的独立说明页。
