@@ -15,6 +15,14 @@ Window
     └── Panel / View
 ```
 
+> [!NOTE]
+> **Design Inspiration — Tiling Window Manager vs. Split-Pane Terminal:**
+> Although Bitty shares surface similarities with tiling terminal emulators such as Tilix, its layout architecture is modeled after Wayland dynamic tiling window managers like **Hyprland** (coupled with **Waybar**-style extension chrome) rather than a GUI toolkit splitter widget tree (`GtkPaned`):
+>
+> - **In-window compositor (`Workspace` + `LayoutTree`)**: Instead of nesting toolkit splitter widgets with per-pane title bars, each workspace owns a pure geometry tree (`H`/`V` ratio splits and `View` leaves decoupled from `Terminal` sessions) rendered in a single GPU scene pass with cell-grid `gaps_in`/`gaps_out` spacing.
+> - **Algorithmic & compositor-style actions**: New panels follow dynamic tiling policies (`Spiral`, Hyprland `Dwindle`, `Balanced`, `BisectLargest`), and pane management mirrors compositor dispatchers (`goto_split:<dir>`, `move_split:<dir>` / `swapwindow`, `toggle_split` / `togglesplit`, `Mod`+drag live reflow, and in-place `toggle_zoom` without widget reparenting).
+> - **Multi-tier surfaces & extension chrome**: Tiled panes coexist with workspace-local floating panels, window-global pinned panels, a cross-workspace scratchpad terminal, and extension-rendered status bars (`bitty-terminal.bar`).
+
 ### Workspaces
 
 A **Workspace** is an independent virtual desktop. Each workspace manages its own layout tree:

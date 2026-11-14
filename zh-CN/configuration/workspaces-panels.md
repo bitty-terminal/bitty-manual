@@ -6,12 +6,22 @@ Bitty 通过可组合的容器层级结构组织窗口环境，将工作区布�
 
 ```text
 Window
-└── Workspaces (虚拟桌面 / 标签页)
-    ├── Chrome Insets / 插槽 (视觉状态栏由扩展绘制，Core 从不绘制)
-    └── Panels (容器)
-        ├── Presentation Mode: Tiled, Floating 或 Overlay
-        └── View: Shell 进程 / PTY 会话或原生 UI 部件
+├── Workspaces (虚拟桌面 / 标签页)
+│   ├── Chrome Insets / 插槽 (视觉状态栏由扩展绘制，Core 从不绘制)
+│   └── Panels (容器)
+│       ├── Presentation Mode: Tiled, Floating 或 Overlay
+│       └── View: Shell 进程 / PTY 会话或原生 UI 部件
+└── Pinned Panels (窗口全局置顶浮动层，独立于所有工作区)
+    └── Panel / View
 ```
+
+> [!NOTE]
+> **设计灵感 —— 动态平铺窗口管理器 vs. 传统分屏终端：**
+> 尽管 Bitty 在外观上与 Tilix 等平铺式终端模拟器有相似之处，但其底层布局架构主要借鉴了 **Hyprland** 等 Wayland 动态平铺窗口管理器（以及 **Waybar** 式的扩展状态栏解耦），而非传统 GUI 工具包的分屏控件树（如 `GtkPaned`）：
+>
+> - **窗口内合成器 (`Workspace` + `LayoutTree`)**：Bitty 不使用嵌套的 GUI 分割容器或逐窗格原生标题栏，而是由每个工作区维护纯几何布局树（`H`/`V` 比例分割节点与同 `Terminal` 会话解耦的 `View` 叶子节点），配合字符网格级 `gaps_in`/`gaps_out` 间距在单次 GPU 场景通道中合成渲染。
+> - **算法化布局与合成器式交互**：新建面板遵循动态平铺策略（`Spiral`、Hyprland `Dwindle`、`Balanced`、`BisectLargest`），面板操控直接对应窗口管理器动作（`goto_split:<dir>`、`move_split:<dir>` / `swapwindow`、`toggle_split` / `togglesplit`、`Mod`+拖拽实时重排，以及无需重挂载控件的原地 `toggle_zoom` 缩放重排）。
+> - **多层表面与扩展状态栏解耦**：平铺窗格与工作区局部浮动面板、窗口全局置顶面板、跨工作区便签终端（scratchpad）以及由扩展渲染的状态栏（`bitty-terminal.bar`）协同共存。
 
 ### 工作区 (Workspaces)
 
