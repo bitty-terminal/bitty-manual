@@ -264,3 +264,8 @@ return {
 - **`toggle_scratchpad`（别名 `scratchpad_toggle`）**：解析为 `command:bitty.workspace:scratchpad-toggle`（`bitty#3078` / `bitty#3074`），可在各工作区之间停靠或恢复窗口全局便签浮动终端（即便当前工作区底层平铺布局已清空也能正常切换，并在恢复布局快照前干净关闭已停靠的便签终端会话）。
 - **`toggle_pinned`（别名 `pinned_toggle`）**：支持直接将平铺面板或已分离的工作区局部浮动面板（detached float）置顶/取消置顶至窗口全局置顶区，并完整保留其底层存活的 `PaneSession`（`bitty#3078` / `bitty#3074`）。
 - **聚焦窗格 `cwd` 继承（`bitty#3028`）**：`new_split:<dir>`、`new_panel` 与 `workspace_new` 在新建终端时优先继承当前聚焦窗格的工作目录（通过 Shell 上报的 OSC 7 或平台进程 `cwd` 探测），不可用时再回退至 Profile 显式配置的 `cwd` 或启动目录。
+
+## `0.0.42` 动作行为补充
+
+- **`move_split:<left|right|up|down>`（别名 `move_panel`、`swap_split`、`movewindow`、`swapwindow`）**：将当前聚焦的平铺窗格与 `<dir>` 方向上空间相邻的平铺窗格互换位置（焦点跟随被移动窗格），或将当前聚焦的浮动/置顶面板沿 `<dir>` 方向按 4 个单元格步长微调位置。内置默认绑定为支持 Mod 重映射的 `ctrl+alt+h/j/k/l` 与 `ctrl+alt+left/down/up/right`（`mod_key = "super"` 时自动重绑为 `ctrl+super+h/j/k/l` 与 `ctrl+super+left/down/up/right`）。
+- **`toggle_split`（别名 `togglesplit`、`split_toggle`）**：将当前聚焦平铺窗格最内层父级分屏轴在水平与垂直之间翻转（对齐 Hyprland dwindle `togglesplit`）。内置默认绑定为支持 Mod 重映射的 `alt+s`（`mod_key = "super"` 时自动重绑为 `super+s`）。

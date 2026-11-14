@@ -297,6 +297,11 @@ In `0.0.37`, the action surface adds and refines:
 - **`toggle_pinned` (`pinned_toggle`)**: Pins or unpins both tiled panels and detached workspace-local floating panels directly into the window-global pinned store while preserving their live `PaneSession` (`bitty#3078` / `bitty#3074`).
 - **Focused-pane `cwd` inheritance (`bitty#3028`)**: `new_split:<dir>`, `new_panel`, and `workspace_new` inherit the currently focused pane's working directory (via shell-reported OSC 7 or platform process cwd inspection) when available, falling back to the explicit profile `cwd` or startup working directory.
 
+In `0.0.42`, the action surface adds Hyprland-aligned directional panel movement and split-axis toggling:
+
+- **`move_split:<left|right|up|down>` (`move_panel`, `swap_split`, `movewindow`, `swapwindow`)**: Swaps the focused tiled pane with the spatially adjacent tiled pane in `<dir>` while keeping focus on the moved pane, or nudges a focused floating/pinned panel by 4 cells in `<dir>`. Shipped on Mod-aware `ctrl+alt+h/j/k/l` and `ctrl+alt+left/down/up/right` (rebinds to `ctrl+super+h/j/k/l` and `ctrl+super+left/down/up/right` under `mod_key = "super"`).
+- **`toggle_split` (`togglesplit`, `split_toggle`)**: Flips the innermost enclosing split axis of the focused tiled pane between horizontal and vertical. Shipped on Mod-aware `alt+s` (rebinds to `super+s` under `mod_key = "super"`).
+
 ### Current core command catalog
 
 Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command historical catalog plus the two current local catalog commands below. This table is current-only and is not part of the historical snapshot.
