@@ -80,13 +80,14 @@ written atomically with owner-only permissions.
 An older `bitty-plugins.toml` ledger is migrated once, automatically, by the
 next plugin command that loads ledger state. Read-only `bitty plugin doctor`
 only reports it; `bitty plugin doctor --repair` migrates it. The host writes
-the Lua ledger and keeps the previous TOML bytes at `bitty-plugins.toml.bak`.
+the Lua ledger and archives the previous TOML bytes under
+`$XDG_CONFIG_HOME/bitty/.backups/` (`0700` dir, `0600` files, retaining the 10
+newest backups per file stem; any legacy top-level `.bak*` files are migrated into
+`.backups/` on startup).
 The migration preserves `source`, `manifest_hash`, `enabled`, `granted`, and
 `denied`, validates the rendered Lua before committing, never overwrites an
 existing Lua ledger, and is idempotent. A symlinked or non-regular legacy file
-is refused rather than followed. The backup is a byte-for-byte move of the
-old ledger, so it keeps the old file's permissions where a rename is
-possible; a copy fallback writes it owner-only.
+is refused rather than followed.
 
 Do not hand-edit the ledger. Authority cannot be widened by editing it: a
 grant is honoured only when the plugin's manifest declares that capability

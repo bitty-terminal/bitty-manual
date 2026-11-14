@@ -134,7 +134,7 @@ bitty config profile path work
 bitty init --migrate
 ```
 
-Creating `profiles/default.lua` or any other profile never activates it. A bare launch with no selector remains unprofiled. `--force` is an explicit reset of the named generated file with collision-free `.bak` backups; it never converts a legacy file into a selector. A default run refuses an existing target rather than merging into hand-edited Lua: the wizard does not serialize a typed plan back over source, so edit the profile directly or use an explicit reset. With an explicit `--config`/`BITTY_CONFIG` selector, profiles resolve beside that file; one-launch `--profile` and `BITTY_PROFILE` still resolve under the user config root.
+Creating `profiles/default.lua` or any other profile never activates it. A bare launch with no selector remains unprofiled. `--force` is an explicit reset of the named generated file with collision-free backups under `$XDG_CONFIG_HOME/bitty/.backups/` (`0700` dir, `0600` files, retaining the 10 newest backups per stem); it never converts a legacy file into a selector. A default run refuses an existing target rather than merging into hand-edited Lua: the wizard does not serialize a typed plan back over source, so edit the profile directly or use an explicit reset. With an explicit `--config`/`BITTY_CONFIG` selector, profiles resolve beside that file; one-launch `--profile` and `BITTY_PROFILE` still resolve under the user config root.
 
 > [!NOTE]
 > There is no automatic per-directory profile switching and no multi-parent inheritance. Plugin declarations in a profile are configuration data only: selecting or creating a profile never installs, enables, or grants a plugin.

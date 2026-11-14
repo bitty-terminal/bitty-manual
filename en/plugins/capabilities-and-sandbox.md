@@ -148,7 +148,33 @@ local deleted_preview = bitty.profiles.preview_delete("work-alt")
 local deleted = bitty.profiles.delete("work-alt", deleted_preview.digest)
 ```
 
-`bitty.profiles` (also mounted as `bitty.config.profiles`) exposes `list`, `preview_use`/`use`, and four two-step profile lifecycle pairs (`preview_create`/`create`, `preview_clone`/`clone`, `preview_rename`/`rename`, `preview_delete`/`delete`). Together with `bitty.config.get` and `bitty.config.preview`/`set`, these provide all eight profile management operations (`profile.list`, `profile.get`, `profile.create`, `profile.update`, `profile.delete`, `profile.clone`, `profile.rename`, `profile.switch`). Without `force = true`, an existing destination on `create`, `clone`, or `rename`, or deleting the active profile or `default`, fails closed with `E_PROFILE_CONFLICT`; with `force = true`, the replaced or deleted profile is backed up to `<name>.lua.bak-<epoch>` before atomic replacement. Both `clone(src, dst)` and `create(name, { from = src })` copy `src`'s Lua bytes verbatim so the new profile retains `src`'s own `extends` parent rather than chaining onto `src`. A profile that another profile extends cannot be deleted or renamed (`E_PROFILE_CONFLICT`), and `default` cannot be renamed.
+`bitty.profiles` (also mounted as `bitty.config.profiles`) exposes `list`, `preview_use`/`use`, and four two-step profile lifecycle pairs (`preview_create`/`create`, `preview_clone`/`clone`, `preview_rename`/`rename`, `preview_delete`/`delete`). Together with `bitty.config.get` and `bitty.config.preview`/`set`, these provide all eight profile management operations (`profile.list`, `profile.get`, `profile.create`, `profile.update`, `profile.delete`, `profile.clone`, `profile.rename`, `profile.switch`). Without `force = true`, an existing destination on `create`, `clone`, or `rename`, or deleting the active profile or `default`, fails closed with `E_PROFILE_CONFLICT`; with `force = true`, the replaced or deleted profile is backed up under `$XDG_CONFIG_HOME/bitty/.backups/` (`0700` dir, `0600` files, retaining the 10 newest backups per file stem) before atomic replacement. Both `clone(src, dst)` and `create(name, { from = src })` copy `src`'s Lua bytes verbatim so the new profile retains `src`'s own `extends` parent rather than chaining onto `src`. A profile that another profile extends cannot be deleted or renamed (`E_PROFILE_CONFLICT`), and `default` cannot be renamed.
+
+`bitty.wheel` (also mounted as `bitty.config.wheel`) exposes redacted read-only inspection and two-step token-bound mutations for the standalone Wheel harness (`$XDG_CONFIG_HOME/wheel` and `$XDG_DATA_HOME/wheel`) under the same `config.manage` capability:
+
+```lua
+-- Redacted snapshot (defaults, 14 built-in providers, 15 tool permissions, up to 32 approvals).
+local snap = bitty.wheel.get()
+
+-- Two-step settings mutation (default_provider, default_model, thinking_enabled,
+-- thinking_gear, approval_mode, timeout_ms, permissions.<tool>, providers.<id>.model).
+local p_set = bitty.wheel.preview_set("approval_mode", "dashboard")
+local applied = bitty.wheel.set("approval_mode", "dashboard", p_set.digest)
+
+-- Write-only provider credential mutation (rendered preview masks secret as "***REDACTED***").
+local p_auth = bitty.wheel.preview_auth_set("openai", api_key)
+local saved = bitty.wheel.auth_set("openai", api_key, p_auth.digest)
+local p_unset = bitty.wheel.preview_auth_unset("openai")
+local cleared = bitty.wheel.auth_unset("openai", p_unset.digest)
+
+-- Two-step approval queue resolution ("allow_once" | "allow_session" | "allow_always" | "deny").
+local p_apr = bitty.wheel.preview_resolve_approval("apr-01", "allow_once")
+local resolved = bitty.wheel.resolve_approval("apr-01", "allow_once", p_apr.digest)
+local p_clear = bitty.wheel.preview_clear_resolved_approvals()
+local pruned = bitty.wheel.clear_resolved_approvals(p_clear.digest)
+```
+
+`bitty.wheel.get()` never returns raw API keys, environment variable values, or host filesystem paths; each provider row reports `configured` (`boolean`), `auth_source` (`"env"` | `"global_config"` | `"data_credentials"` | `"none"`), and `effective_model`. Mutations write owner-only (`0700` dir, `0600` file) JSON to `$XDG_DATA_HOME/wheel/{settings.json,credentials.json,approvals.json}` under a cross-process `.approvals.lock` directory lock.
 
 `preview` returns the bounded exact `rendered` diff and the `keys` it changes;
 pinning an inherited table expands `keys` to the seeded leaves.
@@ -187,9 +213,11 @@ file.
 
 Every scalar candidate is re-validated through the same strict loader `bitty
 config check` uses. Writes are atomic and owner-only (`0600`): the previous
-bytes are kept at a rolling `.bak` for the user layer and managed ledger, and
-the profile selector uses the CLI's collision-free `.bak`/`.bak.N` backup. A
-refused validation or failed commit leaves the previous bytes byte-identical.
+bytes for the user layer, managed ledger, and profiles are archived under
+`$XDG_CONFIG_HOME/bitty/.backups/` (`0700` directory, `0600` files, retaining up
+to 10 backups per file stem; legacy top-level `.bak*` files are migrated once on
+startup). A refused validation or failed commit leaves the previous bytes
+byte-identical.
 
 #### Bounds and refusals
 

@@ -18,7 +18,9 @@ Window
 **Workspace** 是一个独立的虚拟桌面。每个工作区维护自己的布局树：
 
 - 切换工作区会切换当前可见的窗格排列，而不会挂起或中断后台正在运行的 Shell 任务。
-- 默认平铺算法通过 `workspace.layout` 配置（例如 `"dwindle"`, `"bsp"`）。
+- `workspace.layout` 会被解析、校验与合并，但当前尚未应用到新建工作区，属于预留输入而非活动选项。它接受 `"dwindle"`（Hyprland 风格的右/下交替二分平铺）、`"spiral"`（dwm-fibonacci 四向顺时针螺旋：右 -> 下 -> 左 -> 上）、`"master"`、`"grid"` 或限定名 `owner.name:algorithm`；它不会选择下述自适应新建面板策略。
+- **紧凑工作区 ID (Dense Workspace IDs)**：新建工作区会分配 `1..=16` 中最小的空闲数字 ID，并按 ID 顺序排列。从 `[1, 2, 3]` 中关闭 `ws2` 后再次创建会复用 `ws2` 而非 `ws4`。
+- **自适应新建面板策略**（`Mod+n` / `new_panel`）：自 0.0.28 起默认采用 Core `Spiral` 策略（dwm-fibonacci 四向顺时针螺旋：右 -> 下 -> 左 -> 上），在聚焦窗格可容纳两个满足 `10x4` 最小尺寸（扣除 `layout.gaps_in` 后）的子窗格时沿顺时针方向切分；若聚焦窗格空间不足，则自动回退至最大的可行 `Balanced` 叶子窗格。其余 Core 运行时面板切分模式包括：`Dwindle`（参考 Hyprland `dwindle`，按容器归一化宽高比始终向右侧或下方切分聚焦窗格）、`Balanced`（按字符宽高比修正轴切分最大可行窗格）以及 `BisectLargest`（按原始单元格宽高切分最大面积窗格）。显式方向切分 `new_split:<dir>` 在所有模式下始终按指定轴切分当前聚焦窗格。
 - **工作区栏机制分离**：依照 Bitty 的微内核哲学，Bitty Core 本身不绘制原生工作区状态栏，亦不维护栏的 UI 状态。视觉呈现由扩展负责，配置项 `workspace.show_bar` 与 `workspace.bar.edge`（默认 `"bottom"`，亦可设为 `"top"`）是 Core 预留输入，由扩展读取。
 
 ### 面板与布局间距 (Panels & Layout Spacing)
