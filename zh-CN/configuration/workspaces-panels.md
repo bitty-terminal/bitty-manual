@@ -43,4 +43,6 @@ Window
 面板和工作区可以通过默认快捷键控制，也可以通过 Lua API 进行编程式管理：
 
 - 使用快捷键创建、分屏和导航面板。
+- **方向聚焦 (`goto_split:<dir>`)**：`alt+h/j/k/l` 与 `alt+方向键`（`mod_key = "super"` 时重绑为 `super+h/j/k/l` 与 `super+方向键`）按空间邻接优先级切换焦点。
+- **方向移动面板与分屏轴翻转 (`0.0.42`)**：`move_split:left|right|up|down`（默认 `ctrl+alt+h/j/k/l` 与 `ctrl+alt+方向键`，`mod_key = "super"` 时重绑为 `ctrl+super+h/j/k/l` 与 `ctrl+super+方向键`，别名 `move_panel`、`swap_split`、`movewindow`、`swapwindow`）将当前聚焦的平铺窗格与指定方向上空间相邻的平铺窗格互换位置，并保持焦点跟随被移动窗格；若当前聚焦的是浮动面板（floating）或置顶面板（pinned），则沿该方向按 4 个字符单元格步长微调其浮动位置（受视口边界钳制）。`toggle_split`（默认 `alt+s`，`mod_key = "super"` 时重绑为 `super+s`，别名 `togglesplit`、`split_toggle`）将当前聚焦平铺窗格最内层父级 `Split` 的分屏轴在水平（`Horizontal`）与垂直（`Vertical`）之间翻转（对齐 Hyprland dwindle `togglesplit`）。
 - 完整的 Lua 自动化函数（如创建面板、切换浮动模式或切换工作区），请参阅 [bitty.panel 与 bitty.workspace API 参考文档](../api/panel-workspace.md)。
