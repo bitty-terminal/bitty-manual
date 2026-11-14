@@ -16,7 +16,9 @@ Global bitty Namespace
 │   ├── bitty.workspace       # 查询与排布工作区
 │   ├── bitty.notify          # 显示系统桌面通知
 │   ├── bitty.store           # 代次隔离的键值持久化存储
-│   ├── bitty.settings        # 读写用户配置项
+│   ├── bitty.settings        # 只读每插件已声明配置项
+│   ├── bitty.config          # 受能力门控的宿主配置、Profile 与 Wheel 管理 (config.manage)
+│   ├── bitty.wheel           # 脱敏 Wheel harness 状态快照与双阶段审批修改 (config.manage)
 │   ├── bitty.timers          # 高精度异步定时器
 │   ├── bitty.tasks           # 异步任务执行器
 │   └── bitty.services        # 跨插件服务提供总线（仅对等提供）

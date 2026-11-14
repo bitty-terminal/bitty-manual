@@ -17,6 +17,8 @@ Global bitty Namespace
 │   ├── bitty.notify          # Display system notifications
 │   ├── bitty.store           # Generation-isolated key-value storage
 │   ├── bitty.settings        # Read-only, per-plugin declared settings
+│   ├── bitty.config          # Capability-gated host config, profile & wheel management (config.manage)
+│   ├── bitty.wheel           # Redacted Wheel harness inspection & two-step mutations (config.manage)
 │   ├── bitty.timers          # High-resolution asynchronous timers
 │   ├── bitty.tasks           # Asynchronous task runner
 │   └── bitty.services        # Cross-plugin service provider bus (peer-provided only)
