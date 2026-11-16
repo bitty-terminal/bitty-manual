@@ -15,7 +15,7 @@ Bitty 面向主流操作系统提供自动化脚本、原生软件包、预编�
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # 锁定版本、预览安装计划或更改安装位置
-curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.26
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.43
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -96,30 +96,21 @@ scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 scoop install bitty
 ```
 
-### 规划中的软件包渠道（v0.0.27 拓展）
+### 其他软件包渠道与状态
 
-以下操作系统与发行版的包生态已列入 `v0.0.27` 里程碑（追踪 Issue：[bitty-terminal/bitty#2507](https://github.com/bitty-terminal/bitty/issues/2507)）：
+以下渠道为特定发行版与平台的补充构建路径（追踪 Issue：[bitty-terminal/bitty#2507](https://github.com/bitty-terminal/bitty/issues/2507)）：
 
 #### openSUSE 与 SUSE Linux Enterprise (OBS / Zypper)
 
-通过 openSUSE Build Service 托管原生 RPM：
-
-```bash
-sudo zypper addrepo https://download.opensuse.org/repositories/home:/xuepoo/openSUSE_Tumbleweed/home:xuepoo.repo
-sudo zypper refresh && sudo zypper install bitty
-```
+存在 best-effort 打包配方，但 openSUSE OBS 仓库**尚未上传**，暂未作为已发布渠道提供。
 
 #### Alpine Linux (apk)
 
-官方 community / testing 仓库的 musl 轻量构建：
-
-```bash
-apk add bitty
-```
+x86_64 `.apk` 产物已发布并通过发布安装冒烟测试。
 
 #### NixOS 与 Nix Flakes
 
-提供官方 Flake 与 Nixpkgs derivation：
+提供官方 Flake 与 Nixpkgs derivation（已通过发布构建与 Cachix 发布）：
 
 ```bash
 nix profile install github:bitty-terminal/bitty
@@ -129,7 +120,7 @@ nix run github:bitty-terminal/bitty
 
 #### Gentoo Linux (Portage)
 
-通过自定义 Overlay 提供 ebuild 构建支持：
+存在 best-effort ebuild 配方，暂未作为已发布渠道提供：
 
 ```bash
 emerge --ask app-misc/bitty
@@ -137,7 +128,7 @@ emerge --ask app-misc/bitty
 
 #### Void Linux (XBPS)
 
-支持 glibc 与 musl 架构的原生 xbps 软件包：
+存在 best-effort xbps 配方，暂未作为已发布渠道提供：
 
 ```bash
 xbps-install -S bitty
@@ -145,22 +136,7 @@ xbps-install -S bitty
 
 #### FreeBSD (Ports 与 pkg)
 
-原生 BSD 端口与预编译二进制包：
-
-```bash
-pkg install bitty
-# 或通过 Ports 树编译：
-cd /usr/ports/x11/bitty && make install clean
-```
-
-#### Flatpak (Flathub)
-
-跨 Linux 发行版的隔离沙盒桌面应用：
-
-```bash
-flatpak install flathub run.bitty.Bitty
-flatpak run run.bitty.Bitty
-```
+x86_64 tarball 作为 best-effort 构建产物提供；暂未声明 Ports 或 `pkg` 官方渠道。
 
 ### Cargo（从 Git 仓库构建）
 

@@ -15,7 +15,7 @@ The scripts resolve the release through a single pointer (`latest.txt` holds the
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # Pin a version, preview the plan, or change the install location
-curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.29
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.43
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -29,7 +29,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 On Windows, the three-step sequence downloads `install.ps1` to `$env:TEMP\bitty-install.ps1` so you can inspect the script locally, allows unsigned script execution for the current PowerShell process only, and then runs the installer (avoiding `irm ... | iex` clipboard filters in content blockers such as uBlock Origin's ClickFix guard).
 
-What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The v0.0.29 release uses hash verification through the per-asset `.sha256` sidecars.
+What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The `v0.0.43` release uses hash verification through the per-asset `.sha256` sidecars.
 
 ### Native Packages
 
@@ -86,7 +86,7 @@ brew install bitty
 
 #### Windows (Scoop)
 
-Published Scoop bucket for x64 and ARM64; the v0.0.29 manifest publishes the
+Published Scoop bucket for x64 and ARM64; the current release manifest publishes the
 artifact and its hash together with the `bitty` shim, so `scoop install bitty`
 provides the `bitty` command. Register the bucket if needed:
 
@@ -96,7 +96,7 @@ scoop bucket add bitty https://github.com/bitty-terminal/scoop-bucket
 
 ### Additional packaging status
 
-The v0.0.29 release evidence supports these status-qualified paths:
+Current release packaging covers these status-qualified paths:
 
 - **Alpine Linux:** the x86_64 `.apk` artifact is published and passed the
   release install smoke test.
@@ -104,35 +104,28 @@ The v0.0.29 release evidence supports these status-qualified paths:
   `nix run github:bitty-terminal/bitty`.
 - **FreeBSD:** the x86_64 tarball is available as a best-effort build artifact;
   no Ports or `pkg` channel is claimed.
-- **Fedora Copr:** the 0.0.29 build published to every configured chroot except
-  `openeuler-24.03-aarch64`, which failed on a mirror timeout; treat that
-  chroot as unpublished for this release.
-- **openSUSE, Gentoo, and Void:** best-effort recipes exist, but they are not
-  published v0.0.29 release channels.
-- **Flatpak / Flathub:** future packaging only; Bitty does not currently have a
-  supported Flatpak channel.
+- **Fedora Copr:** release builds publish to configured chroots (check Copr
+  status if an individual chroot such as `openeuler-24.03-aarch64` fails on an
+  upstream mirror timeout).
+- **openSUSE, Gentoo, and Void:** best-effort recipes exist, but openSUSE OBS
+  is not yet uploaded and these are not published release channels.
 
 For any channel not listed as published above, use the release assets or build
 from source instead of assuming that a package-manager submission is live.
 
 ### AppImage (Linux)
 
-The v0.0.29 x86_64 and aarch64 AppImage assets and their checksum sidecars are
-available from the CDN. The release manifest records these verified SHA-256
-digests:
-
-| Architecture | AppImage                                                                                                                      | SHA-256                                                            |
-| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| x86_64       | [`bitty-x86_64-unknown-linux-gnu.AppImage`](https://cdn.bitty.run/releases/v0.0.29/bitty-x86_64-unknown-linux-gnu.AppImage)   | `89d17cc59c9d5ab21a67738790d1e9b0ca448b6e10e6e662cbe5ac0ce25cd620` |
-| aarch64      | [`bitty-aarch64-unknown-linux-gnu.AppImage`](https://cdn.bitty.run/releases/v0.0.29/bitty-aarch64-unknown-linux-gnu.AppImage) | `7994b8ffcd724a7f6af59d69ef93cee43b4525b8e305f7270aa4f98efe0c20a2` |
+The `v0.0.43` x86_64 and aarch64 AppImage assets and their checksum sidecars are
+available from the CDN under `https://cdn.bitty.run/releases/v0.0.43/` (and
+`https://cdn.bitty.run/releases/latest/`).
 
 Download the matching asset and its `.sha256` sidecar, then make it executable:
 
 ```bash
 # Set this to bitty-aarch64-unknown-linux-gnu.AppImage on ARM64 Linux.
 APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.29/$APPIMAGE"
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.29/$APPIMAGE.sha256"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.43/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.43/$APPIMAGE.sha256"
 sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
 chmod +x "$APPIMAGE"
 ./"$APPIMAGE"

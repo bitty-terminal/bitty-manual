@@ -180,5 +180,5 @@ bitty doctor               # 宿主环境健康检查
 ## 下一步
 
 - [每插件配置文件](../plugins/plugin-settings.md)——选择顺序、格式限制与取值层优先级的参考说明。
-- [Bitty Plugins 插件目录网站](https://plugins.bitty.run)——各个插件（如 [`bar`](https://plugins.bitty.run/plugins/bitty-terminal.bar)、[`composer`](https://plugins.bitty.run/plugins/bitty-terminal.composer) 及第三方插件）的说明页。
+- [Bitty Plugins 插件目录网站](https://github.com/bitty-terminal/bitty-plugins)——各个插件（如 [`bar`](https://github.com/bitty-terminal/bar)、[`composer`](https://github.com/bitty-terminal/composer) 及第三方插件）的说明页。
 - [故障排查与安全模式](../faq/troubleshooting.md)——激活错误与设置警告。

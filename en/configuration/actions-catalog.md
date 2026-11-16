@@ -271,7 +271,7 @@ The following sections describe current behavior separately from the protected 0
 
 ### Current local catalog commands
 
-Core revision `7d98f53a`, used for current v0.0.29 preparation, adds local catalog commands that were absent from 0.0.22:
+Core revision `7d98f53a` adds local catalog commands that were absent from 0.0.22:
 
 ```bash
 bitty list actions --format json
