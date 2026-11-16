@@ -111,7 +111,7 @@ Lua settings run in a fresh, restricted VM without host services, plugin APIs, m
 
 Lua limits are **16 KiB source**, nesting depth **16**, **64 entries per table**, **256 returned values**, **2048 bytes per string**, and **16 KiB aggregate output**, including structural overhead. Invalid encoding, a result other than a string-keyed settings table, cycles, duplicate literal keys, or exceeded evaluation/extraction limits reject the file.
 
-The evaluator can extract nested tables, but plugin settings do not accept nonempty map values. This does not enable per-module option groups in the bar; those remain inert. See the [bar plugin page](https://plugins.bitty.run/plugins/bitty-terminal.bar).
+The evaluator can extract nested tables, but plugin settings do not accept nonempty map values. This does not enable per-module option groups in the bar; those remain inert. See the [bar plugin page](https://github.com/bitty-terminal/bar).
 
 ## Legacy TOML subset (flat keys only)
 
@@ -172,4 +172,4 @@ Your config file carries **values only** — what the plugin should do. **Author
 ## Next steps
 
 - [Plugin Configuration](../configuration/plugin-config.md) — Task-oriented guide to file selection, safe editing, and when changes take effect.
-- [Bitty Plugins Directory](https://plugins.bitty.run) — Individual plugin pages (`bar`, `composer`, and community plugins).
+- [Bitty Plugins Directory](https://github.com/bitty-terminal/bitty-plugins) — Individual plugin pages (`bar`, `composer`, and community plugins).

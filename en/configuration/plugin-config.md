@@ -330,7 +330,7 @@ type, and the plugin's grants, in that order.
 
 - [Per-Plugin Config Files](../plugins/plugin-settings.md) — Selection order,
   format limits, and value-layer precedence in reference form.
-- [Bitty Plugins Directory](https://plugins.bitty.run) — Individual plugin pages
+- [Bitty Plugins Directory](https://github.com/bitty-terminal/bitty-plugins) — Individual plugin pages
   (`bar`, `composer`, and community plugins).
 - [Troubleshooting & Safe Mode](../faq/troubleshooting.md) — Activation errors
   and settings warnings.

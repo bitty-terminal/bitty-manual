@@ -34,21 +34,21 @@ Current evidence: `graphics 0.0.25` and `net 0.0.2` tarballs and `SHA256SUMS` ar
 
 ## Lua plugins
 
-Official and community Lua plugins are listed on the dedicated [Bitty Plugins directory](https://plugins.bitty.run), separate from the core terminal manual:
+Official and community Lua plugins are listed on the dedicated [Bitty Plugins directory](https://github.com/bitty-terminal/bitty-plugins), separate from the core terminal manual:
 
-| Plugin                                       | Manifest version | Registry | Page                                                                          |
-| :------------------------------------------- | :--------------- | :------- | :---------------------------------------------------------------------------- |
-| activity (`bitty-featured.activity`)         | 0.0.1            | official | [activity](https://plugins.bitty.run/plugins/bitty-featured.activity)         |
-| bar (`bitty-terminal.bar`)                   | 0.0.1            | official | [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar)                   |
-| composer (`bitty-terminal.composer`)         | 0.0.1            | official | [composer](https://plugins.bitty.run/plugins/bitty-terminal.composer)         |
-| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1            | official | [copy-mode](https://plugins.bitty.run/plugins/bitty-terminal.copy-mode)       |
-| dashboard (`bitty-terminal.dashboard`)       | 0.3.0            | official | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
-| devtools (`bitty-featured.devtools`)         | 0.2.1            | official | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
-| file-manager (`bitty-terminal.file-manager`) | 0.1.3            | official | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
-| git-panel (`bitty-terminal.git-panel`)       | 0.1.0            | official | [git-panel](https://plugins.bitty.run/plugins/bitty-terminal.git-panel)       |
-| history (`bitty-terminal.history`)           | 0.0.1            | official | [history](https://plugins.bitty.run/plugins/bitty-terminal.history)           |
-| palette (`bitty-terminal.palette`)           | 0.0.1            | official | [palette](https://plugins.bitty.run/plugins/bitty-terminal.palette)           |
-| search (`bitty-terminal.search`)             | 0.0.1            | official | [search](https://plugins.bitty.run/plugins/bitty-terminal.search)             |
-| statusline (`bitty-terminal.statusline`)     | 0.1.0 (last)     | archived | [statusline](https://github.com/bitty-terminal/statusline)                    |
+| Plugin                                       | Manifest version | Registry | Page                                                           |
+| :------------------------------------------- | :--------------- | :------- | :------------------------------------------------------------- |
+| activity (`bitty-featured.activity`)         | 0.0.1            | official | [activity](https://github.com/bitty-terminal/activity)         |
+| bar (`bitty-terminal.bar`)                   | 0.0.1            | official | [bar](https://github.com/bitty-terminal/bar)                   |
+| composer (`bitty-terminal.composer`)         | 0.0.1            | official | [composer](https://github.com/bitty-terminal/composer)         |
+| copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1            | official | [copy-mode](https://github.com/bitty-terminal/copy-mode)       |
+| dashboard (`bitty-terminal.dashboard`)       | 0.3.0            | official | [dashboard](https://github.com/bitty-terminal/dashboard)       |
+| devtools (`bitty-featured.devtools`)         | 0.2.1            | official | [devtools](https://github.com/bitty-terminal/devtools)         |
+| file-manager (`bitty-terminal.file-manager`) | 0.1.3            | official | [file-manager](https://github.com/bitty-terminal/file-manager) |
+| git-panel (`bitty-terminal.git-panel`)       | 0.1.0            | official | [git-panel](https://github.com/bitty-terminal/git-panel)       |
+| history (`bitty-terminal.history`)           | 0.0.1            | official | [history](https://github.com/bitty-terminal/history)           |
+| palette (`bitty-terminal.palette`)           | 0.0.1            | official | [palette](https://github.com/bitty-terminal/palette)           |
+| search (`bitty-terminal.search`)             | 0.0.1            | official | [search](https://github.com/bitty-terminal/search)             |
+| statusline (`bitty-terminal.statusline`)     | 0.1.0 (last)     | archived | [statusline](https://github.com/bitty-terminal/statusline)     |
 
 `beacon` (target-navigation candidate) is excluded: it is a metadata-only scaffold with no manifest or Lua implementation yet. `wheel` is also outside the plugin set: its repository carries a transitional manifest, but the 0.1.0 deliverable is the standalone harness artifact in [bitty-terminal/wheel](https://github.com/bitty-terminal/wheel), not an installable plugin package.
