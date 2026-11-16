@@ -79,12 +79,12 @@ bitty plugin list
 | 官方 id                       | 清单版本 | 声明 `compat.bitty` | 插件主页                                                                      |
 | :---------------------------- | :------- | :------------------ | :---------------------------------------------------------------------------- |
 | `bitty-featured.activity`     | 0.0.1    | `>=0.0.24`          | [activity](https://plugins.bitty.run/plugins/bitty-featured.activity)         |
-| `bitty-featured.devtools`     | 0.1.0    | `>=0.0.21`          | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
+| `bitty-featured.devtools`     | 0.2.1    | `>=0.0.21`          | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
 | `bitty-terminal.bar`          | 0.0.1    | `>=0.0.24`          | [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar)                   |
 | `bitty-terminal.composer`     | 0.0.1    | `>=0.0.21`          | [composer](https://plugins.bitty.run/plugins/bitty-terminal.composer)         |
 | `bitty-terminal.copy-mode`    | 0.0.1    | `>=0.0.24`          | [copy-mode](https://plugins.bitty.run/plugins/bitty-terminal.copy-mode)       |
-| `bitty-terminal.dashboard`    | 0.0.1    | `>=0.0.26`          | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
-| `bitty-terminal.file-manager` | 0.1.0    | `>=0.0.24`          | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
+| `bitty-terminal.dashboard`    | 0.3.0    | `>=0.0.26`          | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
+| `bitty-terminal.file-manager` | 0.1.3    | `>=0.0.24`          | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
 | `bitty-terminal.git-panel`    | 0.1.0    | `>=0.0.24`          | [git-panel](https://plugins.bitty.run/plugins/bitty-terminal.git-panel)       |
 | `bitty-terminal.history`      | 0.0.1    | `>=0.0.24`          | [history](https://plugins.bitty.run/plugins/bitty-terminal.history)           |
 | `bitty-terminal.palette`      | 0.0.1    | `>=0.0.24`          | [palette](https://plugins.bitty.run/plugins/bitty-terminal.palette)           |

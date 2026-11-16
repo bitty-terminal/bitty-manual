@@ -42,9 +42,9 @@ Official and community Lua plugins are listed on the dedicated [Bitty Plugins di
 | bar (`bitty-terminal.bar`)                   | 0.0.1            | official | [bar](https://plugins.bitty.run/plugins/bitty-terminal.bar)                   |
 | composer (`bitty-terminal.composer`)         | 0.0.1            | official | [composer](https://plugins.bitty.run/plugins/bitty-terminal.composer)         |
 | copy-mode (`bitty-terminal.copy-mode`)       | 0.0.1            | official | [copy-mode](https://plugins.bitty.run/plugins/bitty-terminal.copy-mode)       |
-| dashboard (`bitty-terminal.dashboard`)       | 0.0.1            | official | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
-| devtools (`bitty-featured.devtools`)         | 0.1.0            | official | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
-| file-manager (`bitty-terminal.file-manager`) | 0.1.0            | official | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
+| dashboard (`bitty-terminal.dashboard`)       | 0.3.0            | official | [dashboard](https://plugins.bitty.run/plugins/bitty-terminal.dashboard)       |
+| devtools (`bitty-featured.devtools`)         | 0.2.1            | official | [devtools](https://plugins.bitty.run/plugins/bitty-featured.devtools)         |
+| file-manager (`bitty-terminal.file-manager`) | 0.1.3            | official | [file-manager](https://plugins.bitty.run/plugins/bitty-terminal.file-manager) |
 | git-panel (`bitty-terminal.git-panel`)       | 0.1.0            | official | [git-panel](https://plugins.bitty.run/plugins/bitty-terminal.git-panel)       |
 | history (`bitty-terminal.history`)           | 0.0.1            | official | [history](https://plugins.bitty.run/plugins/bitty-terminal.history)           |
 | palette (`bitty-terminal.palette`)           | 0.0.1            | official | [palette](https://plugins.bitty.run/plugins/bitty-terminal.palette)           |
