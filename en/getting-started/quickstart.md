@@ -15,7 +15,7 @@ The scripts resolve the release through a single pointer (`latest.txt` holds the
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # Pin a version, preview the plan, or change the install location
-curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.44
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.45
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -29,7 +29,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 On Windows, the three-step sequence downloads `install.ps1` to `$env:TEMP\bitty-install.ps1` so you can inspect the script locally, allows unsigned script execution for the current PowerShell process only, and then runs the installer (avoiding `irm ... | iex` clipboard filters in content blockers such as uBlock Origin's ClickFix guard).
 
-What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The `v0.0.44` release uses hash verification through the per-asset `.sha256` sidecars.
+What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The `v0.0.45` release uses hash verification through the per-asset `.sha256` sidecars.
 
 ### Native Packages
 
@@ -115,8 +115,8 @@ from source instead of assuming that a package-manager submission is live.
 
 ### AppImage (Linux)
 
-The `v0.0.44` x86_64 and aarch64 AppImage assets and their checksum sidecars are
-available from the CDN under `https://cdn.bitty.run/releases/v0.0.44/` (and
+The `v0.0.45` x86_64 and aarch64 AppImage assets and their checksum sidecars are
+available from the CDN under `https://cdn.bitty.run/releases/v0.0.45/` (and
 `https://cdn.bitty.run/releases/latest/`).
 
 Download the matching asset and its `.sha256` sidecar, then make it executable:
@@ -124,8 +124,8 @@ Download the matching asset and its `.sha256` sidecar, then make it executable:
 ```bash
 # Set this to bitty-aarch64-unknown-linux-gnu.AppImage on ARM64 Linux.
 APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE"
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE.sha256"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.45/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.45/$APPIMAGE.sha256"
 sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
 chmod +x "$APPIMAGE"
 ./"$APPIMAGE"
@@ -165,6 +165,8 @@ On first startup, Bitty probes for your configuration file according to platform
 - **Linux / BSD**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`)
 - **macOS**: `$XDG_CONFIG_HOME/bitty/init.lua` (fallback `~/.config/bitty/init.lua`; there is no `~/Library` config branch)
 - **Windows**: `%APPDATA%\bitty\init.lua` (fallback `%LOCALAPPDATA%\bitty\init.lua`)
+
+Every platform probes the same four roots in a fixed order — `$XDG_CONFIG_HOME` > `%APPDATA%` > `$HOME/.config` > `%LOCALAPPDATA%` — and skips empty or whitespace-only values, so a Windows host that sets both `%APPDATA%` and `$HOME` resolves config under `%APPDATA%`. Data and state roots follow `$XDG_DATA_HOME` > `%LOCALAPPDATA%` > `$HOME/.local/share` > `%APPDATA%`. See [Plugin Configuration](../configuration/plugin-config.md) for the resulting `plugins/` directory.
 
 > [!NOTE]
 > Bitty searches for `init.lua` first; if absent, it also accepts a sibling `config.lua` fallback alias (WezTerm-compatible naming). If no configuration file exists, Bitty starts immediately using compiled-in zero-delay defaults.
