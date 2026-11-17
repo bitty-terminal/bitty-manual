@@ -236,6 +236,96 @@
       "reload_class": "Live",
       "description": "Tiled split-ratio delta per resize keypress (0.01..=0.20, default 0.05)."
     },
+    "floating.width": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Default floating panel width as a fraction of container width ((0.0, 1.0], default 0.8)."
+    },
+    "floating.height": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Default floating panel height as a fraction of container height ((0.0, 1.0], default 0.8)."
+    },
+    "floating.centered": {
+      "type": "boolean",
+      "reload_class": "Live",
+      "description": "Whether new floating panels start centered in the container (default true)."
+    },
+    "floating.x": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Horizontal anchor position ratio in [0.0, 1.0] when floating.centered is false."
+    },
+    "floating.y": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Vertical anchor position ratio in [0.0, 1.0] when floating.centered is false."
+    },
+    "floating.background_opacity": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional backdrop opacity override for floating panels ([0.0, 1.0]); unset inherits window.background_opacity."
+    },
+    "floating.background": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Optional #RRGGBB or #RRGGBBAA backdrop color override for floating panels; unset inherits active theme background."
+    },
+    "scratchpads": {
+      "type": "table",
+      "reload_class": "Live",
+      "description": "Named cross-workspace scratchpad slots (up to 32 slots keyed by 1..=32 char [a-z0-9_-] names)."
+    },
+    "scratchpads.<name>.cmd": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "PTY executable path/name (direct argv[0], no shell) to spawn on first trigger (mutually exclusive with command)."
+    },
+    "scratchpads.<name>.args": {
+      "type": "array",
+      "reload_class": "Live",
+      "description": "Extra string arguments passed to the PTY scratchpad command (<= 32 entries)."
+    },
+    "scratchpads.<name>.cwd": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Absolute working directory for a PTY scratchpad."
+    },
+    "scratchpads.<name>.command": {
+      "type": "string",
+      "reload_class": "Live",
+      "description": "Qualified plugin command (<owner>:<command>) invoked on first trigger for a GUI plugin scratchpad (mutually exclusive with cmd)."
+    },
+    "scratchpads.<name>.width": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional width fraction override in (0.0, 1.0]; inherits floating.width when unset."
+    },
+    "scratchpads.<name>.height": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional height fraction override in (0.0, 1.0]; inherits floating.height when unset."
+    },
+    "scratchpads.<name>.centered": {
+      "type": "boolean",
+      "reload_class": "Live",
+      "description": "Optional centering override; inherits floating.centered when unset."
+    },
+    "scratchpads.<name>.x": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional horizontal anchor ratio override in [0.0, 1.0]; inherits floating.x when unset."
+    },
+    "scratchpads.<name>.y": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional vertical anchor ratio override in [0.0, 1.0]; inherits floating.y when unset."
+    },
+    "scratchpads.<name>.background_opacity": {
+      "type": "float",
+      "reload_class": "Live",
+      "description": "Optional backdrop opacity override in [0.0, 1.0]; inherits floating.background_opacity when unset."
+    },
     "appearance.theme": {
       "type": "string",
       "reload_class": "Live",

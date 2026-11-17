@@ -15,7 +15,7 @@ The scripts resolve the release through a single pointer (`latest.txt` holds the
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # Pin a version, preview the plan, or change the install location
-curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.43
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.44
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -29,7 +29,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 On Windows, the three-step sequence downloads `install.ps1` to `$env:TEMP\bitty-install.ps1` so you can inspect the script locally, allows unsigned script execution for the current PowerShell process only, and then runs the installer (avoiding `irm ... | iex` clipboard filters in content blockers such as uBlock Origin's ClickFix guard).
 
-What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The `v0.0.43` release uses hash verification through the per-asset `.sha256` sidecars.
+What each script fetches: Linux installs the versioned `.tar.zst` bundle (binary plus desktop entry, icons, and AppStream metainfo); macOS installs the bare per-arch binary (the DMG stays an interactive drag-to-install image, unsuitable for headless install); Windows x64 installs the portable ZIP payload and Windows arm64 the bare exe. Running `install.sh` under Git-Bash fails closed and points at `install.ps1`; FreeBSD is not a bootstrap target and gets manual-download guidance. The `v0.0.44` release uses hash verification through the per-asset `.sha256` sidecars.
 
 ### Native Packages
 
@@ -115,8 +115,8 @@ from source instead of assuming that a package-manager submission is live.
 
 ### AppImage (Linux)
 
-The `v0.0.43` x86_64 and aarch64 AppImage assets and their checksum sidecars are
-available from the CDN under `https://cdn.bitty.run/releases/v0.0.43/` (and
+The `v0.0.44` x86_64 and aarch64 AppImage assets and their checksum sidecars are
+available from the CDN under `https://cdn.bitty.run/releases/v0.0.44/` (and
 `https://cdn.bitty.run/releases/latest/`).
 
 Download the matching asset and its `.sha256` sidecar, then make it executable:
@@ -124,8 +124,8 @@ Download the matching asset and its `.sha256` sidecar, then make it executable:
 ```bash
 # Set this to bitty-aarch64-unknown-linux-gnu.AppImage on ARM64 Linux.
 APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.43/$APPIMAGE"
-curl -fsSLO "https://cdn.bitty.run/releases/v0.0.43/$APPIMAGE.sha256"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE.sha256"
 sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
 chmod +x "$APPIMAGE"
 ./"$APPIMAGE"
@@ -173,31 +173,34 @@ On first startup, Bitty probes for your configuration file according to platform
 
 The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to jump, `Shift+Alt` to split, and so on). It is what the binary defaults to and what `bitty init` writes; setting `mod_key = "super"` flips the `Mod` slot to `Super` on every `Mod`-aware chord. Bare `Tab`, arrows, letters, and digits are deliberately unbound so they reach the shell.
 
-| Keys                                                                                          | Action                | Description                                         |
-| :-------------------------------------------------------------------------------------------- | :-------------------- | :-------------------------------------------------- |
-| `Alt+h` / `Alt+j` / `Alt+k` / `Alt+l` (`Alt+arrows`, `Ctrl+Alt+arrows`)                       | Focus                 | Move focus left / down / up / right                 |
-| `Ctrl+Tab` / `Ctrl+Shift+Tab`                                                                 | Cycle focus           | Focus the next / previous panel                     |
-| `Shift+Alt+h/j/k/l` (`Shift+Alt+arrows`)                                                      | Split                 | Create a split left / down / up / right             |
-| `Shift+Ctrl+h/j/k/l` (`Shift+Ctrl+arrows`, `Ctrl+Shift+Alt+h/j/k/l`, `Ctrl+Shift+Alt+arrows`) | Resize                | Resize the focused split                            |
-| `Ctrl+Shift+C` / `Ctrl+Shift+V`                                                               | Copy / Paste          | Copy selection / paste from the system clipboard    |
-| `Alt+n`                                                                                       | New panel             | Open a panel (Spiral clockwise, Balanced fallback)  |
-| `Alt+t`                                                                                       | New workspace         | Open a fresh workspace (lowest free ID)             |
-| `Alt+d` / `Alt+q`                                                                             | Close pane            | Close the focused pane/view (with confirm)          |
-| `Alt+w`                                                                                       | Close workspace       | Close the workspace (kill-confirm)                  |
-| `Alt+-` / `Alt+=`                                                                             | Workspace prev / next | Switch to the previous / next workspace             |
-| `Alt+Tab`                                                                                     | Last-used workspace   | Switch to the previously used workspace             |
-| `Alt+[` / `Alt+]`                                                                             | Occupied workspace    | Next / previous occupied workspace (with wrap)      |
-| `Alt+1` … `Alt+9`                                                                             | Jump to workspace     | Focus workspace N                                   |
-| `Shift+Alt+1` … `Shift+Alt+9`                                                                 | Move window           | Move the focused window to workspace N              |
-| `Ctrl+Shift+Alt+1` … `Ctrl+Shift+Alt+9`                                                       | Swap workspace        | Swap with, or move to, workspace N                  |
-| `Alt+z` / `Alt+m` / `Alt+f`                                                                   | Zoom                  | Toggle zoom of the focused panel                    |
-| `Alt+a`                                                                                       | Toggle floating       | Toggle the focused panel between tiled and floating |
-| `Alt+u` / `Alt+i`                                                                             | Scroll                | Page down (toward live) / page up (into history)    |
-| `Shift+Alt+PageUp` / `Shift+Alt+PageDown`                                                     | Prompt navigation     | Jump to the previous / next shell prompt            |
-| `Alt+o`                                                                                       | Select output         | Select the last command's output                    |
-| `Ctrl+=` / `Ctrl++` / `Ctrl+-`                                                                | Font zoom             | Increase / decrease the live font point size        |
-| `Ctrl+0`                                                                                      | Reset font size       | Reset the font size to the configured default       |
-| ``Alt+` `` (`Alt+?`)                                                                          | Help                  | Toggle the shortcut help overlay                    |
+| Keys                                                                                          | Action                | Description                                           |
+| :-------------------------------------------------------------------------------------------- | :-------------------- | :---------------------------------------------------- |
+| `Alt+h` / `Alt+j` / `Alt+k` / `Alt+l` (`Alt+arrows`, `Ctrl+Alt+arrows`)                       | Focus                 | Move focus left / down / up / right                   |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab`                                                                 | Cycle focus           | Focus the next / previous panel                       |
+| `Shift+Alt+h/j/k/l` (`Shift+Alt+arrows`)                                                      | Split                 | Create a split left / down / up / right               |
+| `Shift+Ctrl+h/j/k/l` (`Shift+Ctrl+arrows`, `Ctrl+Shift+Alt+h/j/k/l`, `Ctrl+Shift+Alt+arrows`) | Resize                | Resize the focused split                              |
+| `Ctrl+Shift+C` / `Ctrl+Shift+V`                                                               | Copy / Paste          | Copy selection / paste from the system clipboard      |
+| `Alt+n`                                                                                       | New panel             | Open a panel (Spiral clockwise, Balanced fallback)    |
+| `Alt+t`                                                                                       | New workspace         | Open a fresh workspace (lowest free ID)               |
+| `Alt+d` / `Alt+q`                                                                             | Close pane            | Close the focused pane/view (with confirm)            |
+| `Alt+w`                                                                                       | Close workspace       | Close the workspace (kill-confirm)                    |
+| `Alt+-` / `Alt+=`                                                                             | Workspace prev / next | Switch to the previous / next workspace               |
+| `Alt+Tab`                                                                                     | Last-used workspace   | Switch to the previously used workspace               |
+| `Alt+[` / `Alt+]`                                                                             | Occupied workspace    | Next / previous occupied workspace (with wrap)        |
+| `Alt+1` … `Alt+9`                                                                             | Jump to workspace     | Focus workspace N                                     |
+| `Shift+Alt+1` … `Shift+Alt+9`                                                                 | Move window           | Move the focused window to workspace N                |
+| `Ctrl+Shift+Alt+1` … `Ctrl+Shift+Alt+9`                                                       | Swap workspace        | Swap with, or move to, workspace N                    |
+| `Alt+z` / `Alt+m` / `Alt+f`                                                                   | Zoom                  | Toggle zoom of the focused panel                      |
+| `Alt+a`                                                                                       | Toggle floating       | Toggle the focused panel between tiled and floating   |
+| `Alt+s`                                                                                       | Toggle split          | Flip the enclosing split axis (horizontal / vertical) |
+| `Shift+Alt+s`                                                                                 | Toggle scratchpad     | Toggle the default cross-workspace scratchpad overlay |
+| `Ctrl+Alt+s`                                                                                  | Move to scratchpad    | Move focused panel into scratchpad or back to tiling  |
+| `Alt+u` / `Alt+i`                                                                             | Scroll                | Page down (toward live) / page up (into history)      |
+| `Shift+Alt+PageUp` / `Shift+Alt+PageDown`                                                     | Prompt navigation     | Jump to the previous / next shell prompt              |
+| `Alt+o`                                                                                       | Select output         | Select the last command's output                      |
+| `Ctrl+=` / `Ctrl++` / `Ctrl+-`                                                                | Font zoom             | Increase / decrease the live font point size          |
+| `Ctrl+0`                                                                                      | Reset font size       | Reset the font size to the configured default         |
+| ``Alt+` `` (`Alt+?`)                                                                          | Help                  | Toggle the shortcut help overlay                      |
 
 > [!NOTE]
 > `Ctrl+Shift+F` and `Ctrl+Shift+Space` are **not** search chords: they are shell input again. Scrollback search has no Core default chord; a plugin may rebind one (see [Configuration Reference](../configuration/overview.md)). New panels (`Alt+n`), splits (`Shift+Alt+h/j/k/l`), floating/pinned panels, and new workspaces (`Alt+t`) automatically inherit the focused pane's working directory (consulting the pinned PTY-child kernel working directory first and falling back to the `OSC 7` / session-restore chain when available).
