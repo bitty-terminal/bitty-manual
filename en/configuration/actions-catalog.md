@@ -302,6 +302,14 @@ In `0.0.42`, the action surface adds Hyprland-aligned directional panel movement
 - **`move_split:<left|right|up|down>` (`move_panel`, `swap_split`, `movewindow`, `swapwindow`)**: Swaps the focused tiled pane with the spatially adjacent tiled pane in `<dir>` while keeping focus on the moved pane, or nudges a focused floating/pinned panel by 4 cells in `<dir>`. Shipped on Mod-aware `ctrl+alt+h/j/k/l` and `ctrl+alt+left/down/up/right` (rebinds to `ctrl+super+h/j/k/l` and `ctrl+super+left/down/up/right` under `mod_key = "super"`).
 - **`toggle_split` (`togglesplit`, `split_toggle`)**: Flips the innermost enclosing split axis of the focused tiled pane between horizontal and vertical. Shipped on Mod-aware `alt+s` (rebinds to `super+s` under `mod_key = "super"`).
 
+In `0.0.44`, the action surface adds named cross-workspace scratchpad actions and shipped chords (bringing `ChromeAction` to **47 variants** and `DEFAULT_KEYMAPS` to **105 entries**; `alt+s` remains `toggle_split`):
+
+- **`toggle_scratchpad[:<name>]` (`scratchpad_toggle`)**: Toggles the named cross-workspace floating scratchpad overlay (omitting `:<name>` targets `"default"`). Hides a visible scratchpad without killing its PTY/plugin session, shows a hidden one over the active workspace, or auto-spawns `cmd` / launches `command` when an empty slot is configured in `scratchpads`. Shipped on Mod-aware `shift+alt+s` (`alt+shift+s`, rebinding to `shift+super+s` under `mod_key = "super"`).
+- **`move_to_scratchpad[:<name>]` (`scratchpad_move`)**: Parks the focused tiled panel into slot `<name>` (or `"default"`) when empty (requiring > 1 tiled leaf), shows a hidden slot, or returns a visible slot's panel to the tiling (or auto-spawns if nothing is focused and configured). Shipped on Mod-aware `ctrl+alt+s` (rebinding to `ctrl+super+s` under `mod_key = "super"`).
+- **`scratchpad_to_tiled[:<name>]` (`to_tiled_from_scratchpad`)**: Returns the named (or `"default"`) scratchpad panel to the active workspace's tiling beside its recorded anchor. Manual-bind-only (no default chord).
+
+Slot `<name>` must be `1..=32` ASCII bytes using lowercase letters, digits, `-`, or `_`.
+
 ### Current core command catalog
 
 Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command historical catalog plus the two current local catalog commands below. This table is current-only and is not part of the historical snapshot.
@@ -327,4 +335,4 @@ Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command
 
 ### Current default keymap count
 
-The current shipped default keymap still has **97 default chords**, in the same Alt-as-Mod vocabulary and source order as the protected snapshot. The current `list keymaps` command exposes those resolved defaults plus any user configuration; the 0.0.22 table above remains the historical 97-row snapshot and is not a current table.
+At revision `7d98f53a`, the shipped default keymap had **97 default chords**, in the same Alt-as-Mod vocabulary and source order as the protected snapshot. In `0.0.44`, the shipped `DEFAULT_KEYMAPS` table holds **105 entries** (including `toggle_split`, `toggle_scratchpad`, `move_to_scratchpad`, and the tab bindings). The current `list keymaps` command exposes those resolved defaults plus any user configuration; the 0.0.22 table above remains the historical 97-row snapshot and is not a current table.

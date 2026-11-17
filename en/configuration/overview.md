@@ -310,6 +310,55 @@ dropped because it has no preceding cell to attach to.
 | `workspace.show_bar` | `boolean` | **Live**            | Whether the workspace status bar is displayed (reserved Core input consumed by extensions).                                                                                                          |
 | `workspace.bar.edge` | `string`  | **Live**            | Edge placement of the workspace status bar (`"top"` or `"bottom"`, default `"bottom"`, consumed by extensions).                                                                                      |
 
+### Floating Panels & Scratchpads
+
+Default floating panel geometry, backdrop appearance, and named cross-workspace scratchpad slots are configured via the top-level `floating` and `scratchpads` tables. Every field in both tables is **Live**: saving `init.lua` reconciles `floating` immediately and updates `scratchpads` for the next trigger without restarting live scratchpad sessions.
+
+| Field                         | Type      | Reload Class | Description                                                                                                             |
+| :---------------------------- | :-------- | :----------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `floating.width`              | `float`   | **Live**     | Default floating width as a fraction of the container width in `(0.0, 1.0]` (default `0.8`).                            |
+| `floating.height`             | `float`   | **Live**     | Default floating height as a fraction of the container height in `(0.0, 1.0]` (default `0.8`).                          |
+| `floating.centered`           | `boolean` | **Live**     | Whether new floating panels start centered in the container (default `true`).                                           |
+| `floating.x`                  | `float`   | **Live**     | Optional horizontal anchor ratio in `[0.0, 1.0]` used when `floating.centered = false`.                                 |
+| `floating.y`                  | `float`   | **Live**     | Optional vertical anchor ratio in `[0.0, 1.0]` used when `floating.centered = false`.                                   |
+| `floating.background_opacity` | `float`   | **Live**     | Optional backdrop opacity override in `[0.0, 1.0]`; unset inherits `window.background_opacity`.                         |
+| `floating.background`         | `string`  | **Live**     | Optional `#RRGGBB` or `#RRGGBBAA` backdrop color override; unset inherits the active theme background.                  |
+| `scratchpads`                 | `table`   | **Live**     | Named cross-workspace scratchpad definitions (up to `32` slots; names are `1..=32` ASCII characters from `[a-z0-9_-]`). |
+
+When `floating.background`, `floating.background_opacity`, or a scratchpad's `background_opacity` is set, Bitty renders each floating panel on a dedicated per-float layer that paints the rounded backdrop underneath its grid cells while stripping only default-background fills—explicit cell background highlights (syntax highlighting, selections, TUI bars) are preserved.
+
+Each entry inside `scratchpads = { <name> = { ... } }` accepts either a PTY source (`cmd` + optional `args` / `cwd`), a GUI plugin command (`command = "<owner>:<command>"`), or geometry overrides only (for panels moved manually via `move_to_scratchpad[:<name>]`). Declaring both `cmd` and `command` in the same slot fails validation closed. Geometry and opacity leaves inherit `floating.*` when unset.
+
+| Field                                   | Type      | Reload Class | Description                                                                                                                 |
+| :-------------------------------------- | :-------- | :----------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `scratchpads.<name>.cmd`                | `string`  | **Live**     | PTY program (`argv[0]`, no shell) spawned on first trigger (non-blank, `<= 1024` bytes; mutually exclusive with `command`). |
+| `scratchpads.<name>.args`               | `array`   | **Live**     | Extra string arguments passed to `cmd` (`<= 32` entries, each `<= 1024` bytes).                                             |
+| `scratchpads.<name>.cwd`                | `string`  | **Live**     | Working directory for `cmd`; must be a non-blank absolute path (`<= 1024` bytes).                                           |
+| `scratchpads.<name>.command`            | `string`  | **Live**     | Qualified plugin command `"<owner>:<command>"` (`<= 1024` bytes) invoked on first trigger (mutually exclusive with `cmd`).  |
+| `scratchpads.<name>.width`              | `float`   | **Live**     | Width fraction override in `(0.0, 1.0]`; inherits `floating.width` when unset.                                              |
+| `scratchpads.<name>.height`             | `float`   | **Live**     | Height fraction override in `(0.0, 1.0]`; inherits `floating.height` when unset.                                            |
+| `scratchpads.<name>.centered`           | `boolean` | **Live**     | Centering override; inherits `floating.centered` when unset.                                                                |
+| `scratchpads.<name>.x`                  | `float`   | **Live**     | Horizontal anchor ratio override in `[0.0, 1.0]`; inherits `floating.x` when unset.                                         |
+| `scratchpads.<name>.y`                  | `float`   | **Live**     | Vertical anchor ratio override in `[0.0, 1.0]`; inherits `floating.y` when unset.                                           |
+| `scratchpads.<name>.background_opacity` | `float`   | **Live**     | Backdrop opacity override in `[0.0, 1.0]`; inherits `floating.background_opacity` when unset.                               |
+
+```lua
+return {
+  floating = {
+    width = 0.75,
+    height = 0.7,
+    centered = true,
+    background_opacity = 0.9,
+    background = "#1a1b26",
+  },
+  scratchpads = {
+    default = { cmd = "btop", args = { "--utf-force" }, width = 0.85, height = 0.8 },
+    notes = { command = "bitty-terminal.notes:toggle", width = 0.6, background_opacity = 0.95 },
+    manual = { centered = false, x = 0.1, y = 0.1, width = 0.5, height = 0.5 },
+  },
+}
+```
+
 ### Appearance, Themes & Animations
 
 | Field                                         | Type      | Reload Class | Description                                                                                       |

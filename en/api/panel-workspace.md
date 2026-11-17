@@ -21,18 +21,96 @@ Panels host terminal shell views, rich documents, or custom plugin UI surfaces. 
 
 #### `bitty.panel.create(spec)`
 
-Allocates a native zero-PTY panel record. Mounting and focusing remain host-driven.
+Allocates a zero-PTY native panel record, binds the calling `(PluginId, generation)` as its controller owner, and queues materialization of a zero-PTY Dwindle `ViewContent::Panel` leaf in the focused workspace on the next application tick (splitting the target leaf when feasible, creating the single leaf when the layout is empty, or adopting directly into a pending GUI scratchpad slot when invoked from `scratchpads.<name>.command`). Focus moves to the materialized leaf.
 
 ```lua
 local result = bitty.panel.create({ type = "rich" })
 print("Created Panel ID: " .. result.id .. ", Generation: " .. result.generation)
 ```
 
-- **Parameters**: `spec` table with `type` string (`"rich"`, `"browser"`, `"helper"`, or `"canvas"` when available). `"terminal"` is not supported for plugin creation.
+- **Parameters**: `spec` table with `type` string (`"rich"`, `"browser"`, `"helper"`, or `"canvas"` when available). `"terminal"` is rejected with `E_DEF_INVALID`.
 - **Returns**: Table with `id` (`integer`) and `generation` (`integer`).
 
-The returned handle identifies the allocated record. It does not mean that a
-panel has been mounted or focused.
+Attaching declarative UI content to the panel uses `bitty.panel.mount`.
+
+#### `bitty.panel.mount(panel_id, node)`
+
+Mounts a declarative `UiRichNode` scene tree onto a panel owned by the calling plugin generation. Requires the `ui.rich` capability and strict `(PluginId, generation)` ownership (`E_CAPABILITY_DENIED` if another plugin or stale generation owns `panel_id`).
+
+```lua
+local mounted = bitty.panel.mount(panel_id, {
+  kind = "Block",
+  border = { width = 1 },
+  child = { kind = "Text", text = "hello panel" },
+})
+```
+
+- **Parameters**:
+  - `panel_id` (`integer >= 0`): Panel id returned by `bitty.panel.create`.
+  - `node` (`table`): Declarative `UiRichNode` tree (`Text`, `Row`, `Column`, `Block`, `Image`, `CodeBlock`, `Table`, `List`, or `Rule`, plus optional `style`). Band-only fields (`fg`, `bg`, `anchor`, `align`, `on_click`, `on_scroll`, `on_hover`, `region`) are rejected with `E_UI_COMPONENT_INVALID`.
+- **Returns**: `boolean` (`true` when attached).
+
+#### `bitty.panel.update(panel_id, node)`
+
+Replaces the mounted declarative `UiRichNode` scene on an owned panel. Requires `ui.rich` and strict `(PluginId, generation)` ownership.
+
+```lua
+local updated = bitty.panel.update(panel_id, {
+  kind = "Text",
+  text = "updated panel",
+})
+```
+
+- **Parameters**: `panel_id` (`integer >= 0`), `node` (`table` — replacement `UiRichNode` tree).
+- **Returns**: `boolean` (`true` when updated).
+
+#### `bitty.panel.unmount(panel_id)`
+
+Detaches the declarative scene from an owned panel while leaving the panel leaf open. Requires `ui.rich` and strict `(PluginId, generation)` ownership.
+
+```lua
+local unmounted = bitty.panel.unmount(panel_id)
+```
+
+- **Parameters**: `panel_id` (`integer >= 0`).
+- **Returns**: `boolean` — `true` if a scene was attached and detached; `false` if no scene was attached.
+
+#### `bitty.panel.close(panel_id)`
+
+Disposes an owned panel record and queues removal of its Dwindle `View` leaf (or floating/pinned view) on the next application tick. Requires the `panel.focus` capability and strict `(PluginId, generation)` ownership (`E_CAPABILITY_DENIED` otherwise).
+
+```lua
+local closed = bitty.panel.close(panel_id)
+```
+
+- **Parameters**: `panel_id` (`integer`).
+- **Returns**: `boolean` (`true` when closed).
+
+### Panel Input Events (`"panel.input"`)
+
+When the focused leaf is a plugin-owned `ViewContent::Panel`, non-global input events (evaluated after global Bitty keybindings) are delivered exclusively to the owning plugin via `"panel.input"` — other plugins cannot snoop on another plugin's panel input. Lazy plugins must list `"panel.input"` in `[lazy].events` in `bitty-plugin.toml`.
+
+```lua
+bitty.events.subscribe("panel.input", function(ev)
+  local p = ev.payload
+  if p.kind == "key" then
+    -- p.panel_id, p.key ("key:<name>"), p.text, p.ctrl, p.alt, p.shift, p.super
+  elseif p.kind == "ime" then
+    -- p.panel_id, p.text
+  elseif p.kind == "wheel" then
+    -- p.panel_id, p.delta
+  elseif p.kind == "button" then
+    -- observed only (never consumed): p.panel_id, p.button, p.state ("press" | "release")
+  end
+end)
+```
+
+- **Envelope**: `{ kind = "panel.input", sequence = <integer>, payload = <table> }`.
+- **Payload variants**:
+  - `"key"` (consumed; never reaches a PTY): `panel_id` (`integer`), `kind` (`"key"`), `key` (`string`, e.g. `"key:x"`, `"key:Return"`), `text` (`string`), `ctrl` (`boolean`), `alt` (`boolean`), `shift` (`boolean`), `super` (`boolean`). Fires on non-synthetic, non-modifier key presses.
+  - `"ime"` (consumed): `panel_id` (`integer`), `kind` (`"ime"`), `text` (`string`).
+  - `"wheel"` (consumed): `panel_id` (`integer`), `kind` (`"wheel"`), `delta` (`string`).
+  - `"button"` (observed only, **not** consumed — Core retains click-to-focus and selection; carries no hit-test coordinates): `panel_id` (`integer`), `kind` (`"button"`), `button` (`string`), `state` (`"press"` or `"release"`).
 
 ### Exposed but currently unavailable panel methods
 
@@ -40,7 +118,6 @@ The following names are exposed in the `bitty.panel` table and are validated
 against the `panel.focus` capability, but their current host backend fails
 closed with `E_NOT_IMPLEMENTED`:
 
-- `bitty.panel.close(panel_id)`
 - `bitty.panel.destroy(panel_id)`
 - `bitty.panel.get_presentation(panel_id)`
 - `bitty.panel.set_presentation(panel_id, mode)`
@@ -130,13 +207,14 @@ local ok, err = pcall(bitty.panel.get_state, panel_id)
 -- ok == false; err.code == "E_NOT_IMPLEMENTED"
 ```
 
-#### `bitty.panel.close(panel_id)` / `bitty.panel.destroy(panel_id)`
+#### `bitty.panel.destroy(panel_id)`
 
-Exposed lifecycle names; both currently fail closed with `E_NOT_IMPLEMENTED`
-after the `panel.focus` capability check.
+Exposed lifecycle name; currently fails closed with `E_NOT_IMPLEMENTED`
+after the `panel.focus` capability check. Use `bitty.panel.close(panel_id)` to
+close an owned plugin panel.
 
 ```lua
-local ok, err = pcall(bitty.panel.close, panel_id)
+local ok, err = pcall(bitty.panel.destroy, panel_id)
 -- ok == false; err.code == "E_NOT_IMPLEMENTED"
 ```
 
@@ -262,20 +340,43 @@ Keyboard workspace operations are not uniformly positional: `workspace_focus:<n>
 
 ## Practical Example: Zero-PTY Panel
 
-Create a host-owned rich panel and retain its returned handle:
+Create a host-owned rich panel, mount a declarative scene, handle `"panel.input"`, and close it on `Escape`:
 
 ```lua
+local active_panel_id = nil
+
 bitty.commands.register({
-  id = "panel:create-rich",
-  title = "Create Rich Panel",
+  id = "panel:open-rich",
+  title = "Open Rich Panel",
   run = function()
     local created = bitty.panel.create({ type = "rich" })
-    return string.format("Created panel %d (generation %d)", created.id, created.generation)
+    active_panel_id = created.id
+    bitty.panel.mount(active_panel_id, {
+      kind = "Block",
+      border = { width = 1 },
+      child = { kind = "Text", text = "Press Escape to close" },
+    })
+    return active_panel_id
   end,
 })
 
+bitty.events.subscribe("panel.input", function(ev)
+  local p = ev.payload
+  if active_panel_id and p.panel_id == active_panel_id and p.kind == "key" then
+    if p.key == "key:Escape" then
+      bitty.panel.close(active_panel_id)
+      active_panel_id = nil
+    else
+      bitty.panel.update(active_panel_id, {
+        kind = "Text",
+        text = "Last key: " .. tostring(p.key),
+      })
+    end
+  end
+end)
+
 bitty.keymaps.suggest({
   chord = "leader t s",
-  command = "panel:create-rich",
+  command = "panel:open-rich",
 })
 ```

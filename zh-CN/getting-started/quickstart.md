@@ -15,7 +15,7 @@ Bitty 面向主流操作系统提供自动化脚本、原生软件包、预编�
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash
 
 # 锁定版本、预览安装计划或更改安装位置
-curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.43
+curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --version 0.0.44
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --dry-run
 curl -fsSL https://cdn.bitty.run/install/install.sh | bash -s -- --prefix ~/.local
 ```
@@ -138,6 +138,22 @@ xbps-install -S bitty
 
 x86_64 tarball 作为 best-effort 构建产物提供；暂未声明 Ports 或 `pkg` 官方渠道。
 
+### AppImage (Linux)
+
+`v0.0.44` 的 x86_64 与 aarch64 AppImage 产物及其校验附带文件可从 CDN 的 `https://cdn.bitty.run/releases/v0.0.44/`（以及 `https://cdn.bitty.run/releases/latest/`）获取。
+
+下载对应架构的产物及其 `.sha256` 文件并赋予可执行权限：
+
+```bash
+# 在 ARM64 Linux 上请改为 bitty-aarch64-unknown-linux-gnu.AppImage
+APPIMAGE=bitty-x86_64-unknown-linux-gnu.AppImage
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE"
+curl -fsSLO "https://cdn.bitty.run/releases/v0.0.44/$APPIMAGE.sha256"
+sed 's#  dist/#  #' "$APPIMAGE.sha256" | sha256sum -c -
+chmod +x "$APPIMAGE"
+./"$APPIMAGE"
+```
+
 ### Cargo（从 Git 仓库构建）
 
 二进制程序没有 crates.io 安装途径，请从源码构建：
@@ -199,6 +215,9 @@ bitty
 | `Ctrl+Shift+Alt+1` … `Ctrl+Shift+Alt+9`                                                        | 交换工作区            | 与工作区 N 交换或移动到 N                  |
 | `Alt+z` / `Alt+m` / `Alt+f`                                                                    | 缩放                  | 切换聚焦面板的缩放                         |
 | `Alt+a`                                                                                        | 切换浮动              | 切换聚焦面板的平铺 / 浮动状态              |
+| `Alt+s`                                                                                        | 切换分屏轴            | 翻转所在分屏轴（水平 / 垂直）              |
+| `Shift+Alt+s`                                                                                  | 切换便签面板          | 切换默认跨工作区便签悬浮层                 |
+| `Ctrl+Alt+s`                                                                                   | 移入便签面板          | 将聚焦面板移入便签面板或恢复回平铺         |
 | `Alt+u` / `Alt+i`                                                                              | 滚动                  | 向下翻页（趋向实时）/ 向上翻页（进入历史） |
 | `Shift+Alt+PageUp` / `Shift+Alt+PageDown`                                                      | Prompt 导航           | 跳转到上一个 / 下一个 Shell 提示符         |
 | `Alt+o`                                                                                        | 选择输出              | 选择上一条命令的输出                       |

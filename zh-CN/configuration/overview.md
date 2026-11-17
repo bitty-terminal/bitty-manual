@@ -130,6 +130,55 @@ Core 原生拥有的视图装饰以逻辑像素为单位进行度量：
 | `workspace.show_bar` | `boolean` | **Live**            | 是否显示工作区状态栏（Core 预留输入，由扩展消费；Bitty Core 不绘制原生状态栏）。 |
 | `workspace.bar.edge` | `string`  | **Live**            | 工作区状态栏边缘位置（`"top"` 或 `"bottom"`，默认 `"bottom"`，由扩展消费）。     |
 
+### 浮动面板与便签 (Floating & Scratchpads)
+
+默认浮动面板几何尺寸、背景外观以及跨工作区命名便签槽位通过顶层 `floating` 与 `scratchpads` 表进行配置。两张表的所有字段均为 **Live** 重载级别：保存 `init.lua` 后 `floating` 立即调和生效，`scratchpads` 在下次触发对应槽位时读取新定义，无需重启已有便签会话。
+
+| 配置字段                      | 类型      | 重载级别 | 描述                                                                                  |
+| :---------------------------- | :-------- | :------- | :------------------------------------------------------------------------------------ |
+| `floating.width`              | `float`   | **Live** | 默认浮动面板宽度占容器宽度的比例，取值 `(0.0, 1.0]`（默认 `0.8`）。                   |
+| `floating.height`             | `float`   | **Live** | 默认浮动面板高度占容器高度的比例，取值 `(0.0, 1.0]`（默认 `0.8`）。                   |
+| `floating.centered`           | `boolean` | **Live** | 新建浮动面板是否在容器中居中显示（默认 `true`）。                                     |
+| `floating.x`                  | `float`   | **Live** | 当 `floating.centered = false` 时的水平锚点比例，取值 `[0.0, 1.0]`。                  |
+| `floating.y`                  | `float`   | **Live** | 当 `floating.centered = false` 时的垂直锚点比例，取值 `[0.0, 1.0]`。                  |
+| `floating.background_opacity` | `float`   | **Live** | 浮动面板背景不透明度覆盖（`[0.0, 1.0]`）；未设置时继承 `window.background_opacity`。  |
+| `floating.background`         | `string`  | **Live** | 浮动面板背景色覆盖（`#RRGGBB` 或 `#RRGGBBAA`）；未设置时继承当前活动主题背景。        |
+| `scratchpads`                 | `table`   | **Live** | 跨工作区命名便签槽位定义表（最多 `32` 个槽位；名称为 `1..=32` 字节的 `[a-z0-9_-]`）。 |
+
+当配置了 `floating.background`、`floating.background_opacity` 或便签槽位的 `background_opacity` 时，Bitty 会为每个浮动面板在独立绘制层上先绘制圆角背景，再叠加单元格内容并仅剔除默认背景色填充，从而完整保留语法高亮、选区与 TUI 状态栏等非默认单元格背景高亮。
+
+`scratchpads = { <name> = { ... } }` 中的每个条目可声明 PTY 源（`cmd` 加可选 `args` / `cwd`）、GUI 插件命令（`command = "<owner>:<command>"`），或仅声明几何覆盖（供 `move_to_scratchpad[:<name>]` 手动移入面板）。同一槽位同时声明 `cmd` 与 `command` 会在校验阶段直接失败关闭（fail-closed）。未设置的几何与不透明度字段自动继承 `floating.*` 默认值。
+
+| 配置字段                                | 类型      | 重载级别 | 描述                                                                                               |
+| :-------------------------------------- | :-------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `scratchpads.<name>.cmd`                | `string`  | **Live** | 首次触发时直接启动的 PTY 程序（`argv[0]`，不经 Shell；非空且 `<= 1024` 字节；与 `command` 互斥）。 |
+| `scratchpads.<name>.args`               | `array`   | **Live** | 传递给 `cmd` 的额外字符串参数列表（最多 `32` 项，每项 `<= 1024` 字节）。                           |
+| `scratchpads.<name>.cwd`                | `string`  | **Live** | `cmd` 的工作目录；必须为非空绝对路径（`<= 1024` 字节）。                                           |
+| `scratchpads.<name>.command`            | `string`  | **Live** | 首次触发时调用的 GUI 插件命令 `"<owner>:<command>"`（`<= 1024` 字节；与 `cmd` 互斥）。             |
+| `scratchpads.<name>.width`              | `float`   | **Live** | 宽度比例覆盖，取值 `(0.0, 1.0]`；未设置时继承 `floating.width`。                                   |
+| `scratchpads.<name>.height`             | `float`   | **Live** | 高度比例覆盖，取值 `(0.0, 1.0]`；未设置时继承 `floating.height`。                                  |
+| `scratchpads.<name>.centered`           | `boolean` | **Live** | 居中覆盖；未设置时继承 `floating.centered`。                                                       |
+| `scratchpads.<name>.x`                  | `float`   | **Live** | 水平锚点比例覆盖，取值 `[0.0, 1.0]`；未设置时继承 `floating.x`。                                   |
+| `scratchpads.<name>.y`                  | `float`   | **Live** | 垂直锚点比例覆盖，取值 `[0.0, 1.0]`；未设置时继承 `floating.y`。                                   |
+| `scratchpads.<name>.background_opacity` | `float`   | **Live** | 背景不透明度覆盖，取值 `[0.0, 1.0]`；未设置时继承 `floating.background_opacity`。                  |
+
+```lua
+return {
+  floating = {
+    width = 0.75,
+    height = 0.7,
+    centered = true,
+    background_opacity = 0.9,
+    background = "#1a1b26",
+  },
+  scratchpads = {
+    default = { cmd = "btop", args = { "--utf-force" }, width = 0.85, height = 0.8 },
+    notes = { command = "bitty-terminal.notes:toggle", width = 0.6, background_opacity = 0.95 },
+    manual = { centered = false, x = 0.1, y = 0.1, width = 0.5, height = 0.5 },
+  },
+}
+```
+
 ### 外观、主题与动效 (Appearance, Themes & Animations)
 
 | 配置字段                               | 类型      | 重载级别 | 描述                                                                   |
