@@ -275,7 +275,7 @@ return {
 `0.0.44` 扩展了跨工作区命名便签动作与默认快捷键（`ChromeAction` 共 47 个变体，`DEFAULT_KEYMAPS` 共 105 项；`alt+s` 保持绑定为 `toggle_split`）：
 
 - **`toggle_scratchpad[:<name>]`（别名 `scratchpad_toggle`）**：切换指定命名跨工作区便签悬浮层（省略 `:<name>` 时作用于 `"default"` 槽位）。若已显示则隐藏并保留其 PTY/插件会话；若已隐藏则在当前活动工作区上显示；若为空且已在 `scratchpads` 中配置了 `cmd` 或 `command`，首次触发会自动启动 PTY 或调用 GUI 插件命令。默认绑定为支持 Mod 重映射的 `shift+alt+s`（`alt+shift+s`，`mod_key = "super"` 时重绑为 `shift+super+s`）。
-- **`move_to_scratchpad[:<name>]`（别名 `scratchpad_move`）**：当目标槽位为空时，将当前聚焦的平铺面板移入槽位 `<name>`（或 `"default"`，需至少存在 2 个平铺窗格）；若槽位隐藏则显示；若槽位已显示则将其面板放回平铺布局（无聚焦面板且槽位已配置时则自动启动）。默认绑定为支持 Mod 重映射的 `ctrl+alt+s`（`mod_key = "super"` 时重绑为 `ctrl+super+s`）。
+- **`move_to_scratchpad[:<name>]`（别名 `scratchpad_move`）**：当目标槽位为空时，将当前聚焦的平铺面板移入槽位 `<name>`（或 `"default"`，要求存在聚焦的平铺窗格且至少有 2 个平铺窗格）；若槽位隐藏则显示；若槽位已显示则将其面板放回平铺布局。默认绑定为支持 Mod 重映射的 `ctrl+alt+s`（`mod_key = "super"` 时重绑为 `ctrl+super+s`）。
 - **`scratchpad_to_tiled[:<name>]`（别名 `to_tiled_from_scratchpad`）**：将指定命名（或 `"default"`）便签槽位中的面板按其记录锚点放回当前活动工作区的平铺布局。仅限手动绑定（无默认和弦）。
 
 槽位名称 `<name>` 必须为 `1..=32` 字节的 ASCII 小写字母、数字、`-` 或 `_`。

@@ -29,10 +29,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 在 Windows 上，上述三步命令先将 `install.ps1` 下载至 `$env:TEMP\bitty-install.ps1` 以便本地审阅，仅对当前 PowerShell 进程临时放行脚本执行策略，再运行安装脚本（同时避免 `irm ... | iex` 管道写法触发 uBlock Origin 等扩展的 ClickFix 剪贴板拦截规则）。
 
-各脚本获取内容：Linux 安装版本化 `.tar.zst` 软件包（二进制文件外加桌面入口、图标与 AppStream 元信息）；macOS 安装裸架构二进制文件（DMG 仅为交互式拖拽安装镜像，不适合无人值守安装）；Windows x64 安装便携 ZIP 负载，Windows arm64 安装裸 exe。在 Git-Bash 下运行 `install.sh` 会失败并指引使用 `install.ps1`；FreeBSD 不是一键安装目标，请手动下载。0.1.0 的校验仅为哈希：暂无签名（Windows 签名推迟至 0.2.0 之后）。
-
-> [!NOTE]
-> **PENDING —— 在线 CDN 验证。**发布流程会在每次打 tag 时将两个脚本上传至稳定的 R2 键，但尚未完成任何一次真实 tag 上传与 CDN 回读验证。若上述 URL 无法访问，说明所有者侧发布仍未完成：请改用包管理器或从源码构建。
+各脚本获取内容：Linux 安装版本化 `.tar.zst` 软件包（二进制文件外加桌面入口、图标与 AppStream 元信息）；macOS 安装裸架构二进制文件（DMG 仅为交互式拖拽安装镜像，不适合无人值守安装）；Windows x64 安装便携 ZIP 负载，Windows arm64 安装裸 exe。在 Git-Bash 下运行 `install.sh` 会失败并指引使用 `install.ps1`；FreeBSD 不是一键安装目标，请手动下载。`v0.0.44` 发布版本通过各产物附带的 `.sha256` 文件进行哈希校验。
 
 ### 原生软件包
 
