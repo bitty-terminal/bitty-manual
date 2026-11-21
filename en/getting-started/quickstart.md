@@ -194,6 +194,7 @@ The shipped map is the **Alt-as-Mod** map (`Alt+h/j/k/l` to move, `Alt+1..9` to 
 | `Ctrl+Shift+Alt+1` … `Ctrl+Shift+Alt+9`                                                       | Swap workspace        | Swap with, or move to, workspace N                    |
 | `Alt+z` / `Alt+m` / `Alt+f`                                                                   | Zoom                  | Toggle zoom of the focused panel                      |
 | `Alt+a`                                                                                       | Toggle floating       | Toggle the focused panel between tiled and floating   |
+| `Ctrl+Alt+a`                                                                                  | Toggle panel mode     | Toggle the focused panel's presented layer mode       |
 | `Alt+s`                                                                                       | Toggle split          | Flip the enclosing split axis (horizontal / vertical) |
 | `Shift+Alt+s`                                                                                 | Toggle scratchpad     | Toggle the default cross-workspace scratchpad overlay |
 | `Ctrl+Alt+s`                                                                                  | Move to scratchpad    | Move focused panel into scratchpad or back to tiling  |
