@@ -310,6 +310,10 @@ In `0.0.44`, the action surface adds named cross-workspace scratchpad actions an
 
 Slot `<name>` must be `1..=32` ASCII bytes using lowercase letters, digits, `-`, or `_`.
 
+At bitty main `944a4b1f`, the action surface adds the presented-panel mode toggle:
+
+- **`toggle_panel_mode` (`panel_mode_toggle`)**: Toggles the focused presented panel's content-layer presentation mode between tiled and floating through the same single mode gate the `bitty ctl panel mode` verb runs (`bitty#3302`). With no content layer presented the action is a typed no-op with a warning — it never falls through into `toggle_floating`'s detach, which is a different action on the `alt+a` chord. Shipped on Mod-aware `ctrl+alt+a` (rebinding to `ctrl+super+a` under `mod_key = "super"`). See [Presented content layers](workspaces-panels.md#presented-content-layers) for the mode matrix and the restore promise.
+
 ### Current core command catalog
 
 Core revision `7d98f53a` has 16 static `CORE_COMMANDS`: the protected 14-command historical catalog plus the two current local catalog commands below. This table is current-only and is not part of the historical snapshot.

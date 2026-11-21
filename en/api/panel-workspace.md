@@ -126,7 +126,12 @@ closed with `E_NOT_IMPLEMENTED`:
 
 The built-in Core `toggle_floating` action is separate. It operates on the
 focused panel through the normal keymap/action path and is not an implementation
-of the plugin method `bitty.panel.toggle_floating`.
+of the plugin method `bitty.panel.toggle_floating`. The Core-owned
+presentation-mode surface — the `ctrl+alt+a` `toggle_panel_mode` gesture and the
+`bitty ctl panel mode` verb — routes through the same runtime gate but
+implements none of these plugin methods: `get_presentation`,
+`set_presentation`, `toggle_floating`, and `get_state` keep failing closed with
+`E_NOT_IMPLEMENTED`.
 
 #### `bitty.panel.get_presentation(panel_id)`
 
